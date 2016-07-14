@@ -1,13 +1,12 @@
 <_>
-   <form_key>0Zs6kzl4tsPwtrAM</form_key>
+   <form_key>cCsNpcntmujWgumr</form_key>
    <name>ePay</name>
    <channel>community</channel>
    <version_ids>
       <version_ids>2</version_ids>
    </version_ids>
-   <summary>V. 2.6.3
-- Fixed bulk capture
-- ePay transaction is transfered to child order when you edit an order</summary>
+   <summary>V. 2.6.4
+- Fixed wrong link to ePay admin site</summary>
    <description>This is the payment module for the Scandinavian payment gateway ePay - http://www.epay.dk
 
 ePay is the leading payment system in Scandinavia, which offers payment solutions to both small and large companies. We have focus on flexible, effective and user friendly payment solutions for extreme competitive prices. 
@@ -40,8 +39,8 @@ This program is free software for merchants. You are allowed to use the software
 Copyright ePay | Payment solutions - www.epay.dk (c) 2010.</description>
    <license>ePay limited license</license>
    <license_uri/>
-   <version>2.6.3</version>
-   <stability>beta</stability>
+   <version>2.6.4</version>
+   <stability>stable</stability>
    <notes>- Fixed bulk capture
 - ePay transaction is transfered to child order when you edit an order</notes>
    <authors>
@@ -75,7 +74,7 @@ Copyright ePay | Payment solutions - www.epay.dk (c) 2010.</description>
             <max/>
          </max>
          <files>
-            <files>                                                                              </files>
+            <files>                                                                                </files>
          </files>
       </package>
       <extension>
