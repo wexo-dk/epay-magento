@@ -126,7 +126,7 @@ class Mage_Epay_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Adminhtml
     		
     		$res .= "</table><br>";
     		
-    		$res .= "<a href='https://ssl.ditonlinebetalingssystem.dk/admin' target='_blank'>" . Mage::helper('epay')->__('EPAY_LABEL_29') . "</a>";
+    		$res .= "<a href='https://admin.ditonlinebetalingssystem.dk/admin' target='_blank'>" . Mage::helper('epay')->__('EPAY_LABEL_29') . "</a>";
     		$res .= "<br><br>";
     		
     	}
