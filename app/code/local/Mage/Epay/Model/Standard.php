@@ -790,4 +790,9 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
     	$order->addStatusToHistory($order->getStatus(), $comment);
 		$order->save();
     }
+
+    public function getStore()
+    {
+        return Mage::app()->getStore();
+    }
 }

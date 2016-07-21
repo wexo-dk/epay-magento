@@ -9,7 +9,7 @@
 // Load the epay standard object
 //
 $standard = Mage::getModel('epay/standard');
-$merchantnumber = $standard->getConfigData('merchantnumber', $order ? $order->getStoreId() : null);
+$merchantnumber = $standard->getConfigData('merchantnumber', $standard->getStore()->getId());
 
 ?>
 <fieldset class="form-list">
