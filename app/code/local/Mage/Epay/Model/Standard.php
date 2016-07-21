@@ -350,7 +350,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
     {
 		$md5stamp = md5(
 					"UTF-8" .
-					"magento-2.6.4" .
+					"magento-2.6.5" .
 					$this->getConfigData('windowstate', $order ? $order->getStoreId() : null) .
 					$this->getConfigData('merchantnumber', $order ? $order->getStoreId() : null) .
 					$this->getConfigData('windowid', $order ? $order->getStoreId() : null) .
