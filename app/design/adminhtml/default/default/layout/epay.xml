@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
  
 <layout>
-    <epay_adminhtml_paymentrequest_index>
+    <adminhtml_paymentrequest_index>
         <reference name="content">
             <block type="epay/adminhtml_paymentrequest" name="paymentrequest" />
         </reference>
-    </epay_adminhtml_paymentrequest_index>
-    <epay_adminhtml_paymentrequest_view>
+    </adminhtml_paymentrequest_index>
+    <adminhtml_paymentrequest_view>
         <reference name="content">
             <block type="epay/adminhtml_paymentrequest_view" name="paymentrequest_view" />
         </reference>
-    </epay_adminhtml_paymentrequest_view>
+    </adminhtml_paymentrequest_view>
 </layout>
