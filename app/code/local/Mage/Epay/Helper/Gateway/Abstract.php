@@ -1,16 +1,16 @@
 <?php
 /**
  * Copyright ePay | Dit Online Betalingssystem, (c) 2010.
- * This program is free software. You are allowed to use the software but NOT allowed to modify the software. 
- * It is also not legal to do any changes to the software and distribute it in your own name / brand. 
+ * This program is free software. You are allowed to use the software but NOT allowed to modify the software.
+ * It is also not legal to do any changes to the software and distribute it in your own name / brand.
  */
- 
+
 abstract class Mage_Epay_Helper_Gateway_Abstract extends Mage_Core_Helper_Abstract
 {
     protected $order;
 
 	protected $lines = array();
-	
+
     public function init($order)
     {
         $this->order = $order;
@@ -21,7 +21,8 @@ abstract class Mage_Epay_Helper_Gateway_Abstract extends Mage_Core_Helper_Abstra
         if ($items === null) {
             $items = $this->order->getAllVisibleItems();
         }
-		
+        $lines = array();
+
         foreach ($items as $item) {
             //For handling the different activation
             $qty = $item->getQtyOrdered(); //Standard
@@ -38,11 +39,11 @@ abstract class Mage_Epay_Helper_Gateway_Abstract extends Mage_Core_Helper_Abstra
 
             $lines[] = array
 			(
-				"quantity" => $qty,
+				"quantity" => intval($qty),
 				"id" => $item->getSku(),
 				"description" => $item->getName(),
-				"price" => $item->getBasePrice()*100,
-				"vat" => $taxRate,
+				"price" => $item->getBasePrice() * 100,
+				"vat" => isset($taxRate) ? $taxRate : 0,
 				"discount" => 0
 			);
         }
@@ -56,7 +57,7 @@ abstract class Mage_Epay_Helper_Gateway_Abstract extends Mage_Core_Helper_Abstra
 	            $lines[] = $fee;
 	        }
         }
-		
+
 		return $lines;
     }
 }

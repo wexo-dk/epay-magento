@@ -32,7 +32,7 @@ $callbackurl = Mage::getUrl('epay/standard/callback', array('_nosid' => true));
 	{
 		paymentwindow = new PaymentWindow({
 			'encoding': "UTF-8",
-			'cms': "magento-2.6.5",
+			'cms': "<?php echo $standard->getCmsInfo()?>",
 			'windowstate': "<?php echo $standard->getConfigData('windowstate', $order ? $order->getStoreId() : null) ?>",
 			'merchantnumber': "<?php echo $standard->getConfigData('merchantnumber', $order ? $order->getStoreId() : null) ?>",
 			'windowid': "<?php echo $standard->getConfigData('windowid', $order ? $order->getStoreId() : null) ?>",
