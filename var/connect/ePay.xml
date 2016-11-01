@@ -1,12 +1,12 @@
 <_>
-   <form_key>dU3EkKeJUbuxJTCT</form_key>
+   <form_key>yjWv9t4HBEKXrU4v</form_key>
    <name>ePay</name>
    <channel>community</channel>
    <version_ids>
       <version_ids>2</version_ids>
    </version_ids>
-   <summary>V. 2.6.5
-- Fixed null pointer exception in form template</summary>
+   <summary>V. 2.6.6
+- Fix for Hash error when using special characters in invoice data</summary>
    <description>This is the payment module for the Scandinavian payment gateway ePay - http://www.epay.dk
 
 ePay is the leading payment system in Scandinavia, which offers payment solutions to both small and large companies. We have focus on flexible, effective and user friendly payment solutions for extreme competitive prices. 
@@ -39,25 +39,21 @@ This program is free software for merchants. You are allowed to use the software
 Copyright ePay | Payment solutions - www.epay.dk (c) 2010.</description>
    <license>ePay limited license</license>
    <license_uri/>
-   <version>2.6.5</version>
+   <version>2.6.6</version>
    <stability>stable</stability>
-   <notes>- Fixed bulk capture
-- ePay transaction is transfered to child order when you edit an order</notes>
+   <notes>- Fix for Hash error when using special characters in invoice data</notes>
    <authors>
       <name>
-         <name>Thomas Knudsen</name>
-         <name>Michael Korsgaard</name>
+         <name>Bambora</name>
       </name>
       <user>
-         <user>epay_tk</user>
-         <user>epay_mk</user>
+         <user>bambora</user>
       </user>
       <email>
-         <email>thomas@epay.dk</email>
-         <email>michael@epay.dk</email>
+         <email>shoppingcarts@bambora.com</email>
       </email>
    </authors>
-   <depends_php_min>4.0.0</depends_php_min>
+   <depends_php_min>5.6.0</depends_php_min>
    <depends_php_max>100.0.0</depends_php_max>
    <depends>
       <package>
@@ -74,7 +70,7 @@ Copyright ePay | Payment solutions - www.epay.dk (c) 2010.</description>
             <max/>
          </max>
          <files>
-            <files>                                                                                 </files>
+            <files>                                                                                      </files>
          </files>
       </package>
       <extension>
