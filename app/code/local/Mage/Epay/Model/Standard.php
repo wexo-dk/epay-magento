@@ -233,35 +233,24 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
     	return Mage::getUrl('epay/standard/redirect');
     }
 
-    /**
-     * Removes the newline (/n) Magento adds when using both Address 1 and Address 2
-     *
-     * @param string $string
-     * @return string
-     */
-    public function removeNewLine($string)
-    {
-        return preg_replace("/\r\n|\r|\n/",' ', $string);
-    }
-
-	public function getOrderInJson($order)
+ 	public function getOrderInJson($order)
 	{
 		if($this->getConfigData('enableinvoicedata', $order ? $order->getStoreId() : null))
 		{
 			$invoice["customer"]["emailaddress"] = $order->getCustomerEmail();
-		    $invoice["customer"]["firstname"] = $order->getBillingAddress()->getFirstname();
-			$invoice["customer"]["lastname"] = $order->getBillingAddress()->getLastname();
-		    $invoice["customer"]["address"] = $this->removeNewLine($order->getBillingAddress()->getStreetFull());
-		    $invoice["customer"]["zip"] = $order->getBillingAddress()->getPostcode();
-		    $invoice["customer"]["city"] = $order->getBillingAddress()->getCity();
-		    $invoice["customer"]["country"] = $order->getBillingAddress()->getCountryId();
+		    $invoice["customer"]["firstname"] = $this->removeSpecialCharacters($order->getBillingAddress()->getFirstname());
+			$invoice["customer"]["lastname"] = $this->removeSpecialCharacters($order->getBillingAddress()->getLastname());
+		    $invoice["customer"]["address"] = $this->removeSpecialCharacters($order->getBillingAddress()->getStreetFull());
+		    $invoice["customer"]["zip"] = $this->removeSpecialCharacters($order->getBillingAddress()->getPostcode());
+		    $invoice["customer"]["city"] = $this->removeSpecialCharacters($order->getBillingAddress()->getCity());
+		    $invoice["customer"]["country"] = $this->removeSpecialCharacters($order->getBillingAddress()->getCountryId());
 
-		    $invoice["shippingaddress"]["firstname"] = $order->getShippingAddress()->getFirstname();
-			$invoice["shippingaddress"]["lastname"] = $order->getShippingAddress()->getLastname();
-		    $invoice["shippingaddress"]["address"] = $this->removeNewLine($order->getShippingAddress()->getStreetFull());
-		    $invoice["shippingaddress"]["zip"] = $order->getShippingAddress()->getPostcode();
-		    $invoice["shippingaddress"]["city"] = $order->getShippingAddress()->getCity();
-		    $invoice["shippingaddress"]["country"] = $order->getShippingAddress()->getCountryId();
+		    $invoice["shippingaddress"]["firstname"] = $this->removeSpecialCharacters($order->getShippingAddress()->getFirstname());
+			$invoice["shippingaddress"]["lastname"] = $this->removeSpecialCharacters($order->getShippingAddress()->getLastname());
+		    $invoice["shippingaddress"]["address"] = $this->removeSpecialCharacters($order->getShippingAddress()->getStreetFull());
+		    $invoice["shippingaddress"]["zip"] = $this->removeSpecialCharacters($order->getShippingAddress()->getPostcode());
+		    $invoice["shippingaddress"]["city"] = $this->removeSpecialCharacters($order->getShippingAddress()->getCity());
+		    $invoice["shippingaddress"]["country"] = $this->removeSpecialCharacters($order->getShippingAddress()->getCountryId());
 
 		    $invoice["lines"] = array();
 
@@ -272,66 +261,62 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 
 			foreach ($items as $item)
 	        {
+                $item["description"] = $this->removeSpecialCharacters($item["description"]);
                 $invoice["lines"][] = $item;
 	        }
 
-			return json_encode($invoice, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+			return json_encode($invoice, JSON_UNESCAPED_UNICODE);
 		}
 		else
 		{
 			return "";
 		}
 	}
+    /**
+     * Removes all special charactors from a string and replace them with a spacing
+     *
+     * @param string $value
+     * @return string
+     */
+    private function removeSpecialCharacters($value)
+    {
 
-	public function calcCardtype($cardid)
+        return preg_replace('/[^\p{Latin}\d]/u', ' ', $value);
+    }
+
+	/**
+     * Convert card id to name
+     *
+     * @param int $cardid
+     * @return string
+     */
+    public function calcCardtype($cardid)
 	{
-		switch($cardid)
-		{
-			case 1:
-				return 'Dankort / VISA/Dankort';
-			case 2:
-				return 'eDankort';
-			case 3:
-				return 'VISA / VISA Electron';
-			case 4:
-				return 'MasterCard';
-			case 6:
-				return 'JCB';
-			case 7:
-				return 'Maestro';
-			case 8:
-				return 'Diners Club';
-			case 9:
-				return 'American Express';
-			case 10:
-				return 'ewire';
-			case 12:
-				return 'Nordea e-betaling';
-			case 13:
-				return 'Danske Netbetalinger';
-			case 14:
-				return 'PayPal';
-			case 16:
-				return 'MobilPenge';
-			case 17:
-				return 'Klarna';
-			case 18:
-				return 'Svea';
-			case 19:
-				return 'SEB Direktbetalning';
-			case 20:
-				return 'Nordea E-payment';
-			case 21:
-				return 'Handelsbanken Direktbetalningar';
-			case 22:
-				return 'Swedbank Direktbetalningar';
-			case 23:
-				return 'ViaBill';
-			case 24:
-				return 'NemPay';
-			case 25:
-				return 'iDeal';
-		}
+        $cardIdArray = array(
+            '1' => 'Dankort / VISA/Dankort',
+            '2' => 'eDankort',
+            '3' => 'VISA / VISA Electron',
+            '4' => 'MasterCard',
+            '6' => 'JCB',
+            '7' => 'Maestro',
+            '8' => 'Diners Club',
+            '9' => 'American Express',
+            '10' => 'ewire',
+            '12' => 'Nordea e-betaling',
+            '13' => 'Danske Netbetalinger',
+            '14' => 'PayPal',
+            '16' => 'MobilPenge',
+            '17' => 'Klarna',
+            '18' => 'Svea',
+            '19' => 'SEB Direktbetalning',
+            '20' => 'Nordea E-payment',
+            '21' => 'Handelsbanken Direktbetalningar',
+            '22' => 'Swedbank Direktbetalningar',
+            '23' => 'ViaBill',
+            '24' => 'NemPay',
+            '25' => 'iDeal');
+
+        return key_exists($cardid, $cardIdArray) ? $cardIdArray[$cardid] : '';
 	}
 
     /**
@@ -380,36 +365,27 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 		return $md5stamp;
     }
 
-    //
-    // Hmm - magento has no support for greenland
-    // and iceland
-    //
-    function calcLanguage($lan)
+    /**
+     * Convert country code to a number
+     *
+     * @param mixed $lan
+     * @return string
+     */
+    public function calcLanguage($lan)
 	{
-		$res = "";
-		switch($lan)
-		{
-			case "da_DK":
-				return "1";
-			case "de_CH":
-				return "7";
-			case "de_DE":
-				return "7";
-			case "en_AU":
-				return "2";
-			case "en_GB":
-				return "2";
-			case "en_NZ":
-				return "2";
-			case "en_US":
-				return "2";
-			case "sv_SE":
-				return "3";
-			case "nn_NO":
-				return "4";
-		}
+        $languageArray = array(
+            'da_DK' => '1',
+            'de_CH' => '7',
+            'de_DE' => '7',
+            'en_AU' => '2',
+            'en_GB' => '2',
+            'en_NZ' => '2',
+            'en_US' => '2',
+            'sv_SE' => '3',
+            'nn_NO' => '4',
+            );
 
-		return "0";
+        return key_exists($lan, $languageArray) ? $languageArray[$lan] : '0';
 	}
 
     function getEpayErrorText($errorcode)
