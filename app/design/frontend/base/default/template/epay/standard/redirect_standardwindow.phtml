@@ -1,111 +1,87 @@
 <?php
 /**
- * Copyright ePay | Dit Online Betalingssystem, (c) 2010.
+ * Copyright ePay | Dit Online Betalingssystem, (c) 2016.
  * 
  * This program is free software. You are allowed to use the software but NOT allowed to modify the software. 
  * It is also not legal to do any changes to the software and distribute it in your own name / brand. 
  */
-//
-// Load the epay standard object
-//
-$standard = Mage::getModel('epay/standard');
-
-//
-// Fetch order invoice info
-//
-$order = Mage::getModel('sales/order');
-$order->loadByIncrementId($standard->getCheckout()->getLastRealOrderId());
-$convertor = Mage::getModel('sales/convert_order');
-
-$accepturl = Mage::getUrl('epay/standard/success', array('_nosid' => true));
-$cancelurl = Mage::getUrl('epay/standard/cancel', array('_nosid' => true));
-$callbackurl = Mage::getUrl('epay/standard/callback', array('_nosid' => true));
-
-//
-// Go on and load the payment form containing the values
-//
 ?>
-<script type="text/javascript">
-	var isPaymentWindowReady = false;
+<div>
+  <script type="text/javascript">
+    var isPaymentWindowReady = false;
 
-	function PaymentWindowReady()
-	{
-		paymentwindow = new PaymentWindow({
-			'encoding': "UTF-8",
-			'cms': "<?php echo $standard->getCmsInfo()?>",
-			'windowstate': "<?php echo $standard->getConfigData('windowstate', $order ? $order->getStoreId() : null) ?>",
-			'merchantnumber': "<?php echo $standard->getConfigData('merchantnumber', $order ? $order->getStoreId() : null) ?>",
-			'windowid': "<?php echo $standard->getConfigData('windowid', $order ? $order->getStoreId() : null) ?>",
-			'amount': "<?php echo ((float)$order->getBaseTotalDue()) * 100 ?>",
-			'currency': "<?php echo $order->getBaseCurrency()->getCode() ?>",
-			'orderid': "<?php echo $standard->getCheckout()->getLastRealOrderId() ?>",
-			'accepturl': "<?php echo $accepturl ?>",
-			'cancelurl': "<?php echo $cancelurl ?>",
-			'callbackurl': "<?php echo $callbackurl ?>",
-			'mailreceipt': "<?php echo $standard->getConfigData('authmail', $order ? $order->getStoreId() : null) ?>",
-			'smsreceipt': "<?php echo $standard->getConfigData('authsms', $order ? $order->getStoreId() : null) ?>",
-			'instantcapture': "<?php echo $standard->getConfigData('instantcapture', $order ? $order->getStoreId() : null) ?>",
-			'group': "<?php echo $standard->getConfigData('group', $order ? $order->getStoreId() : null) ?>",
-			'language': "<?php echo $standard->calcLanguage(Mage::app()->getLocale()->getLocaleCode()) ?>",
-			'ownreceipt': "<?php echo $standard->getConfigData('ownreceipt', $order ? $order->getStoreId() : null) ?>",
-			'timeout': "60",
-			<?php if($standard->getConfigData('enableinvoicedata', $order ? $order->getStoreId() : null) == '1') { ?>
-			'invoice': '<?php echo $standard->getOrderInJson($order); ?>',
-			<?php } ?>
-			'splitpayment': "<?php echo intval($standard->getConfigData('splitpayment', $order ? $order->getStoreId() : null)) ?>",
-			'hash': "<?php echo $standard->calcMd5Key($order, $accepturl, $cancelurl, $callbackurl); ?>"
-		});
-		
-		isPaymentWindowReady = true;
-	}
-</script>
-<script type="text/javascript" src="https://ssl.ditonlinebetalingssystem.dk/integration/ewindow/paymentwindow.js" charset="UTF-8"></script>
-<script type="text/javascript">
-var timerOpenWindow;
+    function PaymentWindowReady()
+    {
+    paymentwindow = new PaymentWindow({
+    <?php echo $this->getPaymentRequestString();?>
+    });
 
-function openPaymentWindow()
-{
-	if(isPaymentWindowReady)
-	{
-		clearInterval(timerOpenWindow);
-		paymentwindow.open();
-	}
-}
+    isPaymentWindowReady = true;
+    }
+  </script>
+  <script type="text/javascript" src="https://ssl.ditonlinebetalingssystem.dk/integration/ewindow/paymentwindow.js" charset="UTF-8"></script>
+  <script type="text/javascript">
+    var timerOpenWindow;
 
-document.onreadystatechange = function () {
-	if (document.readyState === 'complete') {
-		timerOpenWindow = setInterval('openPaymentWindow()', 500);
-	}
-}
-</script>
-<h1><?php echo $this->__('EPAY_LABEL_5') ?></h1>
-<?php echo $this->__('EPAY_LABEL_32') ?>
-<br /><br />
-<table border="0">
-	<tr>
-		<td>
-			<label for="Orderid"><?php echo $this->__('EPAY_LABEL_7') ?> :</label>
-		</td>
-		<td>
-		<label for="Orderid"><?php echo $standard->getCheckout()->getLastRealOrderId() ?></label>
-	</td>
-	</tr>
-	<tr>
-		<td>
-			<label for="Amount"><?php echo $this->__('EPAY_LABEL_8') ?> :</label>
-		</td>
-		<td>
-		<label for="CurrencyAmount"><?php echo $order->getBaseCurrency()->getCode() ?>&nbsp;<?php echo number_format($order->getBaseTotalDue(), 2, ',', ' ') ?></label>
-	</td>
-	</tr>
-	<tr>
-		<td colspan="2">
-			<br>
-			<input type="button" value="<?php echo $this->__('EPAY_LABEL_35') ?>" onclick="javascript: paymentwindow.open();"> <br><br>
-			<br />
-			<?php echo $this->__('EPAY_LABEL_33') ?> <br><br>
-			<br />
-			<input name="paymentCancel" id="paymentCancel" value="<?php echo $this->__('EPAY_LABEL_100') ?>" type="button" class="form-button-alt" onclick="javascript:location='<?php echo $cancelurl; ?>'" />	
-		</td>
-	</tr>
-</table>
+    function openPaymentWindow()
+    {
+      if(isPaymentWindowReady)
+      {
+        clearInterval(timerOpenWindow);
+        paymentwindow.open();
+      }
+    }
+
+    document.onreadystatechange = function () {
+      if (document.readyState === 'complete') {
+        timerOpenWindow = setInterval('openPaymentWindow()', 500);
+      }
+    }
+  </script>
+  <h1>
+    <?php echo $this->__('EPAY_LABEL_5') ?>
+  </h1>
+  <?php echo $this->__('EPAY_LABEL_32') ?>
+  <br />
+  <br />
+  <table border="0">
+    <tr>
+      <td>
+        <label for="Orderid">
+          <?php echo $this->__('EPAY_LABEL_7') ?> :
+        </label>
+      </td>
+      <td>
+        <label for="Orderid">
+          <?php echo $this->getOrderId() ?>
+        </label>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label for="Amount">
+          <?php echo $this->__('EPAY_LABEL_8') ?> :
+        </label>
+      </td>
+      <td>
+        <label for="CurrencyAmount">
+          <?php echo $this->getCurrencyCode() ?>&nbsp;<?php echo $this->getFormattedAmount() ?>
+        </label>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <br/>
+        <?php echo $this->getLoadAction()?>
+        <br/>
+        <br/>
+        <br/>
+        <?php echo $this->__('EPAY_LABEL_33') ?>
+        <br/>
+        <br/>
+        <br/>
+        <?php echo $this->getCancelAction()?>
+      </td>
+    </tr>
+  </table>
+</div>

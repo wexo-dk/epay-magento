@@ -265,7 +265,8 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
                 $invoice["lines"][] = $item;
 	        }
 
-			return json_encode($invoice, JSON_UNESCAPED_UNICODE);
+			return json_encode($invoice,JSON_UNESCAPED_UNICODE);
+
 		}
 		else
 		{
@@ -322,7 +323,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
     /**
      * Returns information about magento and module version
      *
-     * @returns string
+     * @return string
      */
     public function getCmsInfo()
     {
@@ -333,37 +334,11 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
         return $result;
     }
 
-
-    //
-    // Calculate inbound MD5 key to ePay
-	//
-    public function calcMd5Key($order, $acceptUrl, $declineUrl, $callbackUrl)
-    {
-		$md5stamp = md5(
-					"UTF-8" .
-					$this->getCmsInfo().
-					$this->getConfigData('windowstate', $order ? $order->getStoreId() : null) .
-					$this->getConfigData('merchantnumber', $order ? $order->getStoreId() : null) .
-					$this->getConfigData('windowid', $order ? $order->getStoreId() : null) .
-					(((float)$order->getBaseTotalDue()) * 100) .
-					$order->getBaseCurrency()->getCode() .
-					$this->getCheckout()->getLastRealOrderId() .
-					$acceptUrl .
-					$declineUrl .
-					$callbackUrl .
-					$this->getConfigData('authmail', $order ? $order->getStoreId() : null) .
-					$this->getConfigData('instantcapture', $order ? $order->getStoreId() : null) .
-					$this->getConfigData('group', $order ? $order->getStoreId() : null) .
-					$this->calcLanguage(Mage::app()->getLocale()->getLocaleCode()) .
-					$this->getConfigData('ownreceipt', $order ? $order->getStoreId() : null) .
-					"60" .
-					$this->getOrderInJson($order) .
-					intval($this->getConfigData('splitpayment', $order ? $order->getStoreId() : null)) .
-					$this->getConfigData('md5key', $order ? $order->getStoreId() : null)
-					);
-
-		return $md5stamp;
-    }
+     public function generateMD5Key($paymentRequest, $md5Key)
+     {
+         $valueString = implode($paymentRequest).$md5Key;
+         return md5($valueString);
+     }
 
     /**
      * Convert country code to a number
@@ -776,5 +751,20 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
     public function getStore()
     {
         return Mage::app()->getStore();
+    }
+
+    public function getAcceptUrl()
+    {
+        return Mage::getUrl('epay/standard/success', array('_nosid' => true));
+    }
+
+    public function getCancelUrl()
+    {
+        return Mage::getUrl('epay/standard/cancel', array('_nosid' => true));
+    }
+
+    public function getCallbackUrl()
+    {
+        return Mage::getUrl('epay/standard/callback', array('_nosid' => true));
     }
 }

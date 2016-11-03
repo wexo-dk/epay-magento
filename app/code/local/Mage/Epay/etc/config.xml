@@ -190,6 +190,8 @@
         <remoteinterface>0</remoteinterface>
         <enableinvoicedata>0</enableinvoicedata>
         <splitpayment>0</splitpayment>
+        <order_status>pending</order_status>
+        <order_status_after_payment>processing</order_status_after_payment>
       </epay_standard>
       <ccsave>
         <active>0</active>
