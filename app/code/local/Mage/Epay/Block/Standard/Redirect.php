@@ -141,7 +141,7 @@ class Mage_Epay_Block_Standard_Redirect extends Mage_Core_Block_Template
                             'mailreceipt' => $this->getConfigData('authmail'),
                             'smsreceipt' => $this->getConfigData('authsms'),
                             'instantcapture' => $this->getConfigData('instantcapture'),
-                            'group' => $this->getConfigData('group'),
+                            'group' => $this->getConfigData('epaygroup'),
                             'language' => $this->getLanguage(),
                             'ownreceipt' => $this->getConfigData('ownreceipt'),
                             'timeout' => "60"

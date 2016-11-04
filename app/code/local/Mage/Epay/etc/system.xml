@@ -140,7 +140,7 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </instantinvoicemail>
-                        <group translate="label">
+                        <epaygroup translate="label">
                             <label><![CDATA[<b>Group:</b>]]></label>
                             <comment><![CDATA[This setting is used to assign the payment to a specific group within the payment system.]]></comment>
                             <frontend_type>text</frontend_type>

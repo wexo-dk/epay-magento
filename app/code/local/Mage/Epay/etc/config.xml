@@ -90,6 +90,11 @@
         <class>Mage_Epay_Helper</class>
       </epay>
     </helpers>
+    <payment>
+      <groups>
+        <epay>Epay Payment Methods</epay>
+      </groups>
+    </payment>
   </global>
   <frontend>
     <secure_url>
@@ -164,7 +169,6 @@
           <epay_adminform translate="title" module="epay">
             <title>ePay Payment Request</title>
             <sort_order>99</sort_order>
-            <!--<action>epay/adminhtml_paymentrequest</action>-->
             <action>adminhtml/paymentrequest</action>
           </epay_adminform>
         </children>
@@ -178,6 +182,7 @@
       <epay_standard>
         <model>epay/standard</model>
         <title>Credit card using ePay | Payment solutions</title>
+        <group>epay</group>
         <active>1</active>
         <sort_order>1</sort_order>
         <merchantnumber>ENTER YOUR MERCHANTNUMBER HERE</merchantnumber>
