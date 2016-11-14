@@ -7,7 +7,7 @@ class Mage_Epay_Block_Adminhtml_Sales_Order_View extends Mage_Adminhtml_Block_Sa
 
     	if (!$row || $row['status'] == '0')
         {
-    		$this->_addButton('button_sendpaymentrequest', array('label' => Mage::helper('epay')->__('Create payment request'), 'onclick' => 'setLocation(\'' . Mage::helper("adminhtml")->getUrl('adminhtml/paymentrequest/create/', array('id' => $this->getOrder()->getRealOrderId())) . '\')', 'class' => 'scalable go'), 0, 100, 'header', 'header');
+    		$this->_addButton('button_sendpaymentrequest', array('label' => Mage::helper('epay')->__("Create payment request"), 'onclick' => 'setLocation(\'' . Mage::helper("adminhtml")->getUrl('adminhtml/paymentrequest/create/', array('id' => $this->getOrder()->getRealOrderId())) . '\')', 'class' => 'scalable go'), 0, 100, 'header', 'header');
 		}
 
 		parent::__construct();

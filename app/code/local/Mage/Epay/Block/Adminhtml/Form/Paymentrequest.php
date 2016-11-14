@@ -15,7 +15,7 @@ class Mage_Epay_Block_Adminhtml_Form_Paymentrequest extends Mage_Adminhtml_Block
 		$this->_removeButton('delete'); 
 				
         $this->_addButton('saveandcontinue', array(
-            'label'     => Mage::helper('adminhtml')->__('Send payment request'),
+            'label'     => Mage::helper('adminhtml')->__("Send payment request"),
             'onclick'   => 'paymentrequest_form.submit();',
             'class'     => 'save',
         ), -100);
@@ -23,6 +23,6 @@ class Mage_Epay_Block_Adminhtml_Form_Paymentrequest extends Mage_Adminhtml_Block
  
     public function getHeaderText()
     {
-        return Mage::helper('epay')->__('Payment request');
+        return Mage::helper('epay')->__("Payment request");
     }
 }

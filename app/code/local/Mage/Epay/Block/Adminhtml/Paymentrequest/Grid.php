@@ -29,14 +29,14 @@ class Mage_Epay_Block_Adminhtml_Paymentrequest_Grid extends Mage_Adminhtml_Block
     protected function _prepareColumns()
     {
         $this->addColumn('paymentrequestid', array(
-            'header'    => Mage::helper('epay')->__('ID'),
+            'header'    => Mage::helper('epay')->__("ID"),
             'align'     => 'right',
             'width'     => '150px',
             'index'     => 'paymentrequestid',
         ));
 		
 		$this->addColumn('created', array(
-            'header'    => Mage::helper('epay')->__('Date'),
+            'header'    => Mage::helper('epay')->__("Date"),
             'align'     => 'right',
             'width'     => '150px',
             'index'     => 'created',
@@ -44,29 +44,28 @@ class Mage_Epay_Block_Adminhtml_Paymentrequest_Grid extends Mage_Adminhtml_Block
         ));
  
         $this->addColumn('orderid', array(
-            'header'    => Mage::helper('epay')->__('Order #'),
+            'header'    => Mage::helper('epay')->__("Order #"),
             'align'     => 'left',
             'index'     => 'orderid',
         ));
  
         $this->addColumn('amount', array(
-            'header'    => Mage::helper('epay')->__('Amount'),
+            'header'    => Mage::helper('epay')->__("Amount"),
             'align'     => 'left',
             'index'     => 'amount',
-			//'type'		=> 'price',	
 			'renderer'	=> new Mage_Epay_Block_Adminhtml_Paymentrequest_Renderer_Amount//divide by 100
         ));
  
         $this->addColumn('receiver', array(
-            'header'    => Mage::helper('epay')->__('Receiver'),
+            'header'    => Mage::helper('epay')->__("Receiver"),
             'align'     => 'left',
             'index'     => 'receiver',
         ));
 		
-		$yesNoOptions = array('0' => Mage::helper('epay')->__('No'), '1' => Mage::helper('epay')->__('Yes'));
+		$yesNoOptions = array('0' => Mage::helper('epay')->__("No"), '1' => Mage::helper('epay')->__("Yes"));
 		
 		$this->addColumn('ispaid', array(
-            'header'    => Mage::helper('epay')->__('Is Paid'),
+            'header'    => Mage::helper('epay')->__("Is Paid"),
             'align'     => 'left',
             'index'     => 'ispaid',
 			'type'      => 'options',

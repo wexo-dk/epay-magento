@@ -15,10 +15,10 @@ class Mage_Epay_Block_Adminhtml_Form_Paymentrequest_Tab_Recipient extends Mage_A
 		$formData = $this->getRequest()->getPost();
 		$formData = $formData ? new Varien_Object($formData) : new Varien_Object();
 
-		$fieldset = $form->addFieldset('paymentrequest_requester', array('legend' => Mage::helper('epay')->__('E-mail')));
+		$fieldset = $form->addFieldset('paymentrequest_requester', array('legend' => Mage::helper('epay')->__("E-mail")));
 
 		$fieldset->addField('email_requester', 'text', array(
-			'label'     => Mage::helper('epay')->__('Requester'),
+			'label'     => Mage::helper('epay')->__("Requester"),
 			'class'     => 'required-entry',
 			'required'  => true,
 			'name'      => 'requester',
@@ -26,17 +26,17 @@ class Mage_Epay_Block_Adminhtml_Form_Paymentrequest_Tab_Recipient extends Mage_A
         ));
 
 		$fieldset->addField('email_comment', 'textarea', array(
-			'label'     => Mage::helper('epay')->__('Comment'),
+			'label'     => Mage::helper('epay')->__("Comment"),
 			//'class'     => 'required-entry',
 			'required'  => false,
 			'name'      => 'comment',
 			'value'		=> $formData->getComment()
         ));
 
-        $fieldset = $form->addFieldset('paymentrequest_recipient', array('legend' => Mage::helper('epay')->__('Recipient')));
+        $fieldset = $form->addFieldset('paymentrequest_recipient', array('legend' => Mage::helper('epay')->__("Recipient")));
 
 		$fieldset->addField('recipient_name', 'text', array(
-			'label'     => Mage::helper('epay')->__('Name'),
+			'label'     => Mage::helper('epay')->__("Name"),
 			'class'     => 'required-entry',
 			'required'  => true,
 			'name'      => 'recipient_name',
@@ -44,17 +44,17 @@ class Mage_Epay_Block_Adminhtml_Form_Paymentrequest_Tab_Recipient extends Mage_A
         ));
 
         $fieldset->addField('recipient_email', 'text', array(
-			'label'     => Mage::helper('epay')->__('E-mail'),
+			'label'     => Mage::helper('epay')->__("E-mail"),
 			'class'     => 'required-entry',
 			'required'  => true,
 			'name'      => 'recipient_email',
 			'value'		=> $formData->getRecipientEmail() != null ? $formData->getRecipientEmail() : $order->getCustomerEmail()
         ));
 
-		$fieldset = $form->addFieldset('paymentrequest_replyto', array('legend' => Mage::helper('epay')->__('Reply to')));
+		$fieldset = $form->addFieldset('paymentrequest_replyto', array('legend' => Mage::helper('epay')->__("Reply to")));
 
 		$fieldset->addField('replyto_name', 'text', array(
-			'label'     => Mage::helper('epay')->__('Name'),
+			'label'     => Mage::helper('epay')->__("Name"),
 			'class'     => 'required-entry',
 			'required'  => true,
 			'name'      => 'replyto_name',
@@ -62,7 +62,7 @@ class Mage_Epay_Block_Adminhtml_Form_Paymentrequest_Tab_Recipient extends Mage_A
         ));
 
 		$fieldset->addField('replyto_email', 'text', array(
-			'label'     => Mage::helper('epay')->__('E-mail'),
+			'label'     => Mage::helper('epay')->__("E-mail"),
 			'class'     => 'required-entry',
 			'required'  => true,
 			'name'      => 'replyto_email',

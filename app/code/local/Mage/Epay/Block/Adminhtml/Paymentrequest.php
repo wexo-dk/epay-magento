@@ -14,7 +14,7 @@ class Mage_Epay_Block_Adminhtml_Paymentrequest extends Mage_Adminhtml_Block_Widg
 		$this->removeButton('add');
 		$this->_controller = 'adminhtml_paymentrequest';
 		$this->_blockGroup = 'epay';
-		$this->_headerText = Mage::helper('epay')->__('Payment requests');
+		$this->_headerText = Mage::helper('epay')->__("Payment requests");
 	}
 	
 	protected function _prepareLayout()

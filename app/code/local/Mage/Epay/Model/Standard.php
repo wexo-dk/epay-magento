@@ -79,7 +79,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 		{
 			if(!in_array($currencyCode, $this->_allowCurrencyCode))
 			{
-				Mage::throwException(Mage::helper('epay')->__('Selected currency code (' . $currencyCode . ') is not compatabile with ePay'));
+				Mage::throwException(Mage::helper('epay')->__("Selected currency code (" . $currencyCode . ") is not compatabile with ePay"));
 			}
 		}
         return $this;
@@ -298,7 +298,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
     {
         if (intval($this->getConfigData('remoteinterface', $payment->getOrder() ? $payment->getOrder()->getStoreId() : null)) != 1)
         {
-            Mage::throwException(Mage::helper('epay')->__('The payment action could not, be processed online. Please enable remote payment processing from the module configuration'));
+            Mage::throwException(Mage::helper('epay')->__("The payment action could not, be processed online. Please enable remote payment processing from the module configuration"));
         }
     }
 
@@ -353,7 +353,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 					{
                         if($result->epayresponse == -1019)
                         {
-                            throw new Exception(Mage::helper('epay')->__('Invalid password used for webservice access!'));
+                            throw new Exception(Mage::helper('epay')->__("Invalid password used for webservice access!"));
                         }
 
 					    throw new Exception('('.$result->epayresponse . ')' . $this->getEpayErrorText($result->epayresponse));
@@ -364,18 +364,18 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 					}
                     else
                     {
-                        throw new Exception(Mage::helper('epay')->__('Unknown error!'));
+                        throw new Exception(Mage::helper('epay')->__("Unknown error!"));
                     }
 				}
 			}
 			else
 			{
-				throw new Exception(Mage::helper('epay')->__('Order not found - please check the'). "epay_order_status table!");
+				throw new Exception(Mage::helper('epay')->__("Order not found - please check the"). "epay_order_status table!");
 			}
 		}
 		catch (Exception $e)
 		{
-            $errorMessage = Mage::helper('epay')->__('The payment could not be captured by ePay:').' '. $e->getMessage();
+            $errorMessage = Mage::helper('epay')->__("The payment could not be captured by ePay:").' '. $e->getMessage();
             Mage::throwException($errorMessage);
 		}
 
@@ -432,7 +432,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 					{
                         if($result->epayresponse == -1019)
                         {
-                            throw new Exception(Mage::helper('epay')->__('Invalid password used for webservice access!'));
+                            throw new Exception(Mage::helper('epay')->__("Invalid password used for webservice access!"));
                         }
 
 					    throw new Exception('('.$result->epayresponse . ')' . $this->getEpayErrorText($result->epayresponse));
@@ -443,18 +443,18 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 					}
                     else
                     {
-                        throw new Exception(Mage::helper('epay')->__('Unknown error!'));
+                        throw new Exception(Mage::helper('epay')->__("Unknown error!"));
                     }
 				}
             }
             else
 			{
-				throw new Exception(Mage::helper('epay')->__('Order not found - please check the'). "epay_order_status table!");
+				throw new Exception(Mage::helper('epay')->__("Order not found - please check the"). "epay_order_status table!");
 			}
 		}
 		catch (Exception $e)
 		{
-            $errorMessage = Mage::helper('epay')->__('The payment could not be refunded by ePay:').' '. $e->getMessage();
+            $errorMessage = Mage::helper('epay')->__("The payment could not be refunded by ePay:").' '. $e->getMessage();
             Mage::throwException($errorMessage);
 		}
 
@@ -559,25 +559,25 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 					{
                         if($result->epayresponse == -1019)
                         {
-                            throw new Exception(Mage::helper('epay')->__('Invalid password used for webservice access!'));
+                            throw new Exception(Mage::helper('epay')->__("Invalid password used for webservice access!"));
                         }
 
 					    throw new Exception('('.$result->epayresponse . ')' . $this->getEpayErrorText($result->epayresponse));
 					}
 					else
                     {
-                        throw new Exception(Mage::helper('epay')->__('Unknown error!'));
+                        throw new Exception(Mage::helper('epay')->__("Unknown error!"));
                     }
 				}
             }
             else
 			{
-				throw new Exception(Mage::helper('epay')->__('Order not found - please check the'). "epay_order_status table!");
+				throw new Exception(Mage::helper('epay')->__("Order not found - please check the"). "epay_order_status table!");
 			}
 		}
 		catch (Exception $e)
 		{
-            $errorMessage = Mage::helper('epay')->__('The payment could not be deleted by ePay:').' '. $e->getMessage();
+            $errorMessage = Mage::helper('epay')->__("The payment could not be deleted by ePay:").' '. $e->getMessage();
             Mage::throwException($errorMessage);
 		}
 

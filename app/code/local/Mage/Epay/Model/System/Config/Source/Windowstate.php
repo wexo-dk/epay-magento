@@ -11,8 +11,8 @@ class Mage_Epay_Model_System_Config_Source_Windowstate
     public function toOptionArray()
     {
         return array(
-            array('value'=>1, 'label'=>Mage::helper('adminhtml')->__('Overlay')),
-            array('value'=>3, 'label'=>Mage::helper('adminhtml')->__('Full Screen')),
+            array('value'=>1, 'label'=>Mage::helper('adminhtml')->__("Overlay")),
+            array('value'=>3, 'label'=>Mage::helper('adminhtml')->__("Full Screen")),
         );
     }
 

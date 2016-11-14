@@ -10,7 +10,7 @@ class Mage_Epay_Block_Sales_Order_Print extends Mage_Sales_Block_Order_Print
     protected function _prepareLayout()
     {
         if ($headBlock = $this->getLayout()->getBlock('head')) {
-            $headBlock->setTitle($this->__('Print Order # %s', $this->getOrder()->getRealOrderId()));
+            $headBlock->setTitle($this->__("Print Order # %s", $this->getOrder()->getRealOrderId()));
         }
         $this->setChild(
             'payment_info',
@@ -35,25 +35,25 @@ class Mage_Epay_Block_Sales_Order_Print extends Mage_Sales_Block_Order_Print
 	    		// Payment has been made to this order
 	    		$res .= "<table border='0' width='100%'>";
 	    		if ($row['tid'] != '0') {
-	    			$res .= "<tr><td>" . Mage::helper('epay')->__('Transaction ID:') . "</td>";
+	    			$res .= "<tr><td>" . Mage::helper('epay')->__("Transaction ID:") . "</td>";
 	    			$res .= "<td>" . $row['tid'] . "</td></tr>";
 	    		}
 	    		if ($row['cardid'] != '0') {
-	    			$res .= "<tr><td>" . Mage::helper('epay')->__('Card type:') . "</td>";
+	    			$res .= "<tr><td>" . Mage::helper('epay')->__("Card type:") . "</td>";
 	    			$res .= "<td>" . $this->printLogo($row['cardid']) . "</td></tr>";
 	    		}
 	    		if (strlen($row['cardnopostfix']) != 0) {
-	    			$res .= "<tr><td>" . Mage::helper('epay')->__('Card number:') . "</td>";
+	    			$res .= "<tr><td>" . Mage::helper('epay')->__("Card number:") . "</td>";
 	    			$res .= "<td>XXXX XXXX XXXX " . $row['cardnopostfix'] . "</td></tr>";
 	    		}
 	    		if ($row['transfee'] != '0') {
-	    			$res .= "<tr><td>" . Mage::helper('epay')->__('Transaction fee:') . "</td>";
+	    			$res .= "<tr><td>" . Mage::helper('epay')->__("Transaction fee:") . "</td>";
 	    			$res .= "<td>" . $this->getOrder()->getBaseCurrencyCode() . "&nbsp;" . number_format(((int)$row['transfee']) / 100, 2, ',', ' ') . "</td></tr>";
 	    		}
 	    		$res .= "</table><br>";
 	    		
 	    	} else {
-	    		$res .= "<br>" . Mage::helper('epay')->__('There is not registered any payment for this order yet!') . "<br>";
+	    		$res .= "<br>" . Mage::helper('epay')->__("There is not registered any payment for this order yet!") . "<br>";
 	    	}
     	
     	return $res;

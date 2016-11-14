@@ -42,7 +42,7 @@ class Mage_Epay_Adminhtml_MassactionController extends Mage_Adminhtml_Controller
                 if(intval($method->getConfigData('captureinvoicemail', $order->getStoreId())) == 1)
                 {
                     $invoice->sendEmail();
-                    $order->addStatusHistoryComment(sprintf(Mage::helper('epay')->__('Notified customer about invoice #%s', $invoice->getId())))
+                    $order->addStatusHistoryComment(sprintf(Mage::helper('epay')->__("Notified customer about invoice #%s", $invoice->getId())))
                         ->setIsCustomerNotified(true);
                     $order->save();
                 }
@@ -53,7 +53,7 @@ class Mage_Epay_Adminhtml_MassactionController extends Mage_Adminhtml_Controller
             catch (Exception $e)
             {
                 $notInvoiced[] = $order->getIncrementId();
-                $this->_getSession()->addError(sprintf(Mage::helper('epay')->__('Order: %s returned with an error: %s'), $orderId, $e->getMessage()));
+                $this->_getSession()->addError(sprintf(Mage::helper('epay')->__("Order: %s returned with an error: %s"), $orderId, $e->getMessage()));
                 continue;
             }
         }
@@ -62,16 +62,16 @@ class Mage_Epay_Adminhtml_MassactionController extends Mage_Adminhtml_Controller
 
         if ($countNonInvoicedOrder && $countInvoicedOrder)
         {
-            $this->_getSession()->addError(sprintf(Mage::helper('epay')->__('%s order(s) cannot be Invoiced and Captured.'), $countNonInvoicedOrder). ' (' .implode(" , ", $notInvoiced) . ')');
+            $this->_getSession()->addError(sprintf(Mage::helper('epay')->__("%s order(s) cannot be Invoiced and Captured."), $countNonInvoicedOrder). ' (' .implode(" , ", $notInvoiced) . ')');
         }
         elseif ($countNonInvoicedOrder)
         {
-            $this->_getSession()->addError(Mage::helper('epay')->__('You cannot Invoice and Capture the order(s).'). ' (' .implode(" , ", $notInvoiced) . ')');
+            $this->_getSession()->addError(Mage::helper('epay')->__("You cannot Invoice and Capture the order(s)."). ' (' .implode(" , ", $notInvoiced) . ')');
         }
 
         if ($countInvoicedOrder)
         {
-            $this->_getSession()->addSuccess(sprintf(Mage::helper('epay')->__('We Invoiced and Captured %s order(s).'), $countInvoicedOrder). ' (' .implode(" , ", $invoiced) . ')');
+            $this->_getSession()->addSuccess(sprintf(Mage::helper('epay')->__("We Invoiced and Captured %s order(s)."), $countInvoicedOrder). ' (' .implode(" , ", $invoiced) . ')');
         }
 
         $this->_redirect('adminhtml/sales_order/index');

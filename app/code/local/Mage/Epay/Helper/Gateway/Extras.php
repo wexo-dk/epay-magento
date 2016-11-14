@@ -225,7 +225,7 @@ class Mage_Epay_Helper_Gateway_Extras extends Mage_Core_Helper_Abstract
         $this->_extras[] = array(
             "quantity" => 1,
             "id" => $desc,
-            "description" => Mage::helper('sales')->__('Discount (%s)', $desc),
+            "description" => Mage::helper('sales')->__("Discount (%s)", $desc),
             "price" => $amount * 100
         );
     }

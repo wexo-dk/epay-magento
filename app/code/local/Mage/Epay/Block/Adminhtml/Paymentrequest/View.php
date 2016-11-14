@@ -9,7 +9,7 @@ class Mage_Epay_Block_Adminhtml_Paymentrequest_View extends Mage_Adminhtml_Block
 
 		$standard = Mage::getModel('epay/standard');
 
-		$this->_headerText = Mage::helper('epay')->__('Payment request');
+		$this->_headerText = Mage::helper('epay')->__("Payment request");
 
 		$paymentrequest_id = $this->getRequest()->getParam('id');
 		$paymentRequest = Mage::getModel('epay/paymentrequest')->load($paymentrequest_id)->getData();

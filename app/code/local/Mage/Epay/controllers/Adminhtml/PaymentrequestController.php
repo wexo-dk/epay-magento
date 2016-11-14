@@ -44,31 +44,31 @@ class Mage_Epay_Adminhtml_PaymentrequestController extends Mage_Adminhtml_Contro
 				$helper = Mage::helper('epay');
 			
 				if (!Zend_Validate::is($data['recipient_name'], 'NotEmpty')) {
-			        $errors[] = $helper->__('Recipient name can\'t be empty');
+			        $errors[] = $helper->__("Recipient name can\'t be empty");
 			    }
 			
 				if (!Zend_Validate::is($data['recipient_email'], 'NotEmpty')) {
-			        $errors[] = $helper->__('Recipient e-mail can\'t be empty');
+			        $errors[] = $helper->__("Recipient e-mail can\'t be empty");
 			    }
 				
 				if (!Zend_Validate::is($data['replyto_name'], 'NotEmpty')) {
-			        $errors[] = $helper->__('Reply to name can\'t be empty');
+			        $errors[] = $helper->__("Reply to name can\'t be empty");
 			    }
 			
 				if (!Zend_Validate::is($data['replyto_email'], 'NotEmpty')) {
-			        $errors[] = $helper->__('Reply to e-mail can\'t be empty');
+			        $errors[] = $helper->__("Reply to e-mail can\'t be empty");
 			    }	
 				
 				if (!Zend_Validate::is($data['orderid'], 'NotEmpty')) {
-			        $errors[] = $helper->__('Amount can\'t be empty');
+			        $errors[] = $helper->__("Amount can\'t be empty");
 			    }	
 				
 				if (!Zend_Validate::is($data['amount'], 'NotEmpty')) {
-			        $errors[] = $helper->__('Amount can\'t be empty');
+			        $errors[] = $helper->__("Amount can\'t be empty");
 			    }	
 				
 				if (!Zend_Validate::is($data['currency'], 'NotEmpty')) {
-			        $errors[] = $helper->__('Currency can\'t be empty');
+			        $errors[] = $helper->__("Currency can\'t be empty");
 			    }	
 				
 			    if (!empty($errors)) {

@@ -44,7 +44,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
 
 		$this->_orderObj = Mage::getModel('sales/order');
 		$this->_orderObj->loadByIncrementId($session->getLastRealOrderId());
-		$this->_orderObj->addStatusToHistory($this->_orderObj->getStatus(), $this->__('The order is now placed and payment must now be made by ePay online payment system (www.epay.eu)'));
+		$this->_orderObj->addStatusToHistory($this->_orderObj->getStatus(), $this->__("The order is now placed and payment must now be made by ePay online payment system (www.epay.eu)"));
 		$this->_orderObj->save();
     }
 
@@ -303,7 +303,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
         $payment->addTransaction(Mage_Sales_Model_Order_Payment_Transaction::TYPE_AUTH);
         $payment->save();
 
-        $message = Mage::helper('epay')->__("Payment authorization was a success.") . ' ' . sprintf(Mage::helper('sales')->__('Transaction ID: "%s".'), $txnId);
+        $message = Mage::helper('epay')->__("Payment authorization was a success.") . ' ' . sprintf(Mage::helper('sales')->__("Transaction ID: '%s'."), $txnId);
         $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, $orderStatusAfterPayment, $message, false);
         $order->save();
     }
@@ -335,7 +335,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
     {
         $order->sendNewOrderEmail();
         $order->setIsCustomerNotified(1);
-        $order->addStatusHistoryComment(sprintf(Mage::helper('epay')->__('Notified customer about order #%s'), $order->getIncrementId()))
+        $order->addStatusHistoryComment(sprintf(Mage::helper('epay')->__("Notified customer about order #%s"), $order->getIncrementId()))
             ->setIsCustomerNotified(true);
         $order->save();
     }
@@ -371,7 +371,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
             if(intval($this->getMethod()->getConfigData('instantinvoicemail', $order->getStoreId())) == 1)
             {
                 $invoice->sendEmail();
-                $order->addStatusHistoryComment(sprintf(Mage::helper('epay')->__('Notified customer about invoice #%s', $invoice->getId())))
+                $order->addStatusHistoryComment(sprintf(Mage::helper('epay')->__("Notified customer about invoice #%s", $invoice->getId())))
                     ->setIsCustomerNotified(true);
                 $order->save();
             }

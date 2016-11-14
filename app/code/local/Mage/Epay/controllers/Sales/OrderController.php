@@ -30,7 +30,7 @@ class Mage_Epay_Sales_OrderController extends Mage_Adminhtml_Sales_OrderControll
 			{	
 				if($remoteinterfaceError == false)
 				{
-					$this->_getSession()->addError($this->__('Remote interface must be activated.'));
+					$this->_getSession()->addError($this->__("Remote interface must be activated."));
 					$remoteinterfaceError = true;
 					//To avoid multiple errors
 				}
