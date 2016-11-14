@@ -42,65 +42,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 		'TND','TOP','TPE','TRL','TRY','TTD','TWD','TZS','UAH','UGX','USD','UYU','UZS','VEB','VND','VUV','XAF','XCD','XOF','XPF','YER',
 		'YUM','ZAR','ZMK','ZWD'
     );
-
-    //
-    // Default constructor
-    //
-    public function __construct()
-    {
-		// Nothing to do
-    }
-
-	protected function _canDoCapture($order)
-	{
-		$session = Mage::getSingleton('adminhtml/session');
-
-		if (((int)$this->getConfigData('remoteinterface', $order ? $order->getStoreId() : null)) != 1) {
-    		return false;
-    	}
-
-		try
-		{
-			// Read info directly from the database
-			$read = Mage::getSingleton('core/resource')->getConnection('core_read');
-			$row = $read->fetchRow("select * from epay_order_status where orderid = '" . $order->getIncrementId() . "'");
-
-			if($row["status"] == '1')
-			{
-				$tid = $row["tid"];
-				$param = array
-				(
-					'merchantnumber' => $this->getConfigData('merchantnumber', $order ? $order->getStoreId() : null),
-					'transactionid' => $tid,
-					'epayresponse' => 0,
-					'pwd' => $this->getConfigData('remoteinterfacepassword', $order ? $order->getStoreId() : null)
-				);
-
-				$client = new SoapClient('https://ssl.ditonlinebetalingssystem.dk/remote/payment.asmx?WSDL');
-				$result = $client->gettransaction($param);
-
-				if($result->gettransactionResult == 1)
-				{
-					return true;
-				}
-				else
-				{
-					return false;
-				}
-			}
-			else
-			{
-				return false;
-			}
-		}
-		catch (Exception $e)
-		{
-			$session->addException($e, $e->getMessage() . " - Go to the ePay administration to capture the payment manually.");
-		}
-
-		return true;
-	}
-
+    
     public function getSession()
     {
         return Mage::getSingleton('epay/session');
@@ -116,69 +58,9 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
         return $this->getCheckout()->getQuote();
     }
 
-	public function canEdit()
-	{
-		return true;
-	}
-
-	public function canCapture()
-	{
-		$captureOrder = $this->_data["info_instance"]->getOrder();
-
-		$read = Mage::getSingleton('core/resource')->getConnection('core_read');
-	    $row = $read->fetchRow("select * from epay_order_status where orderid = '" . $captureOrder->getIncrementId() . "'");
-		if($row["status"] == '1')
-		{
-			return true;
-		}
-
-		return false;
-	}
-
-	public function canVoid(Varien_Object $payment)
-	{
-		$voidOrder = $this->_data["info_instance"]->getOrder();
-
-		if (((int)$this->getConfigData('remoteinterface', $voidOrder ? $voidOrder->getStoreId() : null)) != 1) {
-    		return false;
-    	}
-
-		// Read info directly from the database
-    	$read = Mage::getSingleton('core/resource')->getConnection('core_read');
-    	$row = $read->fetchRow("select * from epay_order_status where orderid = '" . $voidOrder->getIncrementId() . "'");
-		if ($row['status'] == '1')
-		{
-			return $this->_canVoid;
-		}
-		else
-		{
-			return false;
-		}
-
-		return $this->_canVoid;
-	}
-
-	public function canRefund()
+    public function canEdit()
     {
-		$creditOrder = $this->_data["info_instance"]->getOrder();
-
-		if (((int)$this->getConfigData('remoteinterface', $creditOrder ? $creditOrder->getStoreId() : null)) != 1) {
-    		return false;
-    	}
-
-		// Read info directly from the database
-    	$read = Mage::getSingleton('core/resource')->getConnection('core_read');
-    	$row = $read->fetchRow("select * from epay_order_status where orderid = '" . $creditOrder->getIncrementId() . "'");
-		if ($row['status'] == '1')
-		{
-			return $this->_canRefund;
-		}
-		else
-		{
-			return false;
-		}
-
-		return $this->_canRefund;
+        return false;
     }
 
     public function createFormBlock($name)
@@ -203,53 +85,28 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
         return $this;
     }
 
-    public function onOrderValidate(Mage_Sales_Model_Order_Payment $payment)
-    {
-
-    }
-
-    public function onInvoiceCreate(Mage_Sales_Model_Invoice_Payment $payment)
-    {
-
-    }
-
-    public function getInfoBlockType()
-    {
-        return $this->_infoBlockType;
-    }
-
-    public function processCreditmemo($creditmemo, $payment)
-    {
-        return $this;
-    }
-
-    public function processBeforeRefund($invoice, $payment)
-    {
-        return $this;
-    }
-
 	public function getOrderPlaceRedirectUrl()
     {
     	return Mage::getUrl('epay/standard/redirect');
     }
 
- 	public function getOrderInJson($order)
+    public function getOrderInJson($order)
 	{
 		if($this->getConfigData('enableinvoicedata', $order ? $order->getStoreId() : null))
 		{
 			$invoice["customer"]["emailaddress"] = $order->getCustomerEmail();
 		    $invoice["customer"]["firstname"] = $this->removeSpecialCharacters($order->getBillingAddress()->getFirstname());
-			$invoice["customer"]["lastname"] = $this->removeSpecialCharacters($order->getBillingAddress()->getLastname());
+            $invoice["customer"]["lastname"] = $this->removeSpecialCharacters($order->getBillingAddress()->getLastname());
 		    $invoice["customer"]["address"] = $this->removeSpecialCharacters($order->getBillingAddress()->getStreetFull());
 		    $invoice["customer"]["zip"] = $this->removeSpecialCharacters($order->getBillingAddress()->getPostcode());
 		    $invoice["customer"]["city"] = $this->removeSpecialCharacters($order->getBillingAddress()->getCity());
 		    $invoice["customer"]["country"] = $this->removeSpecialCharacters($order->getBillingAddress()->getCountryId());
 
 		    $invoice["shippingaddress"]["firstname"] = $this->removeSpecialCharacters($order->getShippingAddress()->getFirstname());
-			$invoice["shippingaddress"]["lastname"] = $this->removeSpecialCharacters($order->getShippingAddress()->getLastname());
+            $invoice["shippingaddress"]["lastname"] = $this->removeSpecialCharacters($order->getShippingAddress()->getLastname());
 		    $invoice["shippingaddress"]["address"] = $this->removeSpecialCharacters($order->getShippingAddress()->getStreetFull());
 		    $invoice["shippingaddress"]["zip"] = $this->removeSpecialCharacters($order->getShippingAddress()->getPostcode());
-		    $invoice["shippingaddress"]["city"] = $this->removeSpecialCharacters($order->getShippingAddress()->getCity());
+            $invoice["shippingaddress"]["city"] = $this->removeSpecialCharacters($order->getShippingAddress()->getCity());
 		    $invoice["shippingaddress"]["country"] = $this->removeSpecialCharacters($order->getShippingAddress()->getCountryId());
 
 		    $invoice["lines"] = array();
@@ -259,20 +116,20 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 
 	        $items = $invoiceData->getGoodsList();
 
-			foreach ($items as $item)
+			foreach($items as $item)
 	        {
                 $item["description"] = $this->removeSpecialCharacters($item["description"]);
                 $invoice["lines"][] = $item;
 	        }
 
-			return json_encode($invoice,JSON_UNESCAPED_UNICODE);
-
+			return json_encode($invoice, JSON_UNESCAPED_UNICODE);
 		}
 		else
 		{
 			return "";
 		}
 	}
+
     /**
      * Removes all special charactors from a string and replace them with a spacing
      *
@@ -281,8 +138,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
      */
     private function removeSpecialCharacters($value)
     {
-
-        return preg_replace('/[^\p{Latin}\d]/u', ' ', $value);
+        return preg_replace('/[^\p{Latin}\d]/u', '', $value);
     }
 
 	/**
@@ -334,11 +190,11 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
         return $result;
     }
 
-     public function generateMD5Key($paymentRequest, $md5Key)
-     {
-         $valueString = implode($paymentRequest).$md5Key;
-         return md5($valueString);
-     }
+    public function generateMD5Key($paymentRequest, $md5Key)
+    {
+        $valueString = implode($paymentRequest).$md5Key;
+        return md5($valueString);
+    }
 
     /**
      * Convert country code to a number
@@ -376,8 +232,8 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 				'merchantnumber' => $this->getConfigData('merchantnumber', $this->getOrder() ? $this->getOrder()->getStoreId() : null),
 				'language' => $this->calcLanguage(Mage::app()->getLocale()->getLocaleCode()),
 				'epayresponsecode' => $errorcode,
-				'epayresponsestring' => 0,
-				'epayresponse' => 0,
+				'epayresponsestring' => '',
+				'epayresponse' => -1,
 				'pwd' => $this->getConfigData('remoteinterfacepassword', $this->getOrder() ? $this->getOrder()->getStoreId() : null)
 			);
 
@@ -403,7 +259,6 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 
 		try
 		{
-			$client = new SoapClient('https://ssl.ditonlinebetalingssystem.dk/remote/payment.asmx?WSDL');
 			$param = array
 			(
 				'merchantnumber' => $this->getConfigData('merchantnumber', $this->getOrder() ? $this->getOrder()->getStoreId() : null),
@@ -428,35 +283,51 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 	    return $res;
     }
 
+    private function canAction($actionOrder)
+    {
+		$read = Mage::getSingleton('core/resource')->getConnection('core_read');
+	    $row = $read->fetchRow("select * from epay_order_status where orderid = '" . $actionOrder->getIncrementId() . "'");
+		if($row["status"] == '1')
+		{
+			return true;
+		}
+
+        return false;
+    }
+    private function canOnlineAction($payment)
+    {
+        if (intval($this->getConfigData('remoteinterface', $payment->getOrder() ? $payment->getOrder()->getStoreId() : null)) != 1)
+        {
+            Mage::throwException(Mage::helper('epay')->__('The payment action could not, be processed online. Please enable remote payment processing from the module configuration'));
+        }
+    }
+
+	public function canCapture()
+	{
+		$captureOrder = $this->_data["info_instance"]->getOrder();
+
+        if(!$this->canAction($captureOrder))
+        {
+            return false;
+        }
+
+		return $this->_canCapture;
+	}
+
+
     public function capture(Varien_Object $payment, $amount)
     {
-		$session = Mage::getSingleton('adminhtml/session');
-
-		//
-		// Verify if remote interface is enabled
-		//
-		if(!$this->_canDoCapture($payment->getOrder()))
-		{
-			return $this;
-		}
-
-		if(((int)$this->getConfigData('remoteinterface', $payment->getOrder() ? $payment->getOrder()->getStoreId() : null)) != 1)
-		{
-			$this->addOrderComment($payment->getOrder(), Mage::helper('epay')->__('EPAY_LABEL_73'));
-			return $this;
-		}
+        parent::capture($payment, $amount);
+        $this->canOnlineAction($payment);
 
 		try
 		{
-			//
-			// Read info directly from the database
 			$read = Mage::getSingleton('core/resource')->getConnection('core_read');
 			$row = $read->fetchRow("select * from epay_order_status where orderid = '" . $payment->getOrder()->getIncrementId() . "'");
 			if($row["status"] == '1')
 			{
 				$epayamount = ((string)($amount * 100));
-
-				$tid = $row["tid"];
+                $tid = $row["tid"];
 				$param = array
 				(
 					'merchantnumber' => $this->getConfigData('merchantnumber', $payment->getOrder() ? $payment->getOrder()->getStoreId() : null),
@@ -473,80 +344,64 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 
 				if($result->captureResult == 1)
 				{
-					//
-					// Success - transaction captured!
-					//
-					$this->addOrderComment($payment->getOrder(), "Transaction with id: " . $tid . " has been captured by amount: " . number_format($amount, 2, ",", "."));
-
-					if(!$payment->getParentTransactionId() || $tid != $payment->getParentTransactionId())
-					{
-						$payment->setTransactionId($tid);
-					}
-
-					$payment->setIsTransactionClosed(0);
+                    $payment->setTransactionId($tid .'-'. Mage_Sales_Model_Order_Payment_Transaction::TYPE_CAPTURE);
+					$payment->setIsTransactionClosed(1);
 				}
 				else
 				{
 					if($result->epayresponse != -1)
 					{
-						if($result->epayresponse ==  -1002)
-						{
-							$this->addOrderComment($payment->getOrder(), "Transaction could not be deleted by ePay: " . $result->epayresponse . ". Forretningsnummeret findes ikke.");
-							throw new Exception("Transaction could not be captured by ePay: " . $result->epayresponse . ". Forretningsnummeret findes ikke.");
-						}
-						else
-						{
-							if($result->epayresponse ==  -1003 || $result->epayresponse ==  -1006)
-							{
-								$this->addOrderComment($payment->getOrder(), "Transaction could not be captured by ePay: " . $result->epayresponse . ". Der er ikke adgang til denne funktion (API / Remote Interface).");
-								throw new Exception("Transaction could not be captured by ePay: " . $result->epayresponse . ". Der er ikke adgang til denne funktion (API / Remote Interface).");
-							}
-							else
-							{
-								$this->addOrderComment($payment->getOrder(), 'Transaction could not be captured by ePay: ' . $result->epayresponse . '. ' . $this->getEpayErrorText($result->epayresponse));
-								throw new Exception('Transaction could not be captured by ePay: ' . $result->epayresponse . '. ' . $this->getEpayErrorText($result->epayresponse));
-							}
-						}
+                        if($result->epayresponse == -1019)
+                        {
+                            throw new Exception(Mage::helper('epay')->__('Invalid password used for webservice access!'));
+                        }
+
+					    throw new Exception('('.$result->epayresponse . ')' . $this->getEpayErrorText($result->epayresponse));
 					}
-					else
+					else if($result->pbsResponse != -1)
 					{
-						throw new Exception("Transaction could not be captured by ePay: " . $result->pbsResponse . '. ' . $this->getPbsErrorText($result->pbsResponse));
+						throw new Exception('('.$result->pbsResponse . ')' . $this->getPbsErrorText($result->pbsResponse));
 					}
+                    else
+                    {
+                        throw new Exception(Mage::helper('epay')->__('Unknown error!'));
+                    }
 				}
 			}
 			else
 			{
-				//
-				// Somehow the order was not found - this must be an error!
-				//
-				throw new Exception("Order not found - please check the epay_order_status table!");
+				throw new Exception(Mage::helper('epay')->__('Order not found - please check the'). "epay_order_status table!");
 			}
 		}
 		catch (Exception $e)
 		{
-			$session->addException($e, $e->getMessage() . " - Go to the ePay administration to capture the payment manually.");
+            $errorMessage = Mage::helper('epay')->__('The payment could not be captured by ePay:').' '. $e->getMessage();
+            Mage::throwException($errorMessage);
 		}
 
 		return $this;
     }
 
+	public function canRefund()
+    {
+		$creditOrder = $this->_data["info_instance"]->getOrder();
+
+		if(!$this->canAction($creditOrder))
+        {
+            return false;
+        }
+
+		return $this->_canRefund;
+    }
+
+
     public function refund(Varien_Object $payment, $amount)
     {
-    	$session = Mage::getSingleton('adminhtml/session');
-		//
-    	// Verify if remote interface is enabled
-    	//
+        parent::refund($payment, $amount);
+        $this->canOnlineAction($payment);
+
 		try
 		{
-	    	if (((int)$this->getConfigData('remoteinterface', $payment->getOrder() ? $payment->getOrder()->getStoreId() : null)) != 1)
-			{
-				$this->addOrderComment($payment->getOrder(), Mage::helper('epay')->__('EPAY_LABEL_74'));
-				throw new Exception(Mage::helper('epay')->__('EPAY_LABEL_74'));
-			}
-
-	    	//
-			// Read info directly from the database
-
 			$read = Mage::getSingleton('core/resource')->getConnection('core_read');
 			$row = $read->fetchRow("select * from epay_order_status where orderid = '" . $payment->getOrder()->getIncrementId() . "'");
 			if($row["status"] == '1')
@@ -566,111 +421,115 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 				$client = new SoapClient('https://ssl.ditonlinebetalingssystem.dk/remote/payment.asmx?WSDL');
 				$result = $client->credit($param);
 
-				if($result->creditResult == 1)
+                if($result->creditResult == 1)
 				{
-					//
-					// Success - transaction credited!
-					//
-					$this->addOrderComment($payment->getOrder(), "Transaction with id: " . $tid . " has been credited by amount: " . number_format($amount, 2, ",", "."));
+                    $payment->setTransactionId($tid .'-'. Mage_Sales_Model_Order_Payment_Transaction::TYPE_REFUND);
+					$payment->setIsTransactionClosed(1);
 				}
-				else
+                else
 				{
-		    		if ($result->epayresponse == -1002)
+					if($result->epayresponse != -1)
 					{
-		    			$this->addOrderComment($payment->getOrder(), "An error (" . $result->epayresponse . ") occured in the communication to ePay: The merchantnumber you are using does not exists or is disabled. Please log into your ePay account to verify your merchantnumber. This can be done from the menu: SETTINGS -> PAYMENT SYSTEM.");
-		    			throw new Exception("An error (" . $result->epayresponse . ") occured in the communication to ePay: The merchantnumber you are using does not exists or is disabled. Please log into your ePay account to verify your merchantnumber. This can be done from the menu: SETTINGS -> PAYMENT SYSTEM.");
-					}
-					elseif ($result->epayresponse == -1003)
-					{
-		    			$this->addOrderComment($payment->getOrder(), "An error (" . $result->epayresponse . ") occured in the communication to ePay: The IP address your system calls ePay from is UNKNOWN. Please log into your ePay account to verify enter the IP address your system calls ePay from. This can be done from the menu: API / WEBSERVICES -> ACCESS.");
-		    			throw new Exception("An error (" . $result->epayresponse . ") occured in the communication to ePay: The IP address your system calls ePay from is UNKNOWN. Please log into your ePay account to verify enter the IP address your system calls ePay from. This can be done from the menu: API / WEBSERVICES -> ACCESS.");
-		    		}
-					elseif($result->epayresponse ==  -1006)
-					{
-						$this->addOrderComment($payment->getOrder(), "An error (" . $result->epayresponse . ") occured in the communication to ePay: Your ePay account has not access to API / Remote Interface. This is only for ePay BUSINESS accounts. Please contact ePay to upgrade your ePay account.");
-						throw new Exception("An error (" . $result->epayresponse . ") occured in the communication to ePay: Your ePay account has not access to API / Remote Interface. This is only for ePay BUSINESS accounts. Please contact ePay to upgrade your ePay account.");
-					}
-					elseif($result->epayresponse == -1021)
-					{
-						$this->addOrderComment($payment->getOrder(), "An error (" . $result->epayresponse . ") occured in the communication to ePay: An operation every 15 minutes can be performed on a transaction. Please wait 15 minutes and try again.");
-						throw new Exception("An error (" . $result->epayresponse . ") An operation every 15 minutes can be performed on a transaction. Please wait 15 minutes and try again.");
-					}
-					else
-					{
-		    			$this->addOrderComment($payment->getOrder(), "An error (" . $result->epayresponse . ") occured in the communication to ePay: " . $this->getEpayErrorText($result->epayresponse));
-		    			throw new Exception("An error (" . $result->epayresponse . ") occured in the communication to ePay: " . $this->getEpayErrorText($result->epayresponse));
-		    		}
+                        if($result->epayresponse == -1019)
+                        {
+                            throw new Exception(Mage::helper('epay')->__('Invalid password used for webservice access!'));
+                        }
 
+					    throw new Exception('('.$result->epayresponse . ')' . $this->getEpayErrorText($result->epayresponse));
+					}
+					else if($result->pbsResponse != -1)
+					{
+						throw new Exception('('.$result->pbsResponse . ')' . $this->getPbsErrorText($result->pbsResponse));
+					}
+                    else
+                    {
+                        throw new Exception(Mage::helper('epay')->__('Unknown error!'));
+                    }
 				}
-			}
-			else
+            }
+            else
 			{
-				//
-				// Somehow the order was not found - this must be an error!
-				//
-				throw new Exception("Order not found - please check the epay_order_status table!");
+				throw new Exception(Mage::helper('epay')->__('Order not found - please check the'). "epay_order_status table!");
 			}
 		}
 		catch (Exception $e)
 		{
-			$session->addException($e, $e->getMessage() . " - Go to the ePay administration to credit the payment manually.");
+            $errorMessage = Mage::helper('epay')->__('The payment could not be refunded by ePay:').' '. $e->getMessage();
+            Mage::throwException($errorMessage);
 		}
 
         return $this;
     }
 
-    public function void (Varien_Object $payment)
+    public function cancel(Varien_Object $payment)
 	{
-		$this->cancel($payment);
+        $order = $payment->getOrder();
+        if($this->canVoidOnline($order))
+        {
+            $this->void($payment);
+        }
+        else
+        {
+            $this->addOrderComment($order,'The order: %1 is canceled but the payment could not be voided', $order->getId());
+        }
+
 		return $this;
 	}
 
-    public function cancel(Varien_Object $payment)
+    private function canVoidOnline($order)
     {
-		$session = Mage::getSingleton('adminhtml/session');
-
-		if(Mage::app()->getRequest()->getActionName() == 'save')
+        try
 		{
-			$order = $payment->getOrder();
-			$_totalDatas = $order->getData();
+			// Read info directly from the database
+			$read = Mage::getSingleton('core/resource')->getConnection('core_read');
+			$row = $read->fetchRow("select * from epay_order_status where orderid = '" . $order->getIncrementId() . "'");
 
-			$childOrder = Mage::getModel('sales/order')->loadByIncrementId($_totalDatas['relation_child_real_id']);
-
-			if($childOrder->getBaseGrandTotal() <= $order->getBaseGrandTotal())
+			if($row["status"] == '1')
 			{
-				$childPayment = $childOrder->getPayment();
+				$tid = $row["tid"];
+				$param = array
+				(
+					'merchantnumber' => $this->getConfigData('merchantnumber', $order ? $order->getStoreId() : null),
+					'transactionid' => $tid,
+					'epayresponse' => 0,
+					'pwd' => $this->getConfigData('remoteinterfacepassword', $order ? $order->getStoreId() : null)
+				);
 
-				$write = Mage::getSingleton('core/resource')->getConnection('core_write');
-				$write->query('update epay_order_status set orderid = "' . $_totalDatas['relation_child_real_id'] . '" WHERE orderid = "' . $order->getIncrementId() . '"');
+				$client = new SoapClient('https://ssl.ditonlinebetalingssystem.dk/remote/payment.asmx?WSDL');
+				$result = $client->gettransaction($param);
 
-				$transactionId = $payment->getParentTransactionId();
-
-				$childPayment->setTransactionId($transactionId)->setIsTransactionClosed(0);
-				$transaction = $childPayment->addTransaction(Mage_Sales_Model_Order_Payment_Transaction::TYPE_AUTH);
-				$transaction->setAdditionalInformation("Transaction ID", $transactionId);
-				$transaction->save();
+                return $result->gettransactionResult == 1;
 			}
 			else
 			{
-				$session->addError("The transaction could not be moved because the amount of the edited order exceeds the transaction amount - Go to the ePay administration to handle the payment manually.");
+				return false;
 			}
-
-			return;
 		}
+		catch (Exception $e)
+		{
+            return false;
+		}
+    }
 
-    	//
-    	// Verify if remote interface is enabled
-    	//
-    	if (((int)$this->getConfigData('remoteinterface', $payment->getOrder() ? $payment->getOrder()->getStoreId() : null)) != 1) {
-    		$this->addOrderComment($payment->getOrder(), Mage::helper('epay')->__('EPAY_LABEL_75'));
-    		return;
-    	}
+    public function canVoid(Varien_Object $payment)
+	{
+		$voidOrder = $this->_data["info_instance"]->getOrder();
 
+        if(!$this->canAction($voidOrder))
+        {
+            return false;
+        }
+
+        return $this->_canVoid;
+	}
+
+
+    public function void(Varien_Object $payment)
+    {
+        parent::void($payment);
+        $this->canOnlineAction($payment);
 		try
 		{
-			//
-			// Read info directly from the database
-			//
 			$read = Mage::getSingleton('core/resource')->getConnection('core_read');
 			$row = $read->fetchRow("select * from epay_order_status where orderid = '" . $payment->getOrder()->getIncrementId() . "'");
 
@@ -688,58 +547,41 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 
 				$client = new SoapClient('https://ssl.ditonlinebetalingssystem.dk/remote/payment.asmx?WSDL');
 				$result = $client->delete($param);
-				if($result->deleteResult == 1)
+
+                if($result->deleteResult == 1)
 				{
-					//
-					// Success - transaction deleted!
-					//
-					$this->addOrderComment($payment->getOrder(), "Transaction deleted with transaction id: " . $tid);
-					$payment->getOrder()->save();
+                    $payment->setTransactionId($tid .'-'. Mage_Sales_Model_Order_Payment_Transaction::TYPE_VOID);
+					$payment->setIsTransactionClosed(1);
 				}
-				else
+                else
 				{
 					if($result->epayresponse != -1)
 					{
-						if($result->epayresponse ==  -1002)
-						{
-							$this->addOrderComment($payment->getOrder(), "Transaction could not be deleted by ePay: " . $result->epayresponse . ". Forretningsnummeret findes ikke.");
-							throw new Exception("Transaction could not be deleted by ePay: " . $result->epayresponse . ". Forretningsnummeret findes ikke.");
-						}
-						elseif($result->epayresponse ==  -1003 || $result->epayresponse ==  -1006)
-						{
-							$this->addOrderComment($payment->getOrder(), "Transaction could not be captured by ePay: " . $result->epayresponse . ". Der er ikke adgang til denne funktion (API / Remote Interface).");
-							throw new Exception("Transaction could not be deleted by ePay: " . $result->epayresponse . ". Der er ikke adgang til denne funktion (API / Remote Interface).");
-						}
-						else
-						{
-							$this->addOrderComment($payment->getOrder(), 'Transaction could not be deleted by ePay: ' . $result->epayresponse . '. ' . $this->getEpayErrorText($result->epayresponse));
-							throw new Exception('Transaction could not be deleted by ePay: ' . $result->epayresponse . '. ' . $this->getEpayErrorText($result->epayresponse));
-						}
+                        if($result->epayresponse == -1019)
+                        {
+                            throw new Exception(Mage::helper('epay')->__('Invalid password used for webservice access!'));
+                        }
+
+					    throw new Exception('('.$result->epayresponse . ')' . $this->getEpayErrorText($result->epayresponse));
 					}
 					else
-					{
-						throw new Exception('Unknown response from ePay: ' . $result->epayresponse);
-					}
+                    {
+                        throw new Exception(Mage::helper('epay')->__('Unknown error!'));
+                    }
 				}
-			}
-			elseif($row["status"] == '0')
+            }
+            else
 			{
-				//
-				// Do nothing - the order is to be canceled without any communication to ePay
-				//
-			}
-			else
-			{
-				//
-				// Somehow the order was not found - this must be an error!
-				//
-				throw new Exception("Order not found - please check the epay_order_status table!");
+				throw new Exception(Mage::helper('epay')->__('Order not found - please check the'). "epay_order_status table!");
 			}
 		}
 		catch (Exception $e)
 		{
-			$session->addException($e, $e->getMessage() . " - Go to the ePay administration to credit the payment manually.");
+            $errorMessage = Mage::helper('epay')->__('The payment could not be refunded by ePay:').' '. $e->getMessage();
+            Mage::throwException($errorMessage);
 		}
+
+        return $this;
     }
 
     public function addOrderComment($order, $comment)

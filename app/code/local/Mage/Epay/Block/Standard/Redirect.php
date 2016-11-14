@@ -14,30 +14,26 @@ class Mage_Epay_Block_Standard_Redirect extends Mage_Core_Block_Template
     {
         parent::__construct();
 
-        if(!$this->isOrderCompleated())
-        {
-            $this->setTemplate('epay/standard/redirect_standardwindow.phtml');
+        $currentOrderStatus = $this->getOrder()->getStatus();
 
-            //
-            // Save the order into the epay_order_status table
-            //
-            $write = Mage::getSingleton('core/resource')->getConnection('core_write');
-            $write->insert('epay_order_status', array('orderid'=>$this->getMethod()->getCheckout()->getLastRealOrderId()));
-        }
-        else
+        if($currentOrderStatus === $this->getConfigData('order_status_after_payment'))
         {
             //If the order is already compleated goto onepage success
             Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getUrl('checkout/onepage/success'));
             Mage::app()->getResponse()->sendResponse();
+            return;
         }
-    }
+        elseif($currentOrderStatus === Mage_Sales_Model_Order::STATE_CANCELED)
+        {
+            //If the order is already compleated goto onepage success
+            Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getUrl('checkout/cart'));
+            Mage::app()->getResponse()->sendResponse();
+            return;
+        }
 
-    private function isOrderCompleated()
-    {
-        $currentOrderStatus = $this->getOrder()->getStatus();
-        $compleatedStatus = $this->getMethod()->getConfigData('order_status_after_payment', $this->getOrder() ? $this->getOrder()->getStoreId() : null);
-
-        return $currentOrderStatus === $compleatedStatus;
+        $this->setTemplate('epay/standard/redirect_standardwindow.phtml');
+        $write = Mage::getSingleton('core/resource')->getConnection('core_write');
+        $write->insert('epay_order_status', array('orderid'=>$this->getMethod()->getCheckout()->getLastRealOrderId()));
     }
 
     private function getMethod()
