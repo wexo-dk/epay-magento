@@ -577,7 +577,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 		}
 		catch (Exception $e)
 		{
-            $errorMessage = Mage::helper('epay')->__('The payment could not be refunded by ePay:').' '. $e->getMessage();
+            $errorMessage = Mage::helper('epay')->__('The payment could not be deleted by ePay:').' '. $e->getMessage();
             Mage::throwException($errorMessage);
 		}
 

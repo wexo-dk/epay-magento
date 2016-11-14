@@ -36,22 +36,22 @@ class Mage_Epay_Block_Sales_Order_Info extends Mage_Sales_Block_Order_Info
             $res .= "<table border='0' width='100%'>";
             if ($row['tid'] != '0')
             {
-                $res .= "<tr><td>" . Mage::helper('epay')->__('EPAY_LABEL_19') . "</td>";
+                $res .= "<tr><td>" . Mage::helper('epay')->__('Transaction ID:') . "</td>";
                 $res .= "<td>" . $row['tid'] . "</td></tr>";
             }
             if ($row['cardid'] != '0')
             {
-                $res .= "<tr><td>" . Mage::helper('epay')->__('EPAY_LABEL_26') . "</td>";
+                $res .= "<tr><td>" . Mage::helper('epay')->__('Card type:') . "</td>";
                 $res .= "<td>" . $this->printLogo($row['cardid']) . "</td></tr>";
             }
             if (strlen($row['cardnopostfix']) != 0)
             {
-                $res .= "<tr><td>" . Mage::helper('epay')->__('EPAY_LABEL_101') . "</td>";
+                $res .= "<tr><td>" . Mage::helper('epay')->__('Card number:') . "</td>";
                 $res .= "<td>" . $row['cardnopostfix'] . "</td></tr>";
             }
             if ($row['transfee'] != '0')
             {
-                $res .= "<tr><td>" . Mage::helper('epay')->__('EPAY_LABEL_27') . "</td>";
+                $res .= "<tr><td>" . Mage::helper('epay')->__('Transaction fee:') . "</td>";
                 $res .= "<td>" . $this->getOrder()->getBaseCurrencyCode() . "&nbsp;" . number_format(((int)$row['transfee']) / 100, 2, ',', ' ') . "</td></tr>";
             }
             $res .= "</table><br>";
@@ -59,7 +59,7 @@ class Mage_Epay_Block_Sales_Order_Info extends Mage_Sales_Block_Order_Info
         }
         else
         {
-            $res .= "<br>" . Mage::helper('epay')->__('EPAY_LABEL_28') . "<br>";
+            $res .= "<br>" . Mage::helper('epay')->__('There is not registered any payment for this order yet!') . "<br>";
         }
 
     	return $res;

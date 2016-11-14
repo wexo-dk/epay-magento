@@ -165,11 +165,11 @@ class Mage_Epay_Block_Standard_Redirect extends Mage_Core_Block_Template
 
     public function getLoadAction()
     {
-        return '<input type="button" onclick="javascript: paymentwindow.open();" value="'. $this->__('EPAY_LABEL_35').'"></input>';
+        return '<input type="button" onclick="javascript: paymentwindow.open();" value="'. $this->__('Open the payment window').'"></input>';
     }
 
     public function getCancelAction()
     {
-        return '<input name="paymentCancel" id="paymentCancel" type="button" class="form-button-alt" onclick="javascript:location=\''. $this->getCancelUrl().'\'" value="'.$this->__('EPAY_LABEL_100').'"></input>';
+        return '<input name="paymentCancel" id="paymentCancel" type="button" class="form-button-alt" onclick="javascript:location=\''. $this->getCancelUrl().'\'" value="'.$this->__('Cancel payment').'"></input>';
     }
 }

@@ -44,7 +44,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
 
 		$this->_orderObj = Mage::getModel('sales/order');
 		$this->_orderObj->loadByIncrementId($session->getLastRealOrderId());
-		$this->_orderObj->addStatusToHistory($this->_orderObj->getStatus(), $this->__('EPAY_LABEL_31'));
+		$this->_orderObj->addStatusToHistory($this->_orderObj->getStatus(), $this->__('The order is now placed and payment must now be made by ePay online payment system (www.epay.eu)'));
 		$this->_orderObj->save();
     }
 
