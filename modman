@@ -8,7 +8,7 @@ src/app/locale/en_NZ/Mage_Epay.csv                       app/locale/en_NZ/Mage_E
 src/app/locale/en_US/Mage_Epay.csv                       app/locale/en_US/Mage_Epay.csv
 src/app/locale/nb_NO/Mage_Epay.csv                       app/locale/en_AU/Mage_Epay.csv
 src/app/locale/sv_SE/Mage_Epay.csv                       app/locale/sv_SE/Mage_Epay.csv
-src/skin/adminhtml/base/default/images/epay              skin/adminhtml/base/default/images/epay
+src/skin/adminhtml/base/default/css/epay                 skin/adminhtml/base/default/css/epay
 src/app/design/frontend/base/default/template/epay       app/design/frontend/base/default/template/epay
 src/app/design/frontend/base/default/layout/epay.xml     app/design/frontend/base/default/layout/epay.xml
 src/app/design/adminhtml/default/default/template/epay   app/design/adminhtml/default/default/template/epay
