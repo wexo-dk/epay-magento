@@ -11,10 +11,10 @@ class Mage_Epay_Block_Adminhtml_Form_Paymentrequest_Form extends Mage_Adminhtml_
                   'enctype' => 'multipart/form-data',
                )
 	      );
-		
-		$form->setUseContainer(true);		
+
+		$form->setUseContainer(true);
 		$this->setForm($form);
-		
+
 	    return parent::_prepareForm();
 	}
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!--
 /**
- * Copyright ePay | Dit Online Betalingssystem, (c) 2010.
+ * Copyright ePay | Dit Online Betalingssystem, (c) 2016.
  * 
  * This program is free software. You are allowed to use the software but NOT allowed to modify the software. 
  * It is also not legal to do any changes to the software and distribute it in your own name / brand. 
@@ -10,7 +10,7 @@
 <config>
   <modules>
     <Mage_Epay>
-      <version>2.6.6</version>
+      <version>2.7.0</version>
     </Mage_Epay>
   </modules>
   <global>
@@ -53,36 +53,6 @@
       <epay>
         <class>Mage_Epay_Block</class>
       </epay>
-
-      <adminhtml>
-        <rewrite>
-          <sales_order_grid>Mage_Epay_Block_Adminhtml_Order_Grid</sales_order_grid>
-        </rewrite>
-      </adminhtml>
-
-      <adminhtml>
-        <rewrite>
-          <sales_order_view_tab_info>Mage_Epay_Block_Adminhtml_Sales_Order_View_Tab_Info</sales_order_view_tab_info>
-        </rewrite>
-      </adminhtml>
-
-      <adminhtml>
-        <rewrite>
-          <sales_block_order_info>Mage_Epay_Block_Sales_Order_Info</sales_block_order_info>
-        </rewrite>
-      </adminhtml>
-
-      <adminhtml>
-        <rewrite>
-          <sales_block_order_print>Mage_Epay_Block_Sales_Order_Print</sales_block_order_print>
-        </rewrite>
-      </adminhtml>
-
-      <adminhtml>
-        <rewrite>
-          <sales_order_view>Mage_Epay_Block_Adminhtml_Sales_Order_View</sales_order_view>
-        </rewrite>
-      </adminhtml>
     </blocks>
     <helpers>
       <!-- helper path -->
@@ -90,11 +60,6 @@
         <class>Mage_Epay_Helper</class>
       </epay>
     </helpers>
-    <payment>
-      <groups>
-        <epay>Epay Payment Methods</epay>
-      </groups>
-    </payment>
   </global>
   <frontend>
     <secure_url>
@@ -128,6 +93,24 @@
   </frontend>
 
   <adminhtml>
+    <events>
+      <adminhtml_widget_container_html_before>
+        <observers>
+          <mage_epay>
+            <class>epay/observer</class>
+            <method>adminhtmlWidgetContainerHtmlBefore</method>
+          </mage_epay>
+        </observers>
+      </adminhtml_widget_container_html_before>
+      <core_block_abstract_prepare_layout_before>
+        <observers>
+          <mage_epay>
+            <class>epay/observer</class>
+            <method>addCaptureMassAction</method>
+          </mage_epay>
+        </observers>
+      </core_block_abstract_prepare_layout_before>
+    </events>
     <layout>
       <updates>
         <epay>
@@ -181,11 +164,10 @@
     <payment>
       <epay_standard>
         <model>epay/standard</model>
-        <title>Credit card using ePay | Payment solutions</title>
-        <group>epay</group>
+        <title>ePay | Payment solutions</title>
         <active>1</active>
         <sort_order>1</sort_order>
-        <merchantnumber>ENTER YOUR MERCHANTNUMBER HERE</merchantnumber>
+        <merchantnumber></merchantnumber>
         <windowstate>1</windowstate>
         <windowid>1</windowid>
         <sendmailorderconfirmation>1</sendmailorderconfirmation>
@@ -197,6 +179,7 @@
         <splitpayment>0</splitpayment>
         <order_status>pending</order_status>
         <order_status_after_payment>processing</order_status_after_payment>
+        <use_auto_cancel>0</use_auto_cancel>
       </epay_standard>
       <ccsave>
         <active>0</active>
@@ -235,7 +218,6 @@
       </adminhtml>
     </routers>
   </admin>
-
   <crontab>
     <jobs>
       <order_cancel_orders>

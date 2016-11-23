@@ -1,10 +1,9 @@
 <?php
 /**
- * Copyright ePay | Dit Online Betalingssystem, (c) 2010.
- * This program is free software. You are allowed to use the software but NOT allowed to modify the software. 
- * It is also not legal to do any changes to the software and distribute it in your own name / brand. 
+ * Copyright ePay | Dit Online Betalingssystem, (c) 2016.
+ * This program is free software. You are allowed to use the software but NOT allowed to modify the software.
+ * It is also not legal to do any changes to the software and distribute it in your own name / brand.
  */
- 
 class Mage_Epay_Helper_Gateway_Extras extends Mage_Core_Helper_Abstract
 {
     /**
@@ -150,7 +149,7 @@ class Mage_Epay_Helper_Gateway_Extras extends Mage_Core_Helper_Abstract
         if ($this->order->getCustomerBalanceAmount() <= 0) {
             return;
         }
-		
+
         $this->_extras[] = array(
             "quantity" => 1,
             "id" => "customer_balance",
@@ -164,7 +163,7 @@ class Mage_Epay_Helper_Gateway_Extras extends Mage_Core_Helper_Abstract
         if ($this->order->getRewardCurrencyAmount() <= 0) {
             return;
         }
-		
+
         $this->_extras[] = array(
             "quantity" => 1,
             "id" => "reward_currency",
@@ -178,7 +177,7 @@ class Mage_Epay_Helper_Gateway_Extras extends Mage_Core_Helper_Abstract
         if ($this->order->getBaseShippingInclTax() <= 0) {
             return;
         }
-		
+
         $taxClass = Mage::getStoreConfig('tax/classes/shipping_tax_class');
 
         $this->_extras[] = array(

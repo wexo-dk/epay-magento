@@ -1,10 +1,9 @@
 <?php
 /**
- * Copyright ePay | Dit Online Betalingssystem, (c) 2010.
+ * Copyright ePay | Dit Online Betalingssystem, (c) 2016.
  * This program is free software. You are allowed to use the software but NOT allowed to modify the software.
  * It is also not legal to do any changes to the software and distribute it in your own name / brand.
  */
-
 class Mage_Epay_Block_Standard_Redirect extends Mage_Core_Block_Template
 {
     private $_method;
@@ -31,9 +30,19 @@ class Mage_Epay_Block_Standard_Redirect extends Mage_Core_Block_Template
             return;
         }
 
-        $this->setTemplate('epay/standard/redirect_standardwindow.phtml');
         $write = Mage::getSingleton('core/resource')->getConnection('core_write');
         $write->insert('epay_order_status', array('orderid'=>$this->getMethod()->getCheckout()->getLastRealOrderId()));
+
+        if(intval($this->getConfigData('windowstate')) === 3)
+        {
+            $url = $this->getPaymentWindowUrl();
+            Mage::app()->getFrontController()->getResponse()->setRedirect($url);
+            Mage::app()->getResponse()->sendResponse();
+            return;
+        }
+
+        $this->setTemplate('epay/standard/redirect_standardwindow.phtml');
+
     }
 
     private function getMethod()
@@ -117,11 +126,31 @@ class Mage_Epay_Block_Standard_Redirect extends Mage_Core_Block_Template
         return $checkout->getLastRealOrderId();
     }
 
-
-
-    public function getPaymentRequestString()
+    public function getPaymentWindowUrl()
     {
+        $baseUrl = 'https://ssl.ditonlinebetalingssystem.dk/integration/ewindow/Default.aspx';
+        $paymentRequest = $this->getPaymentRequestString(true);
+        $requestParams = "";
+        $count = 0;
+        foreach ($paymentRequest as $key => $value)
+        {
+            if($count === 0)
+            {
+                $requestParams .= '?' . $key . '=' .urlencode($value);
+            }
+            else
+            {
+                $requestParams .=  '&' . $key . '=' .urlencode($value);
+            }
+            $count++;
+        }
+        $url = $baseUrl . $requestParams;
 
+        return $url;
+    }
+
+    public function getPaymentRequestString($paymentRequestOnly = false)
+    {
         $paymentRequest = array(
                             'encoding' => "UTF-8",
                             'cms' => $this->getCms(),
@@ -137,7 +166,6 @@ class Mage_Epay_Block_Standard_Redirect extends Mage_Core_Block_Template
                             'mailreceipt' => $this->getConfigData('authmail'),
                             'smsreceipt' => $this->getConfigData('authsms'),
                             'instantcapture' => $this->getConfigData('instantcapture'),
-                            'group' => $this->getConfigData('epaygroup'),
                             'language' => $this->getLanguage(),
                             'ownreceipt' => $this->getConfigData('ownreceipt'),
                             'timeout' => "60"
@@ -150,6 +178,11 @@ class Mage_Epay_Block_Standard_Redirect extends Mage_Core_Block_Template
 
         $paymentRequest['splitpayment'] = intval($this->getConfigData('splitpayment'));
         $paymentRequest['hash']  = $this->getHashValue($paymentRequest);
+
+        if($paymentRequestOnly === true)
+        {
+            return $paymentRequest;
+        }
 
         $keyValueArray = array();
 

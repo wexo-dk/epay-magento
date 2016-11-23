@@ -1,150 +1,104 @@
 <?php
 /**
- * Copyright ePay | Dit Online Betalingssystem, (c) 2010.
+ * Copyright ePay | Dit Online Betalingssystem, (c) 2016.
  * This program is free software. You are allowed to use the software but NOT allowed to modify the software.
  * It is also not legal to do any changes to the software and distribute it in your own name / brand.
  */
-class Mage_Epay_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Adminhtml_Block_Sales_Order_View_Tab_Info implements Mage_Adminhtml_Block_Widget_Tab_Interface
+class Mage_Epay_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Adminhtml_Block_Template  implements Mage_Adminhtml_Block_Widget_Tab_Interface
 {
-    /**
-     * Retrieve order model instance
-     *
-     * @return Mage_Sales_Model_Order
-     */
+    protected function _construct()
+    {
+        parent::_construct();
+        $this->setTemplate('epay/order/view/tab/info.phtml');
+    }
+
     public function getOrder()
     {
-		return parent::getOrder();
+        return Mage::registry('current_order');
     }
 
-    /**
-     * Retrieve source model instance
-     *
-     * @return Mage_Sales_Model_Order
-     */
-    public function getSource()
+    public function getPaymentInformationHtml()
     {
-        return parent::getOrder();
-    }
-
-    /**
-     * Retrieve order totals block settings
-     *
-     * @return array
-     */
-    public function getOrderTotalData()
-    {
-        return parent::getOrderTotalData();
-    }
-
-    public function getOrderInfoData()
-    {
-        return parent::getOrderInfoData();
-    }
-
-    public function getTrackingHtml()
-    {
-        return parent::getTrackingHtml();
-    }
-
-    public function getItemsHtml()
-    {
-        return $this->getChildHtml('order_items');
-    }
-
-    /**
-     * Retrive giftmessage block html
-     *
-     * @return string
-     */
-    public function getGiftmessageHtml()
-    {
-        return parent::getGiftmessageHtml();
-    }
-
-    public function getPaymentHtml()
-    {
-    	$res = $this->getChildHtml('order_payment');
-
-    	$read = Mage::getSingleton('core/resource')->getConnection('core_read');
-    	$row = $read->fetchRow("select * from epay_order_status where orderid = '" . $this->getOrder()->getIncrementId() . "'");
-
-
-    	if ($row['status'] == '1')
+        $order = $this->getOrder();
+        $read = Mage::getSingleton('core/resource')->getConnection('core_read');
+        $row = $read->fetchRow("select * from epay_order_status where orderid = '" . $order->getIncrementId() . "'");
+        if ($row['status'] == '1')
         {
-            $order = $this->getOrder();
+            $method = Mage::getModel('epay/standard');
 
-    		$res .= "<table border='0' width='100%'>";
-    		$res .= "<tr><td colspan='2'><b>" . Mage::helper('epay')->__("Payment system transaction information") . "</b></td></tr>";
-    		if ($row['tid'] != '0')
+            $res = "<table border='0' width='100%'>";
+            $res .= "<tr><td colspan='2'><b>" . Mage::helper('epay')->__("Payment system transaction information") . "</b></td></tr>";
+            if ($row['tid'] != '0')
             {
-    			$res .= "<tr><td width='150'>" . Mage::helper('epay')->__("Transaction ID:") . "</td>";
-    			$res .= "<td>" . $row['tid'] . "</td></tr>";
-    		}
-    		if ($row['amount'] != '0')
+                $res .= "<tr><td width='150'>" . Mage::helper('epay')->__("Transaction ID") . ":</td>";
+                $res .= "<td>" . $row['tid'] . "</td></tr>";
+            }
+            if ($row['amount'] != '0')
             {
-    			$res .= "<tr><td>" . Mage::helper('epay')->__("Amount:") . "</td>";
-    			$res .= "<td>" . $order->getBaseCurrencyCode() . "&nbsp;" . number_format(((int)$row['amount']) / 100, 2, ',', ' ') . "</td></tr>";
-    		}
-    		if ($row['cur'] != '0')
+                $res .= "<tr><td>" . Mage::helper('epay')->__("Amount") . ":</td>";
+                $res .= "<td>" . $order->getBaseCurrencyCode() . "&nbsp;" . number_format(((int)$row['amount']) / 100, 2, ',', ' ') . "</td></tr>";
+            }
+            if ($row['cur'] != '0')
             {
-    			$res .= "<tr><td>" . Mage::helper('epay')->__("Currency code:") . "</td>";
-    			$res .= "<td>" . $row['cur'] . "</td></tr>";
-    		}
-    		if ($row['date'] != '0')
+                $res .= "<tr><td>" . Mage::helper('epay')->__("Currency code") . ":</td>";
+                $res .= "<td>" . $row['cur'] . "</td></tr>";
+            }
+            if ($row['date'] != '0')
             {
-    			$res .= "<tr><td>" . Mage::helper('epay')->__("Transaction date:") . "</td>";
-    			$res .= "<td>" . $row['date'] . "</td></tr>";
-    		}
-    		if ($row['eKey'] != '0')
+                $res .= "<tr><td>" . Mage::helper('epay')->__("Transaction date") . ":</td>";
+                $res .= "<td>" . $row['date'] . "</td></tr>";
+            }
+            if ($row['eKey'] != '0')
             {
-    			$res .= "<tr><td>" . Mage::helper('epay')->__("MD5 key:") . "</td>";
-    			$res .= "<td>" . $row['eKey'] . "</td></tr>";
-    		}
-    		if ($row['fraud'] != '0')
+                $res .= "<tr><td>" . Mage::helper('epay')->__("MD5 key") . ":</td>";
+                $res .= "<td>" . $row['eKey'] . "</td></tr>";
+            }
+            if ($row['fraud'] != '0')
             {
-    			$res .= "<tr><td>" . Mage::helper('epay')->__("Fraud control:") . "</td>";
-    			$res .= "<td>" . sprintf(Mage::helper('epay')->__("This creditcard has been used %s time(s) the past 24 hours"), $row['fraud']) . "</td></tr>";
-    		}
-    		if ($row['subscriptionid'] != '0')
+                $res .= "<tr><td>" . Mage::helper('epay')->__("Fraud control") . ":</td>";
+                $res .= "<td>" . sprintf(Mage::helper('epay')->__("This creditcard has been used %s time(s) the past 24 hours"), $row['fraud']) . "</td></tr>";
+            }
+            if ($row['subscriptionid'] != '0')
             {
-    			$res .= "<tr><td>" . Mage::helper('epay')->__("Subscription ID:") . "</td>";
-    			$res .= "<td>" . $row['subscriptionid'] . "</td></tr>";
-    		}
-    		if ($row['cardid'] != '0')
+                $res .= "<tr><td>" . Mage::helper('epay')->__("Subscription ID") . ":</td>";
+                $res .= "<td>" . $row['subscriptionid'] . "</td></tr>";
+            }
+            if ($row['cardid'] != '0')
             {
-    			$res .= "<tr><td>" . Mage::helper('epay')->__("Card type:") . "</td>";
-    			$res .= "<td>" . $this->printLogo($row['cardid']) . "</td></tr>";
-    		}
-    		if (strlen($row['cardnopostfix']) != 0)
+                $res .= "<tr><td>" . Mage::helper('epay')->__("Card type") . ":</td>";
+                $res .= "<td>". $method->calcCardtype($row['cardid']) . $this->getPaymentLogoUrl($row['cardid']) . "</td></tr>";
+            }
+            if (strlen($row['cardnopostfix']) != 0)
             {
-    			$res .= "<tr><td>" . Mage::helper('epay')->__("Card number:") . "</td>";
-    			$res .= "<td>" . $row['cardnopostfix'] . "</td></tr>";
-    		}
-    		if ($row['transfee'] != '0')
+                $res .= "<tr><td>" . Mage::helper('epay')->__("Card number") . ":</td>";
+                $res .= "<td>" . $row['cardnopostfix'] . "</td></tr>";
+            }
+            if ($row['transfee'] != '0')
             {
-    			$res .= "<tr><td>" . Mage::helper('epay')->__("Transaction fee:") . "</td>";
-    			$res .= "<td>" . $order->getBaseCurrencyCode() . "&nbsp;" . number_format(((int)$row['transfee']) / 100, 2, ',', ' ') . "</td></tr>";
-    		}
+                $res .= "<tr><td>" . Mage::helper('epay')->__("Transaction fee") . ":</td>";
+                $res .= "<td>" . $order->getBaseCurrencyCode() . "&nbsp;" . number_format(((int)$row['transfee']) / 100, 2, ',', ' ') . "</td></tr>";
+            }
 
-    		$method = Mage::getModel('epay/standard');
 
-    		if ($method->getConfigData('remoteinterface', $order ? $order->getStoreId() : null) == 1)
+
+            if ($method->getConfigData('remoteinterface', $order ? $order->getStoreId() : null) == 1)
             {
-    			$res .= $this->getTransactionStatus($row['tid'], $method);
-    		}
+                $res .= $this->getTransactionStatus($row['tid'], $method, $order);
+            }
 
-    		$res .= "</table><br>";
+            $res .= "</table><br>";
 
-    		$res .= "<a href='https://admin.ditonlinebetalingssystem.dk/admin' target='_blank'>" . Mage::helper('epay')->__("Go to payment system administration and process the transaction") . "</a>";
-    		$res .= "<br><br>";
+            $res .= "<a href='https://admin.ditonlinebetalingssystem.dk/admin' target='_blank'>" . Mage::helper('epay')->__("Go to payment system administration and process the transaction") . "</a>";
+            $res .= "<br><br>";
 
-    	}
-		else
-		{
-			$res .= "<br>" . Mage::helper('epay')->__("There is not registered any payment for this order yet!") . "<br>";
-		}
+        }
+        else
+        {
+            $res = $this->getChildHtml('order_payment');
+            $res .= "<br>" . Mage::helper('epay')->__("There is not registered any payment for this order yet!") . "<br>";
+        }
 
-		return $res;
+        return $res;
     }
 
     //
@@ -152,45 +106,46 @@ class Mage_Epay_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Adminhtml
     //
     public function translatePaymentStatus($status)
     {
-		if(strcmp($status, "PAYMENT_NEW") == 0)
-		{
-			return Mage::helper('epay')->__("New");
-		}
-		elseif (strcmp($status, "PAYMENT_CAPTURED") == 0 || strcmp($status, "PAYMENT_EUROLINE_WAIT_CAPTURE") == 0 || strcmp($status, "PAYMENT_EUROLINE_WAIT_CREDIT") == 0)
-		{
-			return Mage::helper('epay')->__("Captured");
-		}
-		elseif (strcmp($status, "PAYMENT_DELETED") == 0)
-		{
-			return Mage::helper('epay')->__("Deleted");
-		}
-		else
-		{
-			return Mage::helper('epay')->__("Unknown");
-		}
+        if(strcmp($status, "PAYMENT_NEW") == 0)
+        {
+            return Mage::helper('epay')->__("New");
+        }
+        elseif (strcmp($status, "PAYMENT_CAPTURED") == 0 || strcmp($status, "PAYMENT_EUROLINE_WAIT_CAPTURE") == 0 || strcmp($status, "PAYMENT_EUROLINE_WAIT_CREDIT") == 0)
+        {
+            return Mage::helper('epay')->__("Captured");
+        }
+        elseif (strcmp($status, "PAYMENT_DELETED") == 0)
+        {
+            return Mage::helper('epay')->__("Deleted");
+        }
+        else
+        {
+            return Mage::helper('epay')->__("Unknown");
+        }
     }
 
     //
     // Retrieves the transaction status from ePay
     //
-    public function getTransactionStatus($tid, $paymentobj)
+    public function getTransactionStatus($tid, $paymentobj, $order)
     {
         $res = "<tr><td colspan='2'><br><b>" . Mage::helper('epay')->__("Current payment system transaction status") . "</b></td></tr>";
         try
-		{
+        {
+            $storeId = $order->getStoreId();
             $param = array
             (
-                'merchantnumber' => $paymentobj->getConfigData('merchantnumber', $this->getOrder() ? $this->getOrder()->getStoreId() : null),
+                'merchantnumber' => $paymentobj->getConfigData('merchantnumber', $storeId),
                 'transactionid' => $tid,
                 'epayresponse' => 0,
-                'pwd' => $paymentobj->getConfigData('remoteinterfacepassword', $this->getOrder() ? $this->getOrder()->getStoreId() : null)
+                'pwd' => $paymentobj->getConfigData('remoteinterfacepassword', $storeId)
             );
 
-			$client = new SoapClient('https://ssl.ditonlinebetalingssystem.dk/remote/payment.asmx?WSDL');
+            $client = new SoapClient('https://ssl.ditonlinebetalingssystem.dk/remote/payment.asmx?WSDL');
 
             $result = $client->gettransaction($param);
 
-            if ($result->gettransactionResult == 1)
+            if ($result->gettransactionResult === true)
             {
                 $res .= "<tr><td>" . Mage::helper('epay')->__("Transaction status") . ":</td>";
                 $res .= "<td>" . $this->translatePaymentStatus($result->transactionInformation->status) . "</td></tr>";
@@ -207,7 +162,7 @@ class Mage_Epay_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Adminhtml
                 $res .= "<tr><td>" . Mage::helper('epay')->__("Acquirer") . ":</td>";
                 $res .= "<td>" . $result->transactionInformation->acquirer . "</td></tr>";
 
-                $res .= "<tr><td>" . Mage::helper('epay')->__("Currency code:") . ":</td>";
+                $res .= "<tr><td>" . Mage::helper('epay')->__("Currency code") . ":</td>";
                 $res .= "<td>" . $result->transactionInformation->currency . "</td></tr>";
 
                 $res .= "<tr><td>" . Mage::helper('epay')->__("Splitpayment") . ":</td>";
@@ -223,16 +178,16 @@ class Mage_Epay_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Adminhtml
                 $res .= "<td>" . $result->transactionInformation->cardholder . "</td></tr>";
 
                 $res .= "<tr><td>" . Mage::helper('epay')->__("Auth amount") . ":</td>";
-                $res .= "<td>" . $this->getOrder()->getBaseCurrencyCode() . "&nbsp;" . number_format(((int)$result->transactionInformation->authamount) / 100, 2, ',', ' ') . "&nbsp;&nbsp;&nbsp;" . (((int)$result->transactionInformation->authamount) > 0 ? str_replace("T", " ", $result->transactionInformation->authdate) : "") . "</td></tr>";
+                $res .= "<td>" . $order->getBaseCurrencyCode() . "&nbsp;" . number_format(((int)$result->transactionInformation->authamount) / 100, 2, ',', ' ') . "&nbsp;&nbsp;&nbsp;" . (((int)$result->transactionInformation->authamount) > 0 ? str_replace("T", " ", $result->transactionInformation->authdate) : "") . "</td></tr>";
 
                 $res .= "<tr><td>" . Mage::helper('epay')->__("Captured amount") . ":</td>";
-                $res .= "<td>" . $this->getOrder()->getBaseCurrencyCode() . "&nbsp;" . number_format(((int)$result->transactionInformation->capturedamount) / 100, 2, ',', ' ') . "&nbsp;&nbsp;&nbsp;" . (((int)$result->transactionInformation->capturedamount) > 0 ? str_replace("T", " ", $result->transactionInformation->captureddate) : "") . "</td></tr>";
+                $res .= "<td>" . $order->getBaseCurrencyCode() . "&nbsp;" . number_format(((int)$result->transactionInformation->capturedamount) / 100, 2, ',', ' ') . "&nbsp;&nbsp;&nbsp;" . (((int)$result->transactionInformation->capturedamount) > 0 ? str_replace("T", " ", $result->transactionInformation->captureddate) : "") . "</td></tr>";
 
                 $res .= "<tr><td>" . Mage::helper('epay')->__("Credited amount") . ":</td>";
-                $res .= "<td>" . $this->getOrder()->getBaseCurrencyCode() . "&nbsp;" . number_format(((int)$result->transactionInformation->creditedamount) / 100, 2, ',', ' ') . "&nbsp;&nbsp;&nbsp;" . (((int)$result->transactionInformation->creditedamount) > 0 ? str_replace("T", " ", $result->transactionInformation->crediteddate) : "") . "</td></tr>";
+                $res .= "<td>" . $order->getBaseCurrencyCode() . "&nbsp;" . number_format(((int)$result->transactionInformation->creditedamount) / 100, 2, ',', ' ') . "&nbsp;&nbsp;&nbsp;" . (((int)$result->transactionInformation->creditedamount) > 0 ? str_replace("T", " ", $result->transactionInformation->crediteddate) : "") . "</td></tr>";
 
                 $res .= "<tr><td>" . Mage::helper('epay')->__("Transaction fee") . ":</td>";
-                $res .= "<td>" . $this->getOrder()->getBaseCurrencyCode() . "&nbsp;" . number_format(((int)$result->transactionInformation->fee) / 100, 2, ',', ' ') . "</td></tr>";
+                $res .= "<td>" . $order->getBaseCurrencyCode() . "&nbsp;" . number_format(((int)$result->transactionInformation->fee) / 100, 2, ',', ' ') . "</td></tr>";
 
                 if(isset($result->transactionInformation->history) && isset($result->transactionInformation->history->TransactionHistoryInfo) && count($result->transactionInformation->history->TransactionHistoryInfo) > 0)
                 {
@@ -277,24 +232,23 @@ class Mage_Epay_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Adminhtml
                 }
             }
         }
-		catch (Exception $e)
-		{
+        catch (Exception $e)
+        {
             $res .= "<tr><td colspan='2'>" . Mage::helper('epay')->__("An error occured in the communication to the payment system") ." - ". $e->getMessage(). "</td>";
-		}
+        }
 
-		return $res;
+        return $res;
     }
 
-    public function printLogo($cardid) {
-    	$res = '<img src="';
-		$res .= $this->getSkinUrl('images/epay/'. $cardid .'.png');
-    	$res .= '" border="0" />';
-    	return $res;
-    }
-
-    public function getViewUrl($orderId)
+    /**
+     * Create html for paymentLogoUrl
+     *
+     * @param mixed $paymentId
+     * @return string
+     */
+    private function getPaymentLogoUrl($paymentId)
     {
-		return $orderId;
+        return '<img class="epay_paymentcard" src="https://d25dqh6gpkyuw6.cloudfront.net/paymentlogos/external/'.$paymentId . '.png"';
     }
 
     /**
@@ -302,19 +256,17 @@ class Mage_Epay_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Adminhtml
      */
     public function getTabLabel()
     {
-        return Mage::helper('sales')->__("Information");
+        return Mage::helper('epay')->__('ePay');
     }
-
     public function getTabTitle()
     {
-        return Mage::helper('sales')->__("Order Information");
+        return Mage::helper('epay')->__('ePay Payment Information');
     }
-
     public function canShowTab()
     {
-        return true;
+        $currentMethod = $this->getOrder()->getPayment()->getMethod();
+        return $currentMethod === 'epay_standard';
     }
-
     public function isHidden()
     {
         return false;

@@ -1,10 +1,9 @@
 <?php
 /**
- * Copyright ePay | Dit Online Betalingssystem, (c) 2010.
+ * Copyright ePay | Dit Online Betalingssystem, (c) 2016.
  * This program is free software. You are allowed to use the software but NOT allowed to modify the software.
  * It is also not legal to do any changes to the software and distribute it in your own name / brand.
  */
-
 abstract class Mage_Epay_Helper_Gateway_Abstract extends Mage_Core_Helper_Abstract
 {
     protected $order;

@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
- 
-<layout>
+ <layout>
     <adminhtml_paymentrequest_index>
         <reference name="content">
             <block type="epay/adminhtml_paymentrequest" name="paymentrequest" />
@@ -11,4 +10,22 @@
             <block type="epay/adminhtml_paymentrequest_view" name="paymentrequest_view" />
         </reference>
     </adminhtml_paymentrequest_view>
+
+   <adminhtml_sales_order_view>
+     <reference name="sales_order_tabs">
+       <action method="addTab">
+         <name>epay_payment_info</name>
+         <block>epay/adminhtml_sales_order_view_tab_info</block>
+       </action>
+     </reference>
+   </adminhtml_sales_order_view>
+
+   <default>
+     <reference name="head">
+       <action method="addCss">
+         <stylesheet>css/epay/epay.css</stylesheet>
+       </action>
+     </reference>
+   </default>
+
 </layout>

@@ -1,24 +1,27 @@
 <?xml version="1.0"?>
 <!--
 
- * Copyright ePay | Dit Online Betalingssystem, (c) 2009.
+ * Copyright ePay | Dit Online Betalingssystem, (c) 2016.
  * 
  * This program is free software. You are allowed to use the software but NOT allowed to modify the software. 
  * It is also not legal to do any changes to the software and distribute it in your own name / brand. 
 
 -->
 <config>
-    <modules>
-        <Mage_Epay>
-            <active>true</active>
-            <codePool>local</codePool>
-        </Mage_Epay>
-	</modules>
-    <global>
-            <models>
-                    <Mage_Epay>
-                            <class>Mage_Epay_Model</class>
-                    </Mage_Epay>
-            </models>
-    </global>
+  <modules>
+    <Mage_Epay>
+      <active>true</active>
+      <codePool>local</codePool>
+      <depends>
+        <Mage_Payment />
+      </depends>
+    </Mage_Epay>
+  </modules>
+  <global>
+    <models>
+      <Mage_Epay>
+        <class>Mage_Epay_Model</class>
+      </Mage_Epay>
+    </models>
+  </global>
 </config>

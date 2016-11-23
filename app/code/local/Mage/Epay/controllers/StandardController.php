@@ -1,14 +1,11 @@
 <?php
 /**
- * Copyright ePay | Dit Online Betalingssystem, (c) 2010.
+ * Copyright ePay | Dit Online Betalingssystem, (c) 2016.
  * This program is free software. You are allowed to use the software but NOT allowed to modify the software.
  * It is also not legal to do any changes to the software and distribute it in your own name / brand.
  */
-
 class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
 {
-    const PSP_REFERENCE = 'epayReference';
-
     /**
      * Check if the session is expired
      */
@@ -35,22 +32,23 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
      */
     public function redirectAction()
     {
-		$this->loadLayout();
-		$this->getLayout()->getBlock('content')->append($this->getLayout()->createBlock('epay/standard_redirect'));
-		$this->renderLayout();
-
         $session = Mage::getSingleton('checkout/session');
 		$session->setEpayStandardQuoteId($session->getQuoteId());
 
 		$this->_orderObj = Mage::getModel('sales/order');
 		$this->_orderObj->loadByIncrementId($session->getLastRealOrderId());
-		$this->_orderObj->addStatusToHistory($this->_orderObj->getStatus(), $this->__("The order is now placed and payment must now be made by ePay online payment system (www.epay.eu)"));
+		$this->_orderObj->addStatusToHistory($this->_orderObj->getStatus(), Mage::helper('epay')->__("The order is now placed and payment must now be made by ePay online payment system (www.epay.eu)"));
 		$this->_orderObj->save();
+
+
+        $this->loadLayout();
+		$this->getLayout()->getBlock('content')->append($this->getLayout()->createBlock('epay/standard_redirect'));
+		$this->renderLayout();
     }
 
 	/**
-	 * Checkout Action
-	 */
+     * Checkout Action
+     */
 	public function checkoutAction()
     {
 		$quote = Mage::getModel('checkout/cart')->getQuote();
@@ -215,7 +213,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
         {
             $message = '';
             $payment = $order->getPayment();
-            $pspReference = $payment->getAdditionalInformation($this::PSP_REFERENCE);
+            $pspReference = $payment->getAdditionalInformation(Mage_Epay_Model_Standard::PSP_REFERENCE);
             if(empty($pspReference))
             {
                 $this->updatePaymentData($order, $method->getConfigData('order_status_after_payment', $storeId));
@@ -282,7 +280,6 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
 									'cardid = "' . ((isset($_GET['paymenttype'])) ? $_GET['paymenttype'] : '0') . '", '.
 									'cardnopostfix = "' . ((isset($_GET['cardno'])) ? $_GET['cardno'] : '') . '", '.
 									'transfee = "' . ((isset($_GET['txnfee'])) ? $_GET['txnfee'] : '0') . '" where orderid = "' . $_GET['orderid'] . '"');
-
         }
     }
 
@@ -299,11 +296,15 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
         $txnId = $_GET["txnid"];
         $payment->setTransactionId($txnId);
         $payment->setIsTransactionClosed(false);
-        $payment->setAdditionalInformation($this::PSP_REFERENCE, $txnId);
+        $payment->setAdditionalInformation(Mage_Epay_Model_Standard::PSP_REFERENCE, $txnId);
         $payment->addTransaction(Mage_Sales_Model_Order_Payment_Transaction::TYPE_AUTH);
+
+        $payment->setCcNumberEnc($_GET['cardno']);
+        $payment->setCcType($this->getMethod()->calcCardtype($_GET['paymenttype']));
+
         $payment->save();
 
-        $message = Mage::helper('epay')->__("Payment authorization was a success.") . ' ' . sprintf(Mage::helper('sales')->__("Transaction ID: '%s'."), $txnId);
+        $message = Mage::helper('epay')->__("Payment authorization was a success.") . ' ' . Mage::helper('sales')->__("Transaction ID").': '.$txnId;
         $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, $orderStatusAfterPayment, $message, false);
         $order->save();
     }

@@ -1,19 +1,19 @@
 <?php
 /**
- * Copyright ePay | Dit Online Betalingssystem, (c) 2010.
+ * Copyright ePay | Dit Online Betalingssystem, (c) 2016.
  *
  * This program is free software. You are allowed to use the software but NOT allowed to modify the software.
  * It is also not legal to do any changes to the software and distribute it in your own name / brand.
  */
-
 class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 {
     const PAYMENT_TYPE_AUTH = 'AUTHORIZATION';
     const PAYMENT_TYPE_SALE = 'SALE';
+    const PSP_REFERENCE = 'epayReference';
 
     protected $_code  = 'epay_standard';
     protected $_formBlockType = 'epay/standard_form';
-	protected $_infoBlockType = 'epay/standard_email';
+	protected $_infoBlockType = 'epay/standard_info';
 
 	protected $_isGateway 				= true;
 	protected $_canAuthorize 			= false; // NO! Authorization is not done by webservices! (PCI)
@@ -42,7 +42,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 		'TND','TOP','TPE','TRL','TRY','TTD','TWD','TZS','UAH','UGX','USD','UYU','UZS','VEB','VND','VUV','XAF','XCD','XOF','XPF','YER',
 		'YUM','ZAR','ZMK','ZWD'
     );
-    
+
     public function getSession()
     {
         return Mage::getSingleton('epay/session');
@@ -313,7 +313,6 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 
 		return $this->_canCapture;
 	}
-
 
     public function capture(Varien_Object $payment, $amount)
     {
