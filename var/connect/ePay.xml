@@ -1,12 +1,11 @@
 <_>
-   <form_key>yjWv9t4HBEKXrU4v</form_key>
+   <form_key>WjihxgDjUya4dbyS</form_key>
    <name>ePay</name>
    <channel>community</channel>
    <version_ids>
       <version_ids>2</version_ids>
    </version_ids>
-   <summary>V. 2.6.6
-- Fix for Hash error when using special characters in invoice data</summary>
+   <summary>An online payment gateway for ePay payment solutions</summary>
    <description>This is the payment module for the Scandinavian payment gateway ePay - http://www.epay.dk
 
 ePay is the leading payment system in Scandinavia, which offers payment solutions to both small and large companies. We have focus on flexible, effective and user friendly payment solutions for extreme competitive prices. 
@@ -29,19 +28,36 @@ Card types accepted by the ePay payment gateway:
 - Danske Bank e-betaling
 - Nordea e-betaling
 
-Get a test account for free by contacting ePay at support@epay.dk or signup on page http://www.epay.dk/main/signup.asp. In step two - just enter &quot;TEST ACCOUNT&quot;.
+Get a test account for free by contacting ePay at support@bambora.com or signup on page http://www.epay.dk/main/signup.asp. In step two - just enter &quot;TEST ACCOUNT&quot;.
 
 For other enquiries please contact ePay at sales@epay.dk or by phone +45 98 13 90 40
 
 License:
 This program is free software for merchants. You are allowed to use the software but NOT allowed to modify the software. It is also not legal to do any changes to the software and distribute it in your own name / brand. 
 
-Copyright ePay | Payment solutions - www.epay.dk (c) 2010.</description>
+Copyright ePay | Payment solutions - www.epay.dk (c) 2016.</description>
    <license>ePay limited license</license>
    <license_uri/>
-   <version>2.6.6</version>
+   <version>2.7.0</version>
    <stability>stable</stability>
-   <notes>- Fix for Hash error when using special characters in invoice data</notes>
+   <notes>- Fix for admin routes changed in Magento Patch 6788
+- Added removal of special characters in invoice object
+- Added handling for going back in payment window and success page
+- Fix for debug mode on order page
+- Fix for Cancel not restoring cart
+- Fix for translations showing &quot;Epay_Label_&quot; when no translation found
+- Fix for order information not displayed correctly
+- Added css for styling module
+- Removed all image files
+- Removal of config groups
+- Removed rewrites 
+- Added ePay payment information to separate tab
+- Fix for auto canceling issues
+- Code refactoring and bug fixes
+
+Notice:
+Before upgrading to this version you must be on version 2.6.4 or newer.
+</notes>
    <authors>
       <name>
          <name>Bambora</name>
@@ -50,10 +66,10 @@ Copyright ePay | Payment solutions - www.epay.dk (c) 2010.</description>
          <user>bambora</user>
       </user>
       <email>
-         <email>shoppingcarts@bambora.com</email>
+         <email>support@bambora.com</email>
       </email>
    </authors>
-   <depends_php_min>5.6.0</depends_php_min>
+   <depends_php_min>5.4.0</depends_php_min>
    <depends_php_max>100.0.0</depends_php_max>
    <depends>
       <package>
@@ -70,7 +86,7 @@ Copyright ePay | Payment solutions - www.epay.dk (c) 2010.</description>
             <max/>
          </max>
          <files>
-            <files>                                                                                      </files>
+            <files>                                                                                                                        </files>
          </files>
       </package>
       <extension>
@@ -112,14 +128,14 @@ Copyright ePay | Payment solutions - www.epay.dk (c) 2010.</description>
          <path>frontend/base/default/template/epay/standard/</path>
          <path>da_DK/Mage_Epay.csv</path>
          <path>en_US/Mage_Epay.csv</path>
-         <path>adminhtml/base/default/images/epay/</path>
+         <path>adminhtml/base/default/css/epay/</path>
          <path>en_AU/Mage_Epay.csv</path>
          <path>en_GB/Mage_Epay.csv</path>
          <path>en_NZ/Mage_Epay.csv</path>
          <path>sv_SE/Mage_Epay.csv</path>
          <path>nb_NO/Mage_Epay.csv</path>
          <path>de_DE/Mage_Epay.csv</path>
-         <path>adminhtml/base/default/template/epay/</path>
+         <path>adminhtml/default/default/template/epay/</path>
          <path>adminhtml/default/default/layout/epay.xml</path>
       </path>
       <type>
