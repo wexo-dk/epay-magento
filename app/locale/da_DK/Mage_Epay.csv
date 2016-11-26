@@ -55,3 +55,4 @@
 "We Invoiced and Captured %s order(s).","Vi har Faktureret og hævet %s order."
 "Payment authorization was a success.","Betalings anmodningen var en success"
 "Order was auto canceled because no payment has been made.","Ordren er blevet auto canceled fordi ingen betalinger er registreret"
+"Create payment request","Opret betalingsanmodning"
