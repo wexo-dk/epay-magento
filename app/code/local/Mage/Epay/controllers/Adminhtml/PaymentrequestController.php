@@ -104,7 +104,7 @@ class Mage_Epay_Adminhtml_PaymentrequestController extends Mage_Adminhtml_Contro
 
 					$params["paymentrequest"]["parameters"] = array();
 					$params["paymentrequest"]["parameters"]["amount"] = $data['amount'] * 100;
-					$params["paymentrequest"]["parameters"]["callbackurl"] = Mage::getUrl('epay/standard/callback', array('_nosid' => true, '_query' => array('paymentrequest' => $paymentRequest->id)));
+					$params["paymentrequest"]["parameters"]["callbackurl"] = Mage::getUrl('epay/standard/callback', array('_nosid' => true, '_query' => array('paymentrequest' => $paymentRequest->id), '_store' => $order ? $order->getStoreId() : null));
 					$params["paymentrequest"]["parameters"]["currency"] = $data['currency'];
 					$params["paymentrequest"]["parameters"]["group"] = $standard->getConfigData('group', $order ? $order->getStoreId() : null);
 					$params["paymentrequest"]["parameters"]["instantcapture"] = ($standard->getConfigData('instantcapture', $order ? $order->getStoreId() : null) == "1" ? "automatic" : "manual");
