@@ -1,5 +1,5 @@
 <_>
-   <form_key>WjihxgDjUya4dbyS</form_key>
+   <form_key>zwlwEhPJjCECwIYA</form_key>
    <name>ePay</name>
    <channel>community</channel>
    <version_ids>
@@ -38,25 +38,12 @@ This program is free software for merchants. You are allowed to use the software
 Copyright ePay | Payment solutions - www.epay.dk (c) 2016.</description>
    <license>ePay limited license</license>
    <license_uri/>
-   <version>2.7.0</version>
+   <version>2.7.1</version>
    <stability>stable</stability>
-   <notes>- Fix for admin routes changed in Magento Patch 6788
-- Added removal of special characters in invoice object
-- Added handling for going back in payment window and success page
-- Fix for debug mode on order page
-- Fix for Cancel not restoring cart
-- Fix for translations showing &quot;Epay_Label_&quot; when no translation found
-- Fix for order information not displayed correctly
-- Added css for styling module
-- Removed all image files
-- Removal of config groups
-- Removed rewrites 
-- Added ePay payment information to separate tab
-- Fix for auto canceling issues
-- Code refactoring and bug fixes
+   <notes> - Fix for Cancel and Void logic not working as indented
+ - Fix for get Transaction not being disabled when Remote interface is disabled
+ - Fix for Canceled order being changed if callback occurs after Cancel
 
-Notice:
-Before upgrading to this version you must be on version 2.6.4 or newer.
 </notes>
    <authors>
       <name>
@@ -86,7 +73,7 @@ Before upgrading to this version you must be on version 2.6.4 or newer.
             <max/>
          </max>
          <files>
-            <files>                                                                                                                        </files>
+            <files>                                                                                                                          </files>
          </files>
       </package>
       <extension>
@@ -193,8 +180,4 @@ Before upgrading to this version you must be on version 2.6.4 or newer.
          <ignore/>
       </ignore>
    </contents>
-   <page>1</page>
-   <limit>200</limit>
-   <folder/>
-   <package/>
 </_>
