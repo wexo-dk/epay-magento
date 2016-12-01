@@ -35,10 +35,15 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
         $session = Mage::getSingleton('checkout/session');
 		$session->setEpayStandardQuoteId($session->getQuoteId());
 
-		$this->_orderObj = Mage::getModel('sales/order');
-		$this->_orderObj->loadByIncrementId($session->getLastRealOrderId());
-		$this->_orderObj->addStatusToHistory($this->_orderObj->getStatus(), Mage::helper('epay')->__("The order is now placed and payment must now be made by ePay online payment system (www.epay.eu)"));
-		$this->_orderObj->save();
+
+		$orderModel = Mage::getModel('sales/order');
+		/** @var Mage_Sales_Model_Order */
+        $order = $orderModel->loadByIncrementId($session->getLastRealOrderId());
+
+        $paymentMethod = $order->getPayment()->getMethodInstance();
+        $status = $paymentMethod->getConfigData('order_status', $order->getStoreId());
+		$order->addStatusToHistory(isset($status) ? $status : $order->getStatus(), Mage::helper('epay')->__("The Order is placed using ePay Online payment system and is now awaiting payment."));
+        $order->save();
 
 
         $this->loadLayout();
@@ -207,6 +212,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
     private function processCallback(&$responseCode)
     {
         $method = $this->getMethod();
+        /** @var Mage_Sales_Model_Order */
         $order = Mage::getModel('sales/order')->loadByIncrementId($_GET["orderid"]);
         $storeId = $order->getStoreId();
         try
@@ -214,7 +220,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
             $message = '';
             $payment = $order->getPayment();
             $pspReference = $payment->getAdditionalInformation(Mage_Epay_Model_Standard::PSP_REFERENCE);
-            if(empty($pspReference))
+            if(empty($pspReference) && !$order->isCanceled())
             {
                 $this->updatePaymentData($order, $method->getConfigData('order_status_after_payment', $storeId));
 
@@ -238,7 +244,14 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
             }
             else
             {
-                $message = "Callback Success - Order already created";
+                if($order->isCanceled())
+                {
+                    $message = "Callback Success - Order was canceled by Magento";
+                }
+                else
+                {
+                    $message = "Callback Success - Order already created";
+                }
             }
             $responseCode = '200';
             return $message;

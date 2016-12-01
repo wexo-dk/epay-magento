@@ -12,13 +12,24 @@ class Mage_Epay_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Adminhtml
         $this->setTemplate('epay/order/view/tab/info.phtml');
     }
 
-    public function getOrder()
+    private function getOrder()
     {
         return Mage::registry('current_order');
     }
 
+    private function isRemoteInterfaceEnabled()
+    {
+       $order = $this->getOrder();
+       return intval($order->getPayment()->getMethodInstance()->getConfigData('remoteinterface', $order->getStoreId())) === 1;
+    }
+
     public function getPaymentInformationHtml()
     {
+        if(!$this->isRemoteInterfaceEnabled())
+        {
+            return Mage::helper('epay')->__("Please enable remote payment processing from the module configuration");
+        }
+
         $order = $this->getOrder();
         $read = Mage::getSingleton('core/resource')->getConnection('core_read');
         $row = $read->fetchRow("select * from epay_order_status where orderid = '" . $order->getIncrementId() . "'");
@@ -264,8 +275,13 @@ class Mage_Epay_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Adminhtml
     }
     public function canShowTab()
     {
-        $currentMethod = $this->getOrder()->getPayment()->getMethod();
-        return $currentMethod === 'epay_standard';
+        /** @var Mage_Sales_Model_Order_Payment $payment */
+        $payment = $this->getOrder()->getPayment();
+        if($payment->getMethod() === 'epay_standard' && $this->isRemoteInterfaceEnabled())
+        {
+            return true;
+        }
+        return false;
     }
     public function isHidden()
     {

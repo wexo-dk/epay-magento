@@ -16,17 +16,13 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 	protected $_infoBlockType = 'epay/standard_info';
 
 	protected $_isGateway 				= true;
-	protected $_canAuthorize 			= false; // NO! Authorization is not done by webservices! (PCI)
 	protected $_canCapture 				= true;
 	protected $_canCapturePartial 		= true;
-	protected $_canRefund 				= true;
-	protected $_canOrder 				= true;
+    protected $_canRefund 				= true;
 	protected $_canRefundInvoicePartial = true;
-	protected $_canVoid 				= true;
-	protected $_canUseInternal 			= true;	// If an internal order is created (phone / mail order) payment must be done using webpay and not an internal checkout method!
-	protected $_canUseCheckout 			= true;
-	protected $_canUseForMultishipping 	= true;
-	protected $_canSaveCc 				= false; // NO CC is never saved. (PCI)
+    protected $_canOrder 				= true;
+    protected $_canVoid                 = true;
+
 
     //
     // Allowed currency types
@@ -294,30 +290,36 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 
         return false;
     }
+
     private function canOnlineAction($payment)
     {
-        if (intval($this->getConfigData('remoteinterface', $payment->getOrder() ? $payment->getOrder()->getStoreId() : null)) != 1)
+        if (intval($this->getConfigData('remoteinterface', $payment->getOrder() ? $payment->getOrder()->getStoreId() : null)) === 1)
         {
-            Mage::throwException(Mage::helper('epay')->__("The payment action could not, be processed online. Please enable remote payment processing from the module configuration"));
+            return true;
         }
+
+        return false;
     }
 
 	public function canCapture()
 	{
 		$captureOrder = $this->_data["info_instance"]->getOrder();
 
-        if(!$this->canAction($captureOrder))
+        if($this->_canCapture && $this->canAction($captureOrder))
         {
-            return false;
+            return true;
         }
 
-		return $this->_canCapture;
+        return false;
 	}
 
     public function capture(Varien_Object $payment, $amount)
     {
         parent::capture($payment, $amount);
-        $this->canOnlineAction($payment);
+        if(!$this->canOnlineAction($payment))
+        {
+            Mage::throwException(Mage::helper('epay')->__("The action could not, be processed online. Please enable remote payment processing from the module configuration"));
+        }
 
 		try
 		{
@@ -385,19 +387,22 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
     {
 		$creditOrder = $this->_data["info_instance"]->getOrder();
 
-		if(!$this->canAction($creditOrder))
+		if($this->_canRefund && $this->canAction($creditOrder))
         {
-            return false;
+            return true;
         }
 
-		return $this->_canRefund;
+		return false;
     }
 
 
     public function refund(Varien_Object $payment, $amount)
     {
         parent::refund($payment, $amount);
-        $this->canOnlineAction($payment);
+        if(!$this->canOnlineAction($payment))
+        {
+            Mage::throwException(Mage::helper('epay')->__("The action could not, be processed online. Please enable remote payment processing from the module configuration"));
+        }
 
 		try
 		{
@@ -461,72 +466,32 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
     }
 
     public function cancel(Varien_Object $payment)
-	{
-        $order = $payment->getOrder();
-        if($this->canVoidOnline($order))
-        {
-            $this->void($payment);
-        }
-        else
-        {
-            $this->addOrderComment($order,'The order: %1 is canceled but the payment could not be voided', $order->getId());
-        }
-
-		return $this;
-	}
-
-    private function canVoidOnline($order)
     {
         try
-		{
-			// Read info directly from the database
-			$read = Mage::getSingleton('core/resource')->getConnection('core_read');
-			$row = $read->fetchRow("select * from epay_order_status where orderid = '" . $order->getIncrementId() . "'");
-
-			if($row["status"] == '1')
-			{
-				$tid = $row["tid"];
-				$param = array
-				(
-					'merchantnumber' => $this->getConfigData('merchantnumber', $order ? $order->getStoreId() : null),
-					'transactionid' => $tid,
-					'epayresponse' => 0,
-					'pwd' => $this->getConfigData('remoteinterfacepassword', $order ? $order->getStoreId() : null)
-				);
-
-				$client = new SoapClient('https://ssl.ditonlinebetalingssystem.dk/remote/payment.asmx?WSDL');
-				$result = $client->gettransaction($param);
-
-                return $result->gettransactionResult == 1;
-			}
-			else
-			{
-				return false;
-			}
-		}
-		catch (Exception $e)
-		{
-            return false;
-		}
-    }
-
-    public function canVoid(Varien_Object $payment)
-	{
-		$voidOrder = $this->_data["info_instance"]->getOrder();
-
-        if(!$this->canAction($voidOrder))
         {
-            return false;
+            $this->void($payment);
+            $this->adminMessageHandler()->addInfo(Mage::helper('epay')->__("The payment have been voided"));
+        }
+        catch(Exception $e)
+        {
+            $this->adminMessageHandler()->addError($e->getMessage());
         }
 
-        return $this->_canVoid;
-	}
+        return $this;
+    }
 
+     public function canVoid(Varien_Object $payment)
+     {
+         if($this->_canVoid && $this->canOnlineAction($payment))
+         {
+             return true;
+         }
+
+         return false;
+     }
 
     public function void(Varien_Object $payment)
     {
-        parent::void($payment);
-        $this->canOnlineAction($payment);
 		try
 		{
 			$read = Mage::getSingleton('core/resource')->getConnection('core_read');
@@ -607,5 +572,10 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
     public function getCallbackUrl()
     {
         return Mage::getUrl('epay/standard/callback', array('_nosid' => true));
+    }
+
+    public function adminMessageHandler()
+    {
+        return Mage::getSingleton('adminhtml/session');
     }
 }
