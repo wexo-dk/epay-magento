@@ -75,17 +75,20 @@ class Mage_Epay_Adminhtml_PaymentrequestController extends Mage_Adminhtml_Contro
 			    }
 
 				$standard = Mage::getModel('epay/standard');
-
+                $localCode = Mage::app()->getLocale()->getLocaleCode();
+                $localCodeFix = str_replace('_','-',$localCode);
 				//Validate order id
 				$order_id = $this->getRequest()->getParam('id');
 
 				$order = Mage::getModel('sales/order')->loadByIncrementId($order_id);
 				if($order->hasData())
 				{
+                    $amountMinorunits = $order->getBaseTotalDue() * 100;
+
 					$paymentRequest = Mage::getModel('epay/paymentrequest');
 					$paymentRequest->setData('orderid', $data['orderid']);
 					$paymentRequest->setData('currency', $data['currency']);
-					$paymentRequest->setData('amount', $data['amount'] * 100);
+					$paymentRequest->setData('amount', $amountMinorunits);
 					$paymentRequest->setData('receiver', $data['recipient_email']);
 					$paymentRequest->setData('created', date('Y-m-d H:i:s', strtotime(Mage::getSingleton('core/date')->gmtDate())));
 					$paymentRequest->save();
@@ -97,19 +100,21 @@ class Mage_Epay_Adminhtml_PaymentrequestController extends Mage_Adminhtml_Contro
 					$params["authentication"] = array();
 					$params["authentication"]["merchantnumber"] = $standard->getConfigData('merchantnumber', $order ? $order->getStoreId() : null);
 					$params["authentication"]["password"] = $standard->getConfigData('remoteinterfacepassword', $order ? $order->getStoreId() : null);
+                    $params["language"] = $localCodeFix;
 
 					$params["paymentrequest"] = array();
 					$params["paymentrequest"]["reference"] = $data['orderid'];
 					$params["paymentrequest"]["closeafterxpayments"] = 1;
 
 					$params["paymentrequest"]["parameters"] = array();
-					$params["paymentrequest"]["parameters"]["amount"] = $data['amount'] * 100;
+					$params["paymentrequest"]["parameters"]["amount"] = $amountMinorunits;
 					$params["paymentrequest"]["parameters"]["callbackurl"] = Mage::getUrl('epay/standard/callback', array('_nosid' => true, '_query' => array('paymentrequest' => $paymentRequest->id)));
 					$params["paymentrequest"]["parameters"]["currency"] = $data['currency'];
 					$params["paymentrequest"]["parameters"]["group"] = $standard->getConfigData('group', $order ? $order->getStoreId() : null);
 					$params["paymentrequest"]["parameters"]["instantcapture"] = ($standard->getConfigData('instantcapture', $order ? $order->getStoreId() : null) == "1" ? "automatic" : "manual");
 					$params["paymentrequest"]["parameters"]["orderid"] = $data['orderid'];
 					$params["paymentrequest"]["parameters"]["windowid"] = $standard->getConfigData('windowid', $order ? $order->getStoreId() : null);
+                    $params["paymentrequest"]["parameters"]["language"] = $standard->calcLanguage($localCode);
 
 					if($standard->getConfigData('enableinvoicedata', $order ? $order->getStoreId() : null))
 					{
@@ -124,7 +129,7 @@ class Mage_Epay_Adminhtml_PaymentrequestController extends Mage_Adminhtml_Contro
 						$sendParams = array();
 
 						$sendParams["authentication"] = $params["authentication"];
-
+                        $sendParams["language"] = $localCodeFix;
 						$sendParams["email"] = array();
 						$sendParams["email"]["comment"] = $data['comment'];
 						$sendParams["email"]["requester"] = $data['requester'];
@@ -174,4 +179,5 @@ class Mage_Epay_Adminhtml_PaymentrequestController extends Mage_Adminhtml_Contro
 
 		$this->createAction();
 	}
+
 }

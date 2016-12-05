@@ -35,14 +35,21 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
         $session = Mage::getSingleton('checkout/session');
 		$session->setEpayStandardQuoteId($session->getQuoteId());
 
+        //Check if the payment already have been opende
+        $read = Mage::getSingleton('core/resource')->getConnection('core_read');
+		$row = $read->fetchRow("select * from epay_order_status where orderid = '" . $session->getLastRealOrderId() . "'");
+        if($row || !empty($row['orderid']))
+        {
+            $this->_redirect('checkout/cart');
+        }
 
-		$orderModel = Mage::getModel('sales/order');
+        $orderModel = Mage::getModel('sales/order');
 		/** @var Mage_Sales_Model_Order */
         $order = $orderModel->loadByIncrementId($session->getLastRealOrderId());
 
         $paymentMethod = $order->getPayment()->getMethodInstance();
         $status = $paymentMethod->getConfigData('order_status', $order->getStoreId());
-		$order->addStatusToHistory(isset($status) ? $status : $order->getStatus(), Mage::helper('epay')->__("The Order is placed using ePay Online payment system and is now awaiting payment."));
+		$order->addStatusToHistory($status, Mage::helper('epay')->__("The Order is placed using ePay Online payment system and is now awaiting payment."));
         $order->save();
 
 
@@ -51,24 +58,12 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
 		$this->renderLayout();
     }
 
-	/**
-     * Checkout Action
-     */
-	public function checkoutAction()
-    {
-		$quote = Mage::getModel('checkout/cart')->getQuote();
-        $quote->reserveOrderId();
-
-		$this->loadLayout();
-		$this->getLayout()->getBlock('content')->append($this->getLayout()->createBlock('epay/standard_checkout'));
-		$this->renderLayout();
-    }
-
     /**
      * Cancel Action
      */
     public function cancelAction()
     {
+        /** @var Mage_Checkout_Model_Session */
 		$session = Mage::getSingleton('checkout/session');
     	$cart = Mage::getSingleton('checkout/cart');
         $larstOrderId = Mage::getModel("sales/order")->getCollection()->getLastItem()->getIncrementId();
@@ -276,6 +271,10 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
 			$write = Mage::getSingleton('core/resource')->getConnection('core_write');
 			$write->insert('epay_order_status', array('orderid'=>$_GET['orderid']));
 
+            //Mark as paid
+            $paymentRequestUpdate = Mage::getModel('epay/paymentrequest')->load($_GET["paymentrequest"])->setData('ispaid', "1");
+            $paymentRequestUpdate->setId($_GET["paymentrequest"])->save($paymentRequestUpdate);
+
 			$read = Mage::getSingleton('core/resource')->getConnection('core_read');
 			$row = $read->fetchRow("select * from epay_order_status where orderid = '" . $_GET['orderid'] . "'");
 		}
@@ -304,7 +303,6 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
      */
     private function updatePaymentData($order, $orderStatusAfterPayment)
     {
-
         $payment = $order->getPayment();
         $txnId = $_GET["txnid"];
         $payment->setTransactionId($txnId);

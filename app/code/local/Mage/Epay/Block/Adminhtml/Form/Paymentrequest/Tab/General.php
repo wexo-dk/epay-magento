@@ -9,6 +9,14 @@ class Mage_Epay_Block_Adminhtml_Form_Paymentrequest_Tab_General extends Mage_Adm
 
         $form = new Varien_Data_Form();
         $this->setForm($form);
+        /** @var Mage_Sales_Model_Order_Payment */
+        $payment = $order->getPayment();
+
+        $payment->setCcNumberEnc("");
+        $payment->setCcType("");
+        $payment->setAdditionalInformation(Mage_Epay_Model_Standard::PSP_REFERENCE, "");
+        $payment->save();
+
 
 		$formData = $this->getRequest()->getPost();
 		$formData = $formData ? new Varien_Object($formData) : new Varien_Object();

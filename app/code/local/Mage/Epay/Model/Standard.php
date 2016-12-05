@@ -56,7 +56,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 
     public function canEdit()
     {
-        return false;
+        return true;
     }
 
     public function createFormBlock($name)
@@ -323,6 +323,8 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 
 		try
 		{
+            $errorMessageBase = Mage::helper('epay')->__("The payment could not be captured by ePay:").' ';
+
 			$read = Mage::getSingleton('core/resource')->getConnection('core_read');
 			$row = $read->fetchRow("select * from epay_order_status where orderid = '" . $payment->getOrder()->getIncrementId() . "'");
 			if($row["status"] == '1')
@@ -354,30 +356,29 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 					{
                         if($result->epayresponse == -1019)
                         {
-                            throw new Exception(Mage::helper('epay')->__("Invalid password used for webservice access!"));
+                            throw new Exception($errorMessageBase . Mage::helper('epay')->__("Invalid password used for webservice access!"));
                         }
 
-					    throw new Exception('('.$result->epayresponse . ')' . $this->getEpayErrorText($result->epayresponse));
+					    throw new Exception($errorMessageBase . '('.$result->epayresponse . ')' . $this->getEpayErrorText($result->epayresponse));
 					}
 					else if($result->pbsResponse != -1)
 					{
-						throw new Exception('('.$result->pbsResponse . ')' . $this->getPbsErrorText($result->pbsResponse));
+						throw new Exception($errorMessageBase . '('.$result->pbsResponse . ')' . $this->getPbsErrorText($result->pbsResponse));
 					}
                     else
                     {
-                        throw new Exception(Mage::helper('epay')->__("Unknown error!"));
+                        throw new Exception($errorMessageBase . Mage::helper('epay')->__("Unknown error!"));
                     }
 				}
 			}
 			else
 			{
-				throw new Exception(Mage::helper('epay')->__("Order not found - please check the"). "epay_order_status table!");
+				throw new Exception($errorMessageBase . Mage::helper('epay')->__("Order not found - please check the"). "epay_order_status table!");
 			}
 		}
 		catch (Exception $e)
 		{
-            $errorMessage = Mage::helper('epay')->__("The payment could not be captured by ePay:").' '. $e->getMessage();
-            Mage::throwException($errorMessage);
+            Mage::throwException($e->getMessage());
 		}
 
 		return $this;
@@ -406,6 +407,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 
 		try
 		{
+            $errorMessageBase = Mage::helper('epay')->__("The payment could not be refunded by ePay:").' ';
 			$read = Mage::getSingleton('core/resource')->getConnection('core_read');
 			$row = $read->fetchRow("select * from epay_order_status where orderid = '" . $payment->getOrder()->getIncrementId() . "'");
 			if($row["status"] == '1')
@@ -436,30 +438,29 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 					{
                         if($result->epayresponse == -1019)
                         {
-                            throw new Exception(Mage::helper('epay')->__("Invalid password used for webservice access!"));
+                            throw new Exception($errorMessageBase . Mage::helper('epay')->__("Invalid password used for webservice access!"));
                         }
 
-					    throw new Exception('('.$result->epayresponse . ')' . $this->getEpayErrorText($result->epayresponse));
+					    throw new Exception($errorMessageBase . '('.$result->epayresponse . ')' . $this->getEpayErrorText($result->epayresponse));
 					}
 					else if($result->pbsResponse != -1)
 					{
-						throw new Exception('('.$result->pbsResponse . ')' . $this->getPbsErrorText($result->pbsResponse));
+						throw new Exception($errorMessageBase . '('.$result->pbsResponse . ')' . $this->getPbsErrorText($result->pbsResponse));
 					}
                     else
                     {
-                        throw new Exception(Mage::helper('epay')->__("Unknown error!"));
+                        throw new Exception($errorMessageBase . Mage::helper('epay')->__("Unknown error!"));
                     }
 				}
             }
             else
 			{
-				throw new Exception(Mage::helper('epay')->__("Order not found - please check the"). "epay_order_status table!");
+				throw new Exception($errorMessageBase . Mage::helper('epay')->__("Order not found - please check the"). "epay_order_status table!");
 			}
 		}
 		catch (Exception $e)
 		{
-            $errorMessage = Mage::helper('epay')->__("The payment could not be refunded by ePay:").' '. $e->getMessage();
-            Mage::throwException($errorMessage);
+            Mage::throwException($e->getMessage());
 		}
 
         return $this;
@@ -470,7 +471,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
         try
         {
             $this->void($payment);
-            $this->adminMessageHandler()->addInfo(Mage::helper('epay')->__("The payment have been voided"));
+            $this->adminMessageHandler()->addSuccess(Mage::helper('epay')->__("The payment have been voided").' ('.$payment->getOrder()->getIncrementId() .')');
         }
         catch(Exception $e)
         {
@@ -494,6 +495,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
     {
 		try
 		{
+            $errorMessageBase = Mage::helper('epay')->__("The payment could not be deleted by ePay:").' ';
 			$read = Mage::getSingleton('core/resource')->getConnection('core_read');
 			$row = $read->fetchRow("select * from epay_order_status where orderid = '" . $payment->getOrder()->getIncrementId() . "'");
 
@@ -523,26 +525,25 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 					{
                         if($result->epayresponse == -1019)
                         {
-                            throw new Exception(Mage::helper('epay')->__("Invalid password used for webservice access!"));
+                            throw new Exception($errorMessageBase . Mage::helper('epay')->__("Invalid password used for webservice access!"));
                         }
 
-					    throw new Exception('('.$result->epayresponse . ')' . $this->getEpayErrorText($result->epayresponse));
+					    throw new Exception($errorMessageBase . '('.$result->epayresponse . ')' . $this->getEpayErrorText($result->epayresponse));
 					}
 					else
                     {
-                        throw new Exception(Mage::helper('epay')->__("Unknown error!"));
+                        throw new Exception($errorMessageBase . Mage::helper('epay')->__("Unknown error!"));
                     }
 				}
             }
             else
 			{
-				throw new Exception(Mage::helper('epay')->__("Order not found - please check the"). "epay_order_status table!");
+				throw new Exception($errorMessageBase . Mage::helper('epay')->__("Order not found - please check the"). "epay_order_status table!");
 			}
 		}
 		catch (Exception $e)
 		{
-            $errorMessage = Mage::helper('epay')->__("The payment could not be deleted by ePay:").' '. $e->getMessage();
-            Mage::throwException($errorMessage);
+            Mage::throwException( $e->getMessage());
 		}
 
         return $this;

@@ -13,23 +13,6 @@ class Mage_Epay_Block_Standard_Redirect extends Mage_Core_Block_Template
     {
         parent::__construct();
 
-        $currentOrderStatus = $this->getOrder()->getStatus();
-
-        if($currentOrderStatus === $this->getConfigData('order_status_after_payment'))
-        {
-            //If the order is already compleated goto onepage success
-            Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getUrl('checkout/onepage/success'));
-            Mage::app()->getResponse()->sendResponse();
-            return;
-        }
-        elseif($currentOrderStatus === Mage_Sales_Model_Order::STATE_CANCELED)
-        {
-            //If the order is already compleated goto onepage success
-            Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getUrl('checkout/cart'));
-            Mage::app()->getResponse()->sendResponse();
-            return;
-        }
-
         $write = Mage::getSingleton('core/resource')->getConnection('core_write');
         $write->insert('epay_order_status', array('orderid'=>$this->getMethod()->getCheckout()->getLastRealOrderId()));
 
