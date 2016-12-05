@@ -41,6 +41,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
         if($row || !empty($row['orderid']))
         {
             $this->_redirect('checkout/cart');
+            return;
         }
 
         $orderModel = Mage::getModel('sales/order');
