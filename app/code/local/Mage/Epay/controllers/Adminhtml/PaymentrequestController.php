@@ -179,9 +179,4 @@ class Mage_Epay_Adminhtml_PaymentrequestController extends Mage_Adminhtml_Contro
 
 		$this->createAction();
 	}
-<<<<<<< HEAD
-
 }
-=======
-}
->>>>>>> pr/9
