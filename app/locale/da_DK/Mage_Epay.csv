@@ -56,3 +56,8 @@
 "Order was auto canceled because no payment has been made.","Ordren er blevet auto canceled fordi ingen betalinger er registreret"
 "Please enable remote payment processing from the module configuration","Du skal enable betalings systemet i modulets configuration"
 "The payment have been voided","Betalingen er annuleret"
+"Payment request","Betalingsanmodning"
+"Create payment request","Opret betalingsanmodning"
+"Reply to","Svar sendes til"
+"Recipient","Modtager"
+"Send payment request","Send betalingsanmodning"
