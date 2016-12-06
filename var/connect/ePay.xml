@@ -1,5 +1,5 @@
 <_>
-   <form_key>KX0qwIrmxSmifmMf</form_key>
+   <form_key>AG61F2p5yPMLDeRS</form_key>
    <name>ePay</name>
    <channel>community</channel>
    <version_ids>
@@ -38,11 +38,9 @@ This program is free software for merchants. You are allowed to use the software
 Copyright ePay | Payment solutions - www.epay.dk (c) 2016.</description>
    <license>ePay limited license</license>
    <license_uri/>
-   <version>2.7.3</version>
+   <version>2.7.4</version>
    <stability>stable</stability>
-   <notes> - Added check for remote interface when doing void
- - Removed “Create paymentrequest” function when an order is canceled.
-
+   <notes> - Fix fatal bug in canVoid function
 </notes>
    <authors>
       <name>
@@ -72,7 +70,7 @@ Copyright ePay | Payment solutions - www.epay.dk (c) 2016.</description>
             <max/>
          </max>
          <files>
-            <files>                                                                                                                                   </files>
+            <files>                                                                                                                                    </files>
          </files>
       </package>
       <extension>
