@@ -485,7 +485,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 
      public function canVoid(Varien_Object $payment)
      {
-         if($this->_canVoid && $this->canAction($payment))
+         if($this->_canVoid && $this->canAction($payment->getOrder()))
          {
              return true;
          }
