@@ -318,7 +318,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
         parent::capture($payment, $amount);
         if(!$this->canOnlineAction($payment))
         {
-            Mage::throwException(Mage::helper('epay')->__("The action could not, be processed online. Please enable remote payment processing from the module configuration"));
+            Mage::throwException(Mage::helper('epay')->__("The capture action could not, be processed online. Please enable remote payment processing from the module configuration"));
         }
 
 		try
@@ -349,6 +349,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 				{
                     $payment->setTransactionId($tid .'-'. Mage_Sales_Model_Order_Payment_Transaction::TYPE_CAPTURE);
 					$payment->setIsTransactionClosed(1);
+                    $payment->setParentTransactionId($tid);
 				}
 				else
 				{
@@ -402,7 +403,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
         parent::refund($payment, $amount);
         if(!$this->canOnlineAction($payment))
         {
-            Mage::throwException(Mage::helper('epay')->__("The action could not, be processed online. Please enable remote payment processing from the module configuration"));
+            Mage::throwException(Mage::helper('epay')->__("The refund action could not, be processed online. Please enable remote payment processing from the module configuration"));
         }
 
 		try
@@ -431,6 +432,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 				{
                     $payment->setTransactionId($tid .'-'. Mage_Sales_Model_Order_Payment_Transaction::TYPE_REFUND);
 					$payment->setIsTransactionClosed(1);
+                    $payment->setParentTransactionId($tid);
 				}
                 else
 				{
@@ -483,7 +485,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 
      public function canVoid(Varien_Object $payment)
      {
-         if($this->_canVoid && $this->canOnlineAction($payment))
+         if($this->_canVoid && $this->canAction($payment))
          {
              return true;
          }
@@ -493,6 +495,11 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 
     public function void(Varien_Object $payment)
     {
+        if(!$this->canOnlineAction($payment))
+        {
+            Mage::throwException(Mage::helper('epay')->__("The void action could not, be processed online. Please enable remote payment processing from the module configuration"));
+        }
+
 		try
 		{
             $errorMessageBase = Mage::helper('epay')->__("The payment could not be deleted by ePay:").' ';
@@ -518,6 +525,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 				{
                     $payment->setTransactionId($tid .'-'. Mage_Sales_Model_Order_Payment_Transaction::TYPE_VOID);
 					$payment->setIsTransactionClosed(1);
+                    $payment->setParentTransactionId($tid);
 				}
                 else
 				{

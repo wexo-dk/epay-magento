@@ -11,17 +11,18 @@ class Mage_Epay_Model_Observer
         $block = $event->getBlock();
         if ($block instanceof Mage_Adminhtml_Block_Sales_Order_View)
         {
-            if(!$this->validatePaymentMethod())
+            $order = $this->getOrder();
+            if(!$this->validatePaymentMethod() || $order->isCanceled())
             {
                 return;
             }
 
             $read = Mage::getSingleton('core/resource')->getConnection('core_read');
-            $row = $read->fetchRow("select * from epay_order_status where orderid = '" . $this->getOrder()->getIncrementId() . "'");
+            $row = $read->fetchRow("select * from epay_order_status where orderid = '" . $order->getIncrementId() . "'");
 
             if (!$row || $row['status'] == '0')
             {
-                $block->addButton('button_sendpaymentrequest', array('label' => Mage::helper('epay')->__("Create payment request"), 'onclick' => 'setLocation(\'' . Mage::helper("adminhtml")->getUrl('adminhtml/paymentrequest/create/', array('id' => $this->getOrder()->getRealOrderId())) . '\')', 'class' => 'scalable go'), 0, 100, 'header', 'header');
+                $block->addButton('button_sendpaymentrequest', array('label' => Mage::helper('epay')->__("Create payment request"), 'onclick' => 'setLocation(\'' . Mage::helper("adminhtml")->getUrl('adminhtml/paymentrequest/create/', array('id' => $order->getRealOrderId())) . '\')', 'class' => 'scalable go'), 0, 100, 'header', 'header');
             }
         }
     }

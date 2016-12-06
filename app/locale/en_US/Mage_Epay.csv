@@ -40,8 +40,9 @@
 "History","History"
 "Cancel payment","Cancel payment"
 "Card number","Card number"
-
-"The payment action could not, be processed online. Please enable remote payment processing from the module configuration","The payment action could not, be processed online. Please enable remote payment processing from the module configuration"
+"The capture action could not, be processed online. Please enable remote payment processing from the module configuration","The capture action could not, be processed online. Please enable remote payment processing from the module configuration"
+"The refund action could not, be processed online. Please enable remote payment processing from the module configuration","The refund action could not, be processed online. Please enable remote payment processing from the module configuration"
+"The void action could not, be processed online. Please enable remote payment processing from the module configuration","The void action could not, be processed online. Please enable remote payment processing from the module configuration"
 "Invalid password used for webservice access!","Invalid password used for webservice access!"
 "Unknown error!","Unknown error!"
 "The payment could not be captured by ePay:","The payment could not be captured by ePay:"

@@ -272,13 +272,15 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
 			$write = Mage::getSingleton('core/resource')->getConnection('core_write');
 			$write->insert('epay_order_status', array('orderid'=>$_GET['orderid']));
 
-            //Mark as paid
-            $paymentRequestUpdate = Mage::getModel('epay/paymentrequest')->load($_GET["paymentrequest"])->setData('ispaid', "1");
-            $paymentRequestUpdate->setId($_GET["paymentrequest"])->save($paymentRequestUpdate);
-
 			$read = Mage::getSingleton('core/resource')->getConnection('core_read');
 			$row = $read->fetchRow("select * from epay_order_status where orderid = '" . $_GET['orderid'] . "'");
 		}
+        if(isset($_GET['paymentrequest']) && strlen($_GET['paymentrequest']) > 0)
+        {
+            //Mark as paid
+            $paymentRequestUpdate = Mage::getModel('epay/paymentrequest')->load($_GET["paymentrequest"])->setData('ispaid', "1");
+            $paymentRequestUpdate->setId($_GET["paymentrequest"])->save($paymentRequestUpdate);
+        }
 
 		if ($row['status'] == '0')
 		{
