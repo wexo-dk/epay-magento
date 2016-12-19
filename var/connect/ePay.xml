@@ -1,5 +1,5 @@
 <_>
-   <form_key>AG61F2p5yPMLDeRS</form_key>
+   <form_key>a1xiIiJ7vFV51dW4</form_key>
    <name>ePay</name>
    <channel>community</channel>
    <version_ids>
@@ -38,9 +38,18 @@ This program is free software for merchants. You are allowed to use the software
 Copyright ePay | Payment solutions - www.epay.dk (c) 2016.</description>
    <license>ePay limited license</license>
    <license_uri/>
-   <version>2.7.4</version>
+   <version>2.7.5</version>
    <stability>stable</stability>
-   <notes> - Fix fatal bug in canVoid function
+   <notes> - Add mass invoice refund
+ - Add mass order delete
+ - Add Surcharge fee as an order item
+ - Add encryption to md5key and remote password
+ - Fix for CancelAction not using session based orderId
+ - Translations cleanup (Only da and en remains)
+ - Updated payment window layout and logic.
+ - Fix for no online refund when using instant capture + instant invoice
+
+Note: You must re-enter your remote password and md5 key in the module configuration after updating to this version
 </notes>
    <authors>
       <name>
@@ -70,7 +79,7 @@ Copyright ePay | Payment solutions - www.epay.dk (c) 2016.</description>
             <max/>
          </max>
          <files>
-            <files>                                                                                                                                     </files>
+            <files>                                                                                                                                                </files>
          </files>
       </package>
       <extension>
@@ -95,14 +104,9 @@ Copyright ePay | Payment solutions - www.epay.dk (c) 2016.</description>
          <target>magelocale</target>
          <target>magelocale</target>
          <target>mageskin</target>
-         <target>magelocale</target>
-         <target>magelocale</target>
-         <target>magelocale</target>
-         <target>magelocale</target>
-         <target>magelocale</target>
-         <target>magelocale</target>
          <target>magedesign</target>
          <target>magedesign</target>
+         <target>mageskin</target>
       </target>
       <path>
          <path/>
@@ -113,14 +117,9 @@ Copyright ePay | Payment solutions - www.epay.dk (c) 2016.</description>
          <path>da_DK/Mage_Epay.csv</path>
          <path>en_US/Mage_Epay.csv</path>
          <path>adminhtml/base/default/css/epay/</path>
-         <path>en_AU/Mage_Epay.csv</path>
-         <path>en_GB/Mage_Epay.csv</path>
-         <path>en_NZ/Mage_Epay.csv</path>
-         <path>sv_SE/Mage_Epay.csv</path>
-         <path>nb_NO/Mage_Epay.csv</path>
-         <path>de_DE/Mage_Epay.csv</path>
          <path>adminhtml/default/default/template/epay/</path>
          <path>adminhtml/default/default/layout/epay.xml</path>
+         <path>frontend/base/default/css/epay/</path>
       </path>
       <type>
          <type>file</type>
@@ -131,14 +130,9 @@ Copyright ePay | Payment solutions - www.epay.dk (c) 2016.</description>
          <type>file</type>
          <type>file</type>
          <type>dir</type>
-         <type>file</type>
-         <type>file</type>
-         <type>file</type>
-         <type>file</type>
-         <type>file</type>
-         <type>file</type>
          <type>dir</type>
          <type>file</type>
+         <type>dir</type>
       </type>
       <include>
          <include/>
@@ -152,18 +146,8 @@ Copyright ePay | Payment solutions - www.epay.dk (c) 2016.</description>
          <include/>
          <include/>
          <include/>
-         <include/>
-         <include/>
-         <include/>
-         <include/>
-         <include/>
       </include>
       <ignore>
-         <ignore/>
-         <ignore/>
-         <ignore/>
-         <ignore/>
-         <ignore/>
          <ignore/>
          <ignore/>
          <ignore/>

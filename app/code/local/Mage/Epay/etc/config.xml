@@ -1,16 +1,8 @@
 <?xml version="1.0"?>
-<!--
-/**
- * Copyright ePay | Dit Online Betalingssystem, (c) 2016.
- * 
- * This program is free software. You are allowed to use the software but NOT allowed to modify the software. 
- * It is also not legal to do any changes to the software and distribute it in your own name / brand. 
- */
--->
 <config>
   <modules>
     <Mage_Epay>
-      <version>2.7.4</version>
+      <version>2.7.5</version>
     </Mage_Epay>
   </modules>
   <global>
@@ -90,8 +82,17 @@
         </epay_standard_redirect>
       </updates>
     </layout>
+    <events>
+      <sales_order_place_after>
+        <observers>
+          <epay_order_placed_after_actopm>
+            <class>epay/observer</class>
+            <method>orderPlacedAfter</method>
+          </epay_order_placed_after_actopm>
+        </observers>
+      </sales_order_place_after>
+  </events>
   </frontend>
-
   <adminhtml>
     <events>
       <adminhtml_widget_container_html_before>
@@ -104,10 +105,18 @@
       </adminhtml_widget_container_html_before>
       <core_block_abstract_prepare_layout_before>
         <observers>
-          <mage_epay>
+          <epay_massorder>
             <class>epay/observer</class>
-            <method>addCaptureMassAction</method>
-          </mage_epay>
+            <method>addMassOrderAction</method>
+          </epay_massorder>
+        </observers>
+      </core_block_abstract_prepare_layout_before>
+      <core_block_abstract_prepare_layout_before>
+        <observers>
+          <epay_massinvoice>
+            <class>epay/observer</class>
+            <method>addMassInvoiceAction</method>
+          </epay_massinvoice>
         </observers>
       </core_block_abstract_prepare_layout_before>
     </events>
@@ -157,9 +166,7 @@
         </children>
       </sales>
     </menu>
-
   </adminhtml>
-
   <default>
     <payment>
       <epay_standard>
@@ -194,21 +201,8 @@
       </session>
     </web>
   </default>
-
-  <interest_form>
-    <label>lead capture form</label>
-    <template>page/leadcapture.phtml</template>
-  </interest_form>
-
   <admin>
     <routers>
-      <epaycapture>
-        <use>admin</use>
-        <args>
-          <module>Mage_Epay</module>
-          <frontname>deleteordermassaction</frontname>
-        </args>
-      </epaycapture>
       <adminhtml>
         <args>
           <modules>
