@@ -57,7 +57,7 @@ class Mage_Epay_Block_Standard_Info extends Mage_Payment_Block_Info
 
         if(!empty($truncatedCardNumber))
         {
-            $key = Mage::helper('epay')->__("Card Number");
+            $key = Mage::helper('epay')->__("Card number");
             $transport->addData(array($key => $truncatedCardNumber));
         }
 

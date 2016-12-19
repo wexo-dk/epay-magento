@@ -27,17 +27,39 @@ class Mage_Epay_Model_Observer
         }
     }
 
-    public function addCaptureMassAction($event)
+    public function addMassOrderAction($event)
     {
         $block = $event->getBlock();
         if ($block instanceof Mage_Adminhtml_Block_Widget_Grid_Massaction && $block->getRequest()->getControllerName() == 'sales_order')
         {
-            $block->addItem('epay_order', array(
-             'label'=> Mage::helper('epay')->__("Capture with ePay"),
-             'url'  => Mage::helper("adminhtml")->getUrl('adminhtml/massaction/epayCapture')
+            $block->addItem('epay_capture', array(
+             'label'=> Mage::helper('epay')->__("ePay - Mass Invoice and Capture"),
+             'url'  => $block->getUrl('adminhtml/massaction/epaymasscapture'),
+             'confirm' => Mage::helper('epay')->__("Are you sure you want to invoice and capture selected items?")
+             ));
+
+            $block->addItem('epay_delete', array(
+             'label'=> Mage::helper('epay')->__("ePay - Mass Delete"),
+             'url'  => $block->getUrl('adminhtml/massaction/epaymassdelete'),
+             'confirm' => Mage::helper('epay')->__("Are you sure you want to delete selected items? This can not be undone! If there have been authorized a payment on the order it will not get voided by this action.")
              ));
         }
     }
+
+    public function addMassInvoiceAction($event)
+    {
+        $block = $event->getBlock();
+        if ($block instanceof Mage_Adminhtml_Block_Widget_Grid_Massaction && $block->getRequest()->getControllerName() == 'sales_invoice')
+        {
+            $block->addItem('epay_invoice', array(
+             'label'=> Mage::helper('epay')->__("ePay - Mass Creditmemo and Refund"),
+             'url'  => $block->getUrl('adminhtml/massaction/epaymassrefund'),
+             'confirm' => Mage::helper('epay')->__("Are you sure you want to refund selected items?")
+             ));
+        }
+    }
+
+
     /**
      * Auto Cancel orders that are from 1 day until 1 hour ago and with custom pending status
      */
@@ -45,7 +67,9 @@ class Mage_Epay_Model_Observer
     {
         $payment = Mage::getModel('epay/standard');
 
-        if(intval($payment->getConfigData('use_auto_cancel', null)) === 1)
+        $storeId = $payment->getStore()->getId();
+
+        if(intval($payment->getConfigData('use_auto_cancel', $storeId)) === 1)
         {
             $date = Mage::getSingleton('core/date');
 
@@ -92,6 +116,16 @@ class Mage_Epay_Model_Observer
             }
         }
     }
+
+    public function orderPlacedAfter($observer)
+    {
+        /** @var Mage_Sales_Model_Order */
+        $order = $observer->getOrder();
+        $order->addStatusHistoryComment(Mage::helper('epay')->__("The Order is placed using ePay Online payment system and is now awaiting payment."))
+            ->setIsCustomerNotified(false);
+        $order->save();
+    }
+
 
     /**
      * Get order

@@ -1,0 +1,10 @@
+.epay_formtext_image {
+    font-weight: bold;
+}
+
+h2.epay_redirect,
+h3.epay_redirect {
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+}

@@ -6,23 +6,14 @@
  */
 class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
 {
-    /**
-     * Check if the session is expired
-     */
-    protected function _expireAjax()
-    {
-        if (!Mage::getSingleton('checkout/session')->getQuote()->hasItems()) {
-            $this->getResponse()->setHeader('HTTP/1.1', '403 Session Expired');
-            exit;
-        }
-    }
+    const EPAY_SURCHARGE = 'surcharge_fee';
 
     /**
      * Get singleton with epay strandard order transaction information
      *
      * @return Mage_Epay_Model_Standard
      */
-    public function getMethod()
+    private function getMethod()
     {
         return Mage::getSingleton('epay/standard');
     }
@@ -35,28 +26,41 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
         $session = Mage::getSingleton('checkout/session');
 		$session->setEpayStandardQuoteId($session->getQuoteId());
 
-        //Check if the payment already have been opende
-        $read = Mage::getSingleton('core/resource')->getConnection('core_read');
-		$row = $read->fetchRow("select * from epay_order_status where orderid = '" . $session->getLastRealOrderId() . "'");
-        if($row || !empty($row['orderid']))
-        {
-            $this->_redirect('checkout/cart');
-            return;
-        }
-
         $orderModel = Mage::getModel('sales/order');
 		/** @var Mage_Sales_Model_Order */
         $order = $orderModel->loadByIncrementId($session->getLastRealOrderId());
 
-        $paymentMethod = $order->getPayment()->getMethodInstance();
-        $status = $paymentMethod->getConfigData('order_status', $order->getStoreId());
-		$order->addStatusToHistory($status, Mage::helper('epay')->__("The Order is placed using ePay Online payment system and is now awaiting payment."));
-        $order->save();
+        $payment = $order->getPayment();
+        $pspReference = $payment->getAdditionalInformation(Mage_Epay_Model_Standard::PSP_REFERENCE);
 
+        if(!empty($pspReference) || empty($session->getLastSuccessQuoteId()))
+        {
+            $this->_redirect('checkout/onepage/success');
+            return;
+        }
+
+        $write = Mage::getSingleton('core/resource')->getConnection('core_write');
+        $write->insert('epay_order_status', array('orderid'=> $order->getIncrementId()));
+
+        $paymentMethod = $this->getMethod();
+        if(intval($paymentMethod->getConfigData('windowstate', $order->getStoreId())) === 3)
+        {
+            $url = $paymentMethod->getPaymentRequestAsUrl($order);
+            Mage::app()->getFrontController()->getResponse()->setRedirect($url);
+            Mage::app()->getResponse()->sendResponse();
+            return;
+        }
+
+        $paymentData = array("paymentRequest"=> $paymentMethod->getPaymentRequestAsString($order),
+                             "cancelUrl"=> $paymentMethod->getCancelUrl(),
+                             "headerText"=> Mage::helper('epay')->__("Thank you for using ePay | Payment solutions"),
+                             "headerText2"=> Mage::helper('epay')->__("Please wait..."));
 
         $this->loadLayout();
-		$this->getLayout()->getBlock('content')->append($this->getLayout()->createBlock('epay/standard_redirect'));
-		$this->renderLayout();
+        $block = $this->getLayout()->createBlock('epay/standard_redirect', 'epayredirect', $paymentData);
+        $this->getLayout()->getBlock('content')->append($block);
+        $this->renderLayout();
+
     }
 
     /**
@@ -67,11 +71,11 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
         /** @var Mage_Checkout_Model_Session */
 		$session = Mage::getSingleton('checkout/session');
     	$cart = Mage::getSingleton('checkout/cart');
-        $larstOrderId = Mage::getModel("sales/order")->getCollection()->getLastItem()->getIncrementId();
+        $larstOrderId = $session->getLastRealOrderId();
 		$order = Mage::getModel('sales/order')->loadByIncrementId($larstOrderId);
 		if ($order->getId())
 		{
-			$session->getQuote()->setIsActive(false)->save();
+			$session->getQuote()->setIsActive(0)->save();
 	        $session->clear();
     	    try
 			{
@@ -106,10 +110,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
      */
     public function successAction()
     {
-        $session = Mage::getSingleton('checkout/session');
-        $session->setQuoteId($session->getEpayStandardQuoteId(true));
         Mage::getSingleton('checkout/session')->getQuote()->setIsActive(false)->save();
-
         $this->_redirect('checkout/onepage/success');
     }
 
@@ -122,9 +123,18 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
     {
         $message ='';
         $responseCode = '400';
-        if($this->validateCallback($message))
+        $order = null;
+        if($this->validateCallback($message, $order))
         {
             $message = $this->processCallback($responseCode);
+        }
+        else
+        {
+            if(isset($order))
+            {
+                $order->addStatusHistoryComment("Callback from ePay returned with an error: ". $message);
+                $order->save();
+            }
         }
 
         $this->getResponse()->setHeader('HTTP/1.0', $responseCode, true)
@@ -141,10 +151,8 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
      * @param string &$message
      * @return boolean
      */
-    private function validateCallback(&$message)
+    private function validateCallback(&$message, &$order)
     {
-        $method = $this->getMethod();
-
         if(!isset($_GET["txnid"]))
         {
             $message = "No GET(txnid) was supplied to the system!";
@@ -177,8 +185,12 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
             $message = "The loaded order id does not match the callback GET(orderId)";
 			return false;
         }
+
+        $method = $this->getMethod();
         $storeId = $order->getStoreId();
-        if ((strlen($method->getConfigData('md5key', $storeId))) > 0)
+        $storeMd5Enc = $method->getConfigData('md5key', $storeId);
+        $storeMd5 = Mage::helper('core')->decrypt($storeMd5Enc);
+        if (!empty($storeMd5))
 		{
 			$accept_params = $_GET;
 			$var = "";
@@ -188,11 +200,11 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
 					$var .= $value;
 			}
 
-            $storeMd5 = $method->getConfigData('md5key', $storeId);
+
             $storeHash = md5($var . $storeMd5);
             if ($storeHash != $_GET["hash"])
 			{
-				$message = "Hash validation falied";
+				$message = "Hash validation failed - Please check your MD5 key";
 				return false;
             }
         }
@@ -207,24 +219,24 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
      */
     private function processCallback(&$responseCode)
     {
-        $method = $this->getMethod();
+        $message = '';
         /** @var Mage_Sales_Model_Order */
         $order = Mage::getModel('sales/order')->loadByIncrementId($_GET["orderid"]);
-        $storeId = $order->getStoreId();
+        $payment = $order->getPayment();
         try
         {
-            $message = '';
-            $payment = $order->getPayment();
             $pspReference = $payment->getAdditionalInformation(Mage_Epay_Model_Standard::PSP_REFERENCE);
             if(empty($pspReference) && !$order->isCanceled())
             {
+                $method = $this->getMethod();
+                $storeId = $order->getStoreId();
                 $this->updatePaymentData($order, $method->getConfigData('order_status_after_payment', $storeId));
 
                 $this->persistDataInEpayDBTable();
 
                 if (intval($method->getConfigData('addfeetoshipping', $storeId)) == 1 && isset($_GET['txnfee']) && strlen($_GET['txnfee']) > 0)
                 {
-                    $this->addSurchargeToOrderShipment($order);
+                    $this->addSurchargeItemToOrder($order);
                 }
 
                 if (intval($method->getConfigData('sendmailorderconfirmation', $storeId) == 1))
@@ -236,6 +248,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
                 {
                     $this->createInvoice($order);
                 }
+
                 $message = "Callback Success - Order created";
             }
             else
@@ -250,13 +263,17 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
                 }
             }
             $responseCode = '200';
-            return $message;
+
         }
         catch(Exception $e)
         {
+            $payment->setAdditionalInformation(Mage_Epay_Model_Standard::PSP_REFERENCE, "");
+            $payment->save();
             $responseCode = '500';
-            return "Callback Failed: " .$e->getMessage();
+            $message = "Callback Failed: " .$e->getMessage();
         }
+
+        return $message;
     }
 
     /**
@@ -306,15 +323,18 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
      */
     private function updatePaymentData($order, $orderStatusAfterPayment)
     {
-        $payment = $order->getPayment();
+        $methodInstance = $this->getMethod();
         $txnId = $_GET["txnid"];
+        $payment = $order->getPayment();
         $payment->setTransactionId($txnId);
         $payment->setIsTransactionClosed(false);
         $payment->setAdditionalInformation(Mage_Epay_Model_Standard::PSP_REFERENCE, $txnId);
         $payment->addTransaction(Mage_Sales_Model_Order_Payment_Transaction::TYPE_AUTH);
-
         $payment->setCcNumberEnc($_GET['cardno']);
-        $payment->setCcType($this->getMethod()->calcCardtype($_GET['paymenttype']));
+        $payment->setCcType($methodInstance->calcCardtype($_GET['paymenttype']));
+        
+        $isInstantCapture = intval($methodInstance->getConfigData('instantcapture', $order->getStoreId())) === 1 ? true : false;
+        $payment->setAdditionalInformation('instantcapture', $isInstantCapture);
 
         $payment->save();
 
@@ -324,20 +344,60 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
     }
 
     /**
-     * Add surcharge fee to the shipment amount
+     * Add Surcharge item to the order as a order line
      *
      * @param Mage_Sales_Model_Order $order
+     * @return void
      */
-    private function addSurchargeToOrderShipment($order)
+    private function addSurchargeItemToOrder($order)
     {
-        $order->setBaseShippingAmount($order->getBaseShippingAmount() + (((int)$_GET['txnfee']) / 100));
-        $order->setBaseGrandTotal($order->getBaseGrandTotal() + (((int)$_GET['txnfee']) / 100));
+        $baseFeeAmount = ((int)$_GET['txnfee']) / 100;
+        $feeAmount = Mage::helper('directory')->currencyConvert($baseFeeAmount, $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode());
 
-        $storefee = Mage::helper('directory')->currencyConvert((intval($_GET['txnfee']) / 100), $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode());
+        foreach($order->getAllItems() as $item)
+        {
+            if($item->getSku() === $this::EPAY_SURCHARGE)
+            {
+                return;
+            }
+        }
 
-        $order->setShippingAmount($order->getShippingAmount() + $storefee);
-        $order->setGrandTotal($order->getGrandTotal() + $storefee);
+        /** @var Mage_Sales_Model_Order_Item */
+        $feeItem = Mage::getModel('sales/order_item');
 
+        $feeItem->setSku($this::EPAY_SURCHARGE);
+        $text = $this->getMethod()->calcCardtype($_GET['paymenttype']) . ' - ' . Mage::helper('epay')->__('Surcharge fee');
+        $feeItem->setName($text);
+        $feeItem->setBaseCost($baseFeeAmount);
+        $feeItem->setBasePrice($baseFeeAmount);
+        $feeItem->setBasePriceInclTax($baseFeeAmount);
+        $feeItem->setBaseOriginalPrice($baseFeeAmount);
+        $feeItem->setBaseRowTotal($baseFeeAmount);
+        $feeItem->setBaseRowTotalInclTax($baseFeeAmount);
+
+        $feeItem->setCost($feeAmount);
+        $feeItem->setPrice($feeAmount);
+        $feeItem->setPriceInclTax($feeAmount);
+        $feeItem->setOriginalPrice($feeAmount);
+        $feeItem->setRowTotal($feeAmount);
+        $feeItem->setRowTotalInclTax($feeAmount);
+
+        $feeItem->setProductType(Mage_Catalog_Model_Product_Type::TYPE_VIRTUAL);
+        $feeItem->setIsVirtual(1);
+        $feeItem->setQtyOrdered(1);
+        $feeItem->setStoreId($order->getStoreId());
+        $feeItem->setOrderId($order->getId());
+
+        $order->addItem($feeItem);
+
+        $order->setBaseGrandTotal($order->getBaseGrandTotal() + $baseFeeAmount);
+        $order->setBaseSubtotal($order->getBaseSubtotal() + $baseFeeAmount);
+        $order->setGrandTotal($order->getGrandTotal() + $feeAmount);
+        $order->setSubtotal($order->getSubtotal() + $feeAmount);
+
+
+        $feeMessage = $text . ' ' .__("added to order");
+        $order->addStatusHistoryComment($feeMessage);
         $order->save();
     }
 
@@ -349,7 +409,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
     private function sendOrderEmail($order)
     {
         $order->sendNewOrderEmail();
-        $order->setIsCustomerNotified(1);
+        //$order->setIsCustomerNotified(1);
         $order->addStatusHistoryComment(sprintf(Mage::helper('epay')->__("Notified customer about order #%s"), $order->getIncrementId()))
             ->setIsCustomerNotified(true);
         $order->save();
@@ -365,16 +425,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
         if($order->canInvoice())
         {
             $invoice = $order->prepareInvoice();
-
-            if(intval($this->getMethod()->getConfigData('instantcapture', $order->getStoreId())) == 1)
-            {
-                $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_OFFLINE);
-            }
-            else
-            {
-                $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_ONLINE);
-            }
-
+            $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_ONLINE);
             $invoice->register();
             $invoice->save();
 
@@ -386,7 +437,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
             if(intval($this->getMethod()->getConfigData('instantinvoicemail', $order->getStoreId())) == 1)
             {
                 $invoice->sendEmail();
-                $order->addStatusHistoryComment(sprintf(Mage::helper('epay')->__("Notified customer about invoice #%s", $invoice->getId())))
+                $order->addStatusHistoryComment(sprintf(Mage::helper('epay')->__("Notified customer about invoice #%s"), $invoice->getId()))
                     ->setIsCustomerNotified(true);
                 $order->save();
             }

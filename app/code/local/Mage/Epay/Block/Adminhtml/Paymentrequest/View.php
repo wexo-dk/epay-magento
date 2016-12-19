@@ -15,9 +15,9 @@ class Mage_Epay_Block_Adminhtml_Paymentrequest_View extends Mage_Adminhtml_Block
 		$paymentRequest = Mage::getModel('epay/paymentrequest')->load($paymentrequest_id)->getData();
 
 
-        $order_id = $paymentRequest['orderid'];
-        $order = Mage::getModel('sales/order')->loadByIncrementId($order_id);
-        $store_id = $order->getStoreId();
+        $orderId = $paymentRequest['orderid'];
+        $order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
+        $storeId = $order->getStoreId();
 
 
 		$soapClient = new SoapClient("https://paymentrequest.api.epay.eu/v1/PaymentRequestSOAP.svc?wsdl");
@@ -25,8 +25,8 @@ class Mage_Epay_Block_Adminhtml_Paymentrequest_View extends Mage_Adminhtml_Block
 		$params = array();
 
 		$params["authentication"] = array();
-		$params["authentication"]["merchantnumber"] = $standard->getConfigData('merchantnumber', $store_id);
-		$params["authentication"]["password"] = $standard->getConfigData('remoteinterfacepassword', $store_id);
+		$params["authentication"]["merchantnumber"] = $standard->getConfigData('merchantnumber', $storeId);
+        $params["authentication"]["password"] = $standard->getRemotePassword($order);
 
 		$params["paymentrequest"] = array();
 		$params["paymentrequest"]["paymentrequestid"] = $paymentRequest["paymentrequestid"];

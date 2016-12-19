@@ -86,11 +86,9 @@ class Mage_Epay_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Adminhtml
             }
             if ($row['transfee'] != '0')
             {
-                $res .= "<tr><td>" . Mage::helper('epay')->__("Transaction fee") . ":</td>";
+                $res .= "<tr><td>" . Mage::helper('epay')->__("Surcharge fee") . ":</td>";
                 $res .= "<td>" . $order->getBaseCurrencyCode() . "&nbsp;" . number_format(((int)$row['transfee']) / 100, 2, ',', ' ') . "</td></tr>";
             }
-
-
 
             if ($method->getConfigData('remoteinterface', $order ? $order->getStoreId() : null) == 1)
             {
@@ -101,7 +99,6 @@ class Mage_Epay_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Adminhtml
 
             $res .= "<a href='https://admin.ditonlinebetalingssystem.dk/admin' target='_blank'>" . Mage::helper('epay')->__("Go to payment system administration and process the transaction") . "</a>";
             $res .= "<br><br>";
-
         }
         else
         {
@@ -144,12 +141,13 @@ class Mage_Epay_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Adminhtml
         try
         {
             $storeId = $order->getStoreId();
+
             $param = array
             (
                 'merchantnumber' => $paymentobj->getConfigData('merchantnumber', $storeId),
                 'transactionid' => $tid,
                 'epayresponse' => 0,
-                'pwd' => $paymentobj->getConfigData('remoteinterfacepassword', $storeId)
+                'pwd' =>  $paymentobj->getRemotePassword($storeId)
             );
 
             $client = new SoapClient('https://ssl.ditonlinebetalingssystem.dk/remote/payment.asmx?WSDL');
@@ -197,7 +195,7 @@ class Mage_Epay_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Adminhtml
                 $res .= "<tr><td>" . Mage::helper('epay')->__("Credited amount") . ":</td>";
                 $res .= "<td>" . $order->getBaseCurrencyCode() . "&nbsp;" . number_format(((int)$result->transactionInformation->creditedamount) / 100, 2, ',', ' ') . "&nbsp;&nbsp;&nbsp;" . (((int)$result->transactionInformation->creditedamount) > 0 ? str_replace("T", " ", $result->transactionInformation->crediteddate) : "") . "</td></tr>";
 
-                $res .= "<tr><td>" . Mage::helper('epay')->__("Transaction fee") . ":</td>";
+                $res .= "<tr><td>" . Mage::helper('epay')->__("Surcharge fee") . ":</td>";
                 $res .= "<td>" . $order->getBaseCurrencyCode() . "&nbsp;" . number_format(((int)$result->transactionInformation->fee) / 100, 2, ',', ' ') . "</td></tr>";
 
                 if(isset($result->transactionInformation->history) && isset($result->transactionInformation->history->TransactionHistoryInfo) && count($result->transactionInformation->history->TransactionHistoryInfo) > 0)
@@ -267,7 +265,7 @@ class Mage_Epay_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Adminhtml
      */
     public function getTabLabel()
     {
-        return Mage::helper('epay')->__('ePay');
+        return 'ePay';
     }
     public function getTabTitle()
     {

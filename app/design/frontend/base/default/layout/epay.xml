@@ -15,4 +15,13 @@
 			</action>
 		</reference>
 	</epay_standard_redirect>
+
+    <default module="page" translate="label">
+      <label>All Pages</label>
+      <reference name="head">
+        <action method="addCss">
+          <stylesheet>css/epay/epayfrontend.css</stylesheet>
+        </action>
+      </reference>
+    </default>
 </layout>

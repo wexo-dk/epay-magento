@@ -10,7 +10,6 @@
             <block type="epay/adminhtml_paymentrequest_view" name="paymentrequest_view" />
         </reference>
     </adminhtml_paymentrequest_view>
-
    <adminhtml_sales_order_view>
      <reference name="sales_order_tabs">
        <action method="addTab">
@@ -19,13 +18,11 @@
        </action>
      </reference>
    </adminhtml_sales_order_view>
-
    <default>
      <reference name="head">
        <action method="addCss">
-         <stylesheet>css/epay/epay.css</stylesheet>
+         <stylesheet>css/epay/epayadminhtml.css</stylesheet>
        </action>
      </reference>
    </default>
-
 </layout>

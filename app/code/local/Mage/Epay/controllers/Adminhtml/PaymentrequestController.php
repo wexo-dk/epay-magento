@@ -84,6 +84,7 @@ class Mage_Epay_Adminhtml_PaymentrequestController extends Mage_Adminhtml_Contro
 				if($order->hasData())
 				{
                     $amountMinorunits = $order->getBaseTotalDue() * 100;
+                    $storeId = $order->getStoreId();
 
 					$paymentRequest = Mage::getModel('epay/paymentrequest');
 					$paymentRequest->setData('orderid', $data['orderid']);
@@ -98,8 +99,8 @@ class Mage_Epay_Adminhtml_PaymentrequestController extends Mage_Adminhtml_Contro
 					$params = array();
 
 					$params["authentication"] = array();
-					$params["authentication"]["merchantnumber"] = $standard->getConfigData('merchantnumber', $order ? $order->getStoreId() : null);
-					$params["authentication"]["password"] = $standard->getConfigData('remoteinterfacepassword', $order ? $order->getStoreId() : null);
+					$params["authentication"]["merchantnumber"] = $standard->getConfigData('merchantnumber', $storeId);
+                    $params["authentication"]["password"] = $standard->getRemotePassword($order);
                     $params["language"] = $localCodeFix;
 
 					$params["paymentrequest"] = array();
@@ -108,15 +109,15 @@ class Mage_Epay_Adminhtml_PaymentrequestController extends Mage_Adminhtml_Contro
 
 					$params["paymentrequest"]["parameters"] = array();
 					$params["paymentrequest"]["parameters"]["amount"] = $amountMinorunits;
-					$params["paymentrequest"]["parameters"]["callbackurl"] = Mage::getUrl('epay/standard/callback', array('_nosid' => true, '_query' => array('paymentrequest' => $paymentRequest->id), '_store' => $order ? $order->getStoreId() : null));
+					$params["paymentrequest"]["parameters"]["callbackurl"] = Mage::getUrl('epay/standard/callback', array('_nosid' => true, '_query' => array('paymentrequest' => $paymentRequest->id), '_store' => $storeId));
 					$params["paymentrequest"]["parameters"]["currency"] = $data['currency'];
-					$params["paymentrequest"]["parameters"]["group"] = $standard->getConfigData('group', $order ? $order->getStoreId() : null);
+					$params["paymentrequest"]["parameters"]["group"] = $standard->getConfigData('group', $storeId);
 					$params["paymentrequest"]["parameters"]["instantcapture"] = ($standard->getConfigData('instantcapture', $order ? $order->getStoreId() : null) == "1" ? "automatic" : "manual");
 					$params["paymentrequest"]["parameters"]["orderid"] = $data['orderid'];
-					$params["paymentrequest"]["parameters"]["windowid"] = $standard->getConfigData('windowid', $order ? $order->getStoreId() : null);
+					$params["paymentrequest"]["parameters"]["windowid"] = $standard->getConfigData('windowid', $storeId);
                     $params["paymentrequest"]["parameters"]["language"] = $standard->calcLanguage($localCode);
 
-					if($standard->getConfigData('enableinvoicedata', $order ? $order->getStoreId() : null))
+					if($standard->getConfigData('enableinvoicedata', $storeId))
 					{
 						$params["paymentrequest"]["parameters"]["invoice"] = $standard->getOrderInJson($order);
 					}
