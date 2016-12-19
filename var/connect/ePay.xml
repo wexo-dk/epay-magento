@@ -79,7 +79,7 @@ Note: You must re-enter your remote password and md5 key in the module configura
             <max/>
          </max>
          <files>
-            <files>                                                                                                                                                </files>
+            <files>                                                                                                                                                 </files>
          </files>
       </package>
       <extension>

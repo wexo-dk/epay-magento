@@ -26,7 +26,7 @@ class Mage_Epay_Block_Adminhtml_Paymentrequest_View extends Mage_Adminhtml_Block
 
 		$params["authentication"] = array();
 		$params["authentication"]["merchantnumber"] = $standard->getConfigData('merchantnumber', $storeId);
-        $params["authentication"]["password"] = $standard->getRemotePassword($order);
+        $params["authentication"]["password"] = $standard->getRemotePassword($storeId);
 
 		$params["paymentrequest"] = array();
 		$params["paymentrequest"]["paymentrequestid"] = $paymentRequest["paymentrequestid"];

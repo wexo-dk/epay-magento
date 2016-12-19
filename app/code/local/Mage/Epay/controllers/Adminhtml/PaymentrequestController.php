@@ -100,7 +100,7 @@ class Mage_Epay_Adminhtml_PaymentrequestController extends Mage_Adminhtml_Contro
 
 					$params["authentication"] = array();
 					$params["authentication"]["merchantnumber"] = $standard->getConfigData('merchantnumber', $storeId);
-                    $params["authentication"]["password"] = $standard->getRemotePassword($order);
+                    $params["authentication"]["password"] = $standard->getRemotePassword($storeId);
                     $params["language"] = $localCodeFix;
 
 					$params["paymentrequest"] = array();
