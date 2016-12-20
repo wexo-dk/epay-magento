@@ -1,5 +1,5 @@
 <_>
-   <form_key>a1xiIiJ7vFV51dW4</form_key>
+   <form_key>DcJCbUxlj7fFHmk5</form_key>
    <name>ePay</name>
    <channel>community</channel>
    <version_ids>
@@ -79,7 +79,7 @@ Note: You must re-enter your remote password and md5 key in the module configura
             <max/>
          </max>
          <files>
-            <files>                                                                                                                                                 </files>
+            <files>                                                                                                                                                  </files>
          </files>
       </package>
       <extension>
