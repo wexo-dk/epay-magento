@@ -283,13 +283,14 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 			{
 				throw new Exception($errorMessageBase . Mage::helper('epay')->__("Order not found - please check the"). "epay_order_status table!");
 			}
+
+            return $this;
 		}
 		catch (Exception $e)
 		{
             Mage::throwException($e->getMessage());
+            return null;
 		}
-
-		return $this;
     }
 
 	public function canRefund()
@@ -307,13 +308,12 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 
     public function refund(Varien_Object $payment, $amount)
     {
-        if(!$this->canOnlineAction($payment))
-        {
-            Mage::throwException(Mage::helper('epay')->__("The refund action could not, be processed online. Please enable remote payment processing from the module configuration"));
-        }
-
-		try
+        try
 		{
+            if(!$this->canOnlineAction($payment))
+            {
+                throw new Exception(Mage::helper('epay')->__("The refund action could not, be processed online. Please enable remote payment processing from the module configuration"));
+            }
             $errorMessageBase = Mage::helper('epay')->__("The payment could not be refunded by ePay:").' ';
 			$read = Mage::getSingleton('core/resource')->getConnection('core_read');
 			$row = $read->fetchRow("select * from epay_order_status where orderid = '" . $payment->getOrder()->getIncrementId() . "'");
@@ -366,18 +366,19 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 			{
 				throw new Exception($errorMessageBase . Mage::helper('epay')->__("Order not found - please check the"). "epay_order_status table!");
 			}
+
+            return $this;
 		}
 		catch (Exception $e)
 		{
             Mage::throwException($e->getMessage());
+            return null;
 		}
-
-        return $this;
     }
 
     public function cancel(Varien_Object $payment)
     {
-       try
+        try
         {
             $this->void($payment);
             $this->adminMessageHandler()->addSuccess(Mage::helper('epay')->__("The payment have been voided").' ('.$payment->getOrder()->getIncrementId() .')');
@@ -402,13 +403,13 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 
     public function void(Varien_Object $payment)
     {
-        if(!$this->canOnlineAction($payment))
-        {
-            Mage::throwException(Mage::helper('epay')->__("The void action could not, be processed online. Please enable remote payment processing from the module configuration"));
-        }
-
-		try
+        try
 		{
+            if(!$this->canOnlineAction($payment))
+            {
+               throw new Exception(Mage::helper('epay')->__("The void action could not, be processed online. Please enable remote payment processing from the module configuration"));
+            }
+
             $errorMessageBase = Mage::helper('epay')->__("The payment could not be deleted by ePay:").' ';
 			$read = Mage::getSingleton('core/resource')->getConnection('core_read');
 			$row = $read->fetchRow("select * from epay_order_status where orderid = '" . $payment->getOrder()->getIncrementId() . "'");
@@ -456,13 +457,14 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 			{
 				throw new Exception($errorMessageBase . Mage::helper('epay')->__("Order not found - please check the"). "epay_order_status table!");
 			}
+
+            return $this;
 		}
 		catch (Exception $e)
 		{
             Mage::throwException( $e->getMessage());
+            return null;
 		}
-
-        return $this;
     }
 
     public function getEpayErrorText($errorcode, $storeId)
@@ -623,9 +625,6 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 
         return key_exists($lan, $languageArray) ? $languageArray[$lan] : '0';
 	}
-
-
-
 
     public function getOrderPlaceRedirectUrl()
     {

@@ -200,7 +200,6 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
 					$var .= $value;
 			}
 
-
             $storeHash = md5($var . $storeMd5);
             if ($storeHash != $_GET["hash"])
 			{
@@ -234,7 +233,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
 
                 $this->persistDataInEpayDBTable();
 
-                if (intval($method->getConfigData('addfeetoshipping', $storeId)) == 1 && isset($_GET['txnfee']) && strlen($_GET['txnfee']) > 0)
+                if (intval($method->getConfigData('addfeetoshipping', $storeId)) == 1 && isset($_GET['txnfee']) && floatval($_GET['txnfee']) > 0)
                 {
                     $this->addSurchargeItemToOrder($order);
                 }
@@ -244,9 +243,17 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
                     $this->sendOrderEmail($order);
                 }
 
-                if(intval($method->getConfigData('instantinvoice')) == 1)
+                if(intval($method->getConfigData('instantinvoice', $storeId)) == 1)
                 {
-                    $this->createInvoice($order);
+                    if(intval($method->getConfigData('remoteinterface', $storeId)) == 1 || intval($method->getConfigData('instantcapture', $storeId)) === 1)
+                    {
+                        $this->createInvoice($order);
+                    }
+                    else
+                    {
+                        $order->addStatusHistoryComment(Mage::helper('epay')->__("Could not use instant invoice."). ' - '. Mage::helper('epay')->__("Please enable remote payment processing from the module configuration"));
+                        $order->save();
+                    }
                 }
 
                 $message = "Callback Success - Order created";
@@ -332,13 +339,13 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
         $payment->addTransaction(Mage_Sales_Model_Order_Payment_Transaction::TYPE_AUTH);
         $payment->setCcNumberEnc($_GET['cardno']);
         $payment->setCcType($methodInstance->calcCardtype($_GET['paymenttype']));
-        
+
         $isInstantCapture = intval($methodInstance->getConfigData('instantcapture', $order->getStoreId())) === 1 ? true : false;
         $payment->setAdditionalInformation('instantcapture', $isInstantCapture);
 
         $payment->save();
 
-        $message = Mage::helper('epay')->__("Payment authorization was a success.") . ' ' . Mage::helper('sales')->__("Transaction ID").': '.$txnId;
+        $message = Mage::helper('epay')->__("Payment authorization was a success.") . ' ' . Mage::helper('epay')->__("Transaction ID").': '.$txnId;
         $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, $orderStatusAfterPayment, $message, false);
         $order->save();
     }
@@ -394,7 +401,6 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
         $order->setBaseSubtotal($order->getBaseSubtotal() + $baseFeeAmount);
         $order->setGrandTotal($order->getGrandTotal() + $feeAmount);
         $order->setSubtotal($order->getSubtotal() + $feeAmount);
-
 
         $feeMessage = $text . ' ' .__("added to order");
         $order->addStatusHistoryComment($feeMessage);
