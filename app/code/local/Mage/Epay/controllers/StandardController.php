@@ -43,24 +43,17 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
         $write->insert('epay_order_status', array('orderid'=> $order->getIncrementId()));
 
         $paymentMethod = $this->getMethod();
-        if(intval($paymentMethod->getConfigData('windowstate', $order->getStoreId())) === 3)
-        {
-            $url = $paymentMethod->getPaymentRequestAsUrl($order);
-            Mage::app()->getFrontController()->getResponse()->setRedirect($url);
-            Mage::app()->getResponse()->sendResponse();
-            return;
-        }
-
+        $isOverlay = intval($paymentMethod->getConfigData('windowstate', $order->getStoreId())) === 1 ? true : false;
         $paymentData = array("paymentRequest"=> $paymentMethod->getPaymentRequestAsString($order),
                              "cancelUrl"=> $paymentMethod->getCancelUrl(),
                              "headerText"=> Mage::helper('epay')->__("Thank you for using ePay | Payment solutions"),
-                             "headerText2"=> Mage::helper('epay')->__("Please wait..."));
+                             "headerText2"=> Mage::helper('epay')->__("Please wait..."),
+                             "isOverlay"=> $isOverlay);
 
         $this->loadLayout();
         $block = $this->getLayout()->createBlock('epay/standard_redirect', 'epayredirect', $paymentData);
         $this->getLayout()->getBlock('content')->append($block);
         $this->renderLayout();
-
     }
 
     /**

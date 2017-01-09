@@ -20,10 +20,15 @@ class Mage_Epay_Block_Standard_Redirect extends Mage_Core_Block_Template
                         paymentwindow = new PaymentWindow(
                         {
                             '.$data["paymentRequest"] .'
-                        });
-                        paymentwindow.on("close",function(){ window.location.href = "'. $data["cancelUrl"] .'";});
-                        isPaymentWindowReady = true;
-                    }
+                        });';
+
+        if($data["isOverlay"] === true)
+        {
+            $html .= 'paymentwindow.on("close",function(){ window.location.href = "'. $data["cancelUrl"] .'";});';
+        }
+
+        $html.='isPaymentWindowReady = true;
+                }
                 </script>';
 
         $html .= '<script type="text/javascript" src="https://ssl.ditonlinebetalingssystem.dk/integration/ewindow/paymentwindow.js" charset="UTF-8"></script>';
@@ -47,7 +52,7 @@ class Mage_Epay_Block_Standard_Redirect extends Mage_Core_Block_Template
                         }
                     }
                 </script>';
-  
+
         return $html;
     }
 }

@@ -64,30 +64,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
         return Mage::helper('core')->decrypt($passwordEnc);
     }
 
-    public function getPaymentRequestAsUrl($order)
-    {
-        $baseUrl = 'https://ssl.ditonlinebetalingssystem.dk/integration/ewindow/Default.aspx';
-        $paymentRequest = $this->getPaymentRequestAsString($order, true);
-        $requestParams = "";
-        $count = 0;
-        foreach ($paymentRequest as $key => $value)
-        {
-            if($count === 0)
-            {
-                $requestParams .= '?' . $key . '=' .urlencode($value);
-            }
-            else
-            {
-                $requestParams .=  '&' . $key . '=' .urlencode($value);
-            }
-            $count++;
-        }
-        $url = $baseUrl . $requestParams;
-
-        return $url;
-    }
-
-    public function getPaymentRequestAsString($order, $paymentRequestOnly = false)
+    public function getPaymentRequestAsString($order)
     {
         $storeId = $order->getStoreId();
         $paymentRequest = array(
@@ -119,11 +96,6 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
         $md5key = Mage::helper('core')->decrypt($md5enc);
 
         $paymentRequest['hash']  = $this->generateMD5Key($paymentRequest, $md5key);
-
-        if($paymentRequestOnly === true)
-        {
-            return $paymentRequest;
-        }
 
         $keyValueArray = array();
         foreach ($paymentRequest as $key => $value)
