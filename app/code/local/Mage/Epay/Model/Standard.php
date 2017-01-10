@@ -71,6 +71,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
                            'encoding' => "UTF-8",
                            'cms' => $this->getCmsInfo(),
                            'windowstate' => $this->getConfigData('windowstate', $storeId),
+                           'mobile' => $this->getConfigData('enablemobilepaymentwindow', $storeId),
                            'merchantnumber' => $this->getConfigData('merchantnumber', $storeId),
                            'windowid' => $this->getConfigData('windowid', $storeId),
                            'amount' => $order->getBaseTotalDue() * 100,
