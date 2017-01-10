@@ -2,7 +2,7 @@
 <config>
   <modules>
     <Mage_Epay>
-      <version>2.7.7</version>
+      <version>2.7.8</version>
     </Mage_Epay>
   </modules>
   <global>
@@ -187,6 +187,7 @@
         <order_status>pending</order_status>
         <order_status_after_payment>processing</order_status_after_payment>
         <use_auto_cancel>0</use_auto_cancel>
+        <enablemobilepaymentwindow>1</enablemobilepaymentwindow>
       </epay_standard>
       <ccsave>
         <active>0</active>
