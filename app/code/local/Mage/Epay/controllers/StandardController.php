@@ -181,8 +181,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
 
         $method = $this->getMethod();
         $storeId = $order->getStoreId();
-        $storeMd5Enc = $method->getConfigData('md5key', $storeId);
-        $storeMd5 = Mage::helper('core')->decrypt($storeMd5Enc);
+        $storeMd5 = $method->getConfigData('md5key', $storeId);
         if (!empty($storeMd5))
 		{
 			$accept_params = $_GET;
@@ -325,6 +324,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
     {
         $methodInstance = $this->getMethod();
         $txnId = $_GET["txnid"];
+        /** @var Mage_Sales_Model_Order_Payment */
         $payment = $order->getPayment();
         $payment->setTransactionId($txnId);
         $payment->setIsTransactionClosed(false);
@@ -333,13 +333,22 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
         $payment->setCcNumberEnc($_GET['cardno']);
         $payment->setCcType($methodInstance->calcCardtype($_GET['paymenttype']));
 
+        if(array_key_exists('fraud', $_GET) && $_GET['fraud'] == 1)
+        {
+            $payment->setIsFraudDetected(true);
+            $message = Mage::helper('epay')->__("Fraud was detected on the payment");
+            $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, Mage_Sales_Model_Order::STATUS_FRAUD, $message, false);
+        }
+        else
+        {
+            $message = Mage::helper('epay')->__("Payment authorization was a success.") . ' ' . Mage::helper('epay')->__("Transaction ID").': '.$txnId;
+            $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, $orderStatusAfterPayment, $message, false);
+        }
+
         $isInstantCapture = intval($methodInstance->getConfigData('instantcapture', $order->getStoreId())) === 1 ? true : false;
         $payment->setAdditionalInformation('instantcapture', $isInstantCapture);
 
         $payment->save();
-
-        $message = Mage::helper('epay')->__("Payment authorization was a success.") . ' ' . Mage::helper('epay')->__("Transaction ID").': '.$txnId;
-        $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, $orderStatusAfterPayment, $message, false);
         $order->save();
     }
 
@@ -408,7 +417,6 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
     private function sendOrderEmail($order)
     {
         $order->sendNewOrderEmail();
-        //$order->setIsCustomerNotified(1);
         $order->addStatusHistoryComment(sprintf(Mage::helper('epay')->__("Notified customer about order #%s"), $order->getIncrementId()))
             ->setIsCustomerNotified(true);
         $order->save();

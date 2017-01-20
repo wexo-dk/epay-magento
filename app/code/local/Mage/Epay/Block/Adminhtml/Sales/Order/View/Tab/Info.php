@@ -19,8 +19,8 @@ class Mage_Epay_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Adminhtml
 
     private function isRemoteInterfaceEnabled()
     {
-       $order = $this->getOrder();
-       return intval($order->getPayment()->getMethodInstance()->getConfigData('remoteinterface', $order->getStoreId())) === 1;
+        $order = $this->getOrder();
+        return intval($order->getPayment()->getMethodInstance()->getConfigData('remoteinterface', $order->getStoreId())) === 1;
     }
 
     public function getPaymentInformationHtml()
@@ -92,7 +92,7 @@ class Mage_Epay_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Adminhtml
 
             if ($method->getConfigData('remoteinterface', $order ? $order->getStoreId() : null) == 1)
             {
-                $res .= $this->getTransactionStatus($row['tid'], $method, $order);
+                $res .= $this->getTransactionStatus($row['tid'], $row['fraud'], $method, $order);
             }
 
             $res .= "</table><br>";
@@ -135,7 +135,7 @@ class Mage_Epay_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Adminhtml
     //
     // Retrieves the transaction status from ePay
     //
-    public function getTransactionStatus($tid, $paymentobj, $order)
+    public function getTransactionStatus($tid, $fraud, $paymentobj, $order)
     {
         $res = "<tr><td colspan='2'><br><b>" . Mage::helper('epay')->__("Current payment system transaction status") . "</b></td></tr>";
         try
@@ -151,11 +151,27 @@ class Mage_Epay_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Adminhtml
             );
 
             $client = new SoapClient('https://ssl.ditonlinebetalingssystem.dk/remote/payment.asmx?WSDL');
-
             $result = $client->gettransaction($param);
 
             if ($result->gettransactionResult === true)
             {
+                if($fraud > 0)
+                {
+                    $res .= "<tr><td>" . __("Fraud status") . ":</td>";
+                    $res .= "<td>" .$result->transactionInformation->fraudStatus. "</td></tr>";
+
+                    $res .= "<tr><td>" . __("Payer country code") . ":</td>";
+                    $res .= "<td>" .$result->transactionInformation->payerCountryCode. "</td></tr>";
+
+                    $res .= "<tr><td>" . __("Issued country code") . ":</td>";
+                    $res .= "<td>" .$result->transactionInformation->issuedCountryCode. "</td></tr>";
+                    if(isset($result->transactionInformation->FraudMessage))
+                    {
+                        $res .= "<tr><td>" . __("Fraud message") . ":</td>";
+                        $res .= "<td>" .$result->transactionInformation->FraudMessage. "</td></tr>";
+                    }
+                }
+
                 $res .= "<tr><td>" . Mage::helper('epay')->__("Transaction status") . ":</td>";
                 $res .= "<td>" . $this->translatePaymentStatus($result->transactionInformation->status) . "</td></tr>";
 

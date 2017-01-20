@@ -71,6 +71,7 @@
 "You Deleted %s order(s).","You Deleted %s order(s)."
 "The Order is placed using ePay Online payment system and is now awaiting payment.","The Order is placed using ePay Online payment system and is now awaiting payment."
 "Payment authorization was a success.","Payment authorization was a success."
+"Fraud was detected on the payment","Fraud was detected on the payment"
 "added to order","added to order"
 "Notified customer about order #%s","Notified customer about order #%s"
 "Create payment request","Create payment request"

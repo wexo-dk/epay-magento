@@ -93,8 +93,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
         }
 
 
-        $md5enc = $this->getConfigData('md5key');
-        $md5key = Mage::helper('core')->decrypt($md5enc);
+        $md5key = $this->getConfigData('md5key');
 
         $paymentRequest['hash']  = $this->generateMD5Key($paymentRequest, $md5key);
 
@@ -596,7 +595,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
             'nn_NO' => '4',
             );
 
-        return key_exists($lan, $languageArray) ? $languageArray[$lan] : '0';
+        return key_exists($lan, $languageArray) ? $languageArray[$lan] : '2';
 	}
 
     public function getOrderPlaceRedirectUrl()

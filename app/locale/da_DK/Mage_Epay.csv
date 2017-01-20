@@ -71,6 +71,7 @@
 "You Deleted %s order(s).","Du slettede %s ordre"
 "The Order is placed using ePay Online payment system and is now awaiting payment.","Ordren er nu oprettet med ePay | Dit Online Betalingssystem og afventer betalingen"
 "Payment authorization was a success.","Betalings anmodningen var en success"
+"Fraud was detected on the payment","Der er detekteret svindel p&aring; betalingen"
 "added to order","tilf&oslash;jet til ordren"
 "Notified customer about order #%s","Kunden er underrettet om order #%s"
 "Create payment request","Opret betalingsanmodning"
