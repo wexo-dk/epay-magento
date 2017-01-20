@@ -1,5 +1,5 @@
 <_>
-   <form_key>MVD5rWlenXveqB26</form_key>
+   <form_key>iEgx20JRfFkG6xKn</form_key>
    <name>ePay</name>
    <channel>community</channel>
    <version_ids>
@@ -43,7 +43,7 @@ Copyright ePay | Payment solutions - www.epay.dk (c) 2016.</description>
    <notes>* Removed encryption of MD5
 * Adds Fraud detection for ePay payments
 * Fix for md5 error if empty
-* Fix for paymentrequest table missing on update or install
+* Fix for PHP 5.4 empty() issue
 
 
 **Notice:**
@@ -78,7 +78,7 @@ Copyright ePay | Payment solutions - www.epay.dk (c) 2016.</description>
             <max/>
          </max>
          <files>
-            <files>                                                                                                                                                       </files>
+            <files>                                                                                                                                                        </files>
          </files>
       </package>
       <extension>
