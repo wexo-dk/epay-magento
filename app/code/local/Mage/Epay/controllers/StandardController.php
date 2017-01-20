@@ -32,8 +32,9 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
 
         $payment = $order->getPayment();
         $pspReference = $payment->getAdditionalInformation(Mage_Epay_Model_Standard::PSP_REFERENCE);
+	$lastSuccessQuoteId = $session->getLastSuccessQuoteId();
 
-        if(!empty($pspReference) || empty($session->getLastSuccessQuoteId()))
+        if(!empty($pspReference) || empty($lastSuccessQuoteId))
         {
             $this->_redirect('checkout/onepage/success');
             return;
