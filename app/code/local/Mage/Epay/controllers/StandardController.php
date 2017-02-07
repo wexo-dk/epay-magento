@@ -331,8 +331,16 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
         $payment->setIsTransactionClosed(false);
         $payment->setAdditionalInformation(Mage_Epay_Model_Standard::PSP_REFERENCE, $txnId);
         $payment->addTransaction(Mage_Sales_Model_Order_Payment_Transaction::TYPE_AUTH);
-        $payment->setCcNumberEnc($_GET['cardno']);
-        $payment->setCcType($methodInstance->calcCardtype($_GET['paymenttype']));
+       
+        if(array_key_exists('cardno', $_GET))
+        {
+            $payment->setCcNumberEnc($_GET['cardno']);
+        }
+
+        if(array_key_exists('paymenttype', $_GET))
+        {
+            $payment->setCcType($methodInstance->calcCardtype($_GET['paymenttype']));
+        }
 
         if(array_key_exists('fraud', $_GET) && $_GET['fraud'] == 1)
         {
