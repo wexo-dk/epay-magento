@@ -1,8 +1,16 @@
 <?php
 /**
- * Copyright ePay | Dit Online Betalingssystem, (c) 2016.
+ * Copyright (c) 2017. All rights reserved ePay A/S (a Bambora Company).
+ *
  * This program is free software. You are allowed to use the software but NOT allowed to modify the software.
  * It is also not legal to do any changes to the software and distribute it in your own name / brand.
+ *
+ * All use of the payment modules happens at your own risk. We offer a free test account that you can use to test the module.
+ *
+ * @author    ePay A/S (a Bambora Company)
+ * @copyright Bambora (http://bambora.com) (http://www.epay.dk)
+ * @license   ePay A/S (a Bambora Company)
+ *
  */
 class Mage_Epay_Helper_Gateway_Extras extends Mage_Core_Helper_Abstract
 {
@@ -53,26 +61,26 @@ class Mage_Epay_Helper_Gateway_Extras extends Mage_Core_Helper_Abstract
         return $calculation->getRate($request->setProductClassId($taxClass));
     }
 
-	public function assemble()
-	{
-		$this->_addShippingFee();
+    public function assemble()
+    {
+        $this->_addShippingFee();
 
-		$this->_addGiftCard();
+        $this->_addGiftCard();
 
-		$this->_addCustomerBalance();
+        $this->_addCustomerBalance();
 
-		$this->_addRewardCurrency();
+        $this->_addRewardCurrency();
 
-		$this->_addDiscount();
+        $this->_addDiscount();
 
-		$this->_addGiftWrapPrice();
+        $this->_addGiftWrapPrice();
 
-		$this->_addGiftWrapItemPrice();
+        $this->_addGiftWrapItemPrice();
 
-		$this->_addGwPrintedCardPrice();
+        $this->_addGwPrintedCardPrice();
 
-		return $this->_extras;
-	}
+        return $this->_extras;
+    }
 
     private function _addGiftWrapPrice()
     {
@@ -206,7 +214,7 @@ class Mage_Epay_Helper_Gateway_Extras extends Mage_Core_Helper_Abstract
             $amount = 0;
             foreach ($this->order->getAllVisibleItems() as $product) {
                 $rate = $product->getTaxPercent();
-                $newAmount = $product->getBaseDiscountAmount() * (($rate / 100 ) + 1);
+                $newAmount = $product->getBaseDiscountAmount() * (($rate / 100) + 1);
                 $amount -= $newAmount;
             }
             //If the discount also extends to shipping
@@ -214,7 +222,7 @@ class Mage_Epay_Helper_Gateway_Extras extends Mage_Core_Helper_Abstract
             if ($shippingDiscount) {
                 $taxClass = Mage::getStoreConfig('tax/classes/shipping_tax_class');
                 $rate = $this->getTaxRate($taxClass);
-                $newAmount = $shippingDiscount * (($rate / 100 ) + 1);
+                $newAmount = $shippingDiscount * (($rate / 100) + 1);
                 $amount -= $newAmount;
             }
         }

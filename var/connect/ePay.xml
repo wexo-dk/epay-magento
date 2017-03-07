@@ -1,5 +1,5 @@
 <_>
-   <form_key>lySm4xjTuWigxqXN</form_key>
+   <form_key>Nb5RMeLK7iy2niB4</form_key>
    <name>ePay</name>
    <channel>community</channel>
    <version_ids>
@@ -38,10 +38,14 @@ This program is free software for merchants. You are allowed to use the software
 Copyright ePay | Payment solutions - www.epay.dk (c) 2017.</description>
    <license>ePay limited license</license>
    <license_uri/>
-   <version>2.8.0</version>
+   <version>2.8.1</version>
    <stability>stable</stability>
-   <notes>* Fix for payment type paypal error on callback
-
+   <notes>* Adds check for payment method in observers
+* Adds configuration setting for disabling canceling of the payment when an order is edited.
+* Adds &quot;Move payment from parent&quot; button and logic to an edited order.
+* Adds better error handling and notification on callback errors
+* Changed redirect logic
+* Update callback db logic changed
 
 **Notice:**
 * Before upgrading to this version you must be on version 2.6.4 or newer.
@@ -75,7 +79,7 @@ Copyright ePay | Payment solutions - www.epay.dk (c) 2017.</description>
             <max/>
          </max>
          <files>
-            <files>                                                                                                                                                            </files>
+            <files>                                                                                                                                                              </files>
          </files>
       </package>
       <extension>

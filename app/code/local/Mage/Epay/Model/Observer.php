@@ -1,28 +1,43 @@
 <?php
 /**
- * Copyright ePay | Dit Online Betalingssystem, (c) 2016.
+ * Copyright (c) 2017. All rights reserved ePay A/S (a Bambora Company).
+ *
  * This program is free software. You are allowed to use the software but NOT allowed to modify the software.
  * It is also not legal to do any changes to the software and distribute it in your own name / brand.
+ *
+ * All use of the payment modules happens at your own risk. We offer a free test account that you can use to test the module.
+ *
+ * @author    ePay A/S (a Bambora Company)
+ * @copyright Bambora (http://bambora.com) (http://www.epay.dk)
+ * @license   ePay A/S (a Bambora Company)
+ *
  */
 class Mage_Epay_Model_Observer
 {
     public function adminhtmlWidgetContainerHtmlBefore($event)
     {
         $block = $event->getBlock();
-        if ($block instanceof Mage_Adminhtml_Block_Sales_Order_View)
-        {
+        if ($block instanceof Mage_Adminhtml_Block_Sales_Order_View) {
+            $epayStandard = Mage::getModel('epay/standard');
+
+            /** @var Mage_Sales_Model_Order */
             $order = $this->getOrder();
-            if(!$this->validatePaymentMethod() || $order->isCanceled())
-            {
+            if (!$this->validatePaymentMethod($order) || $order->isCanceled()) {
                 return;
             }
 
             $read = Mage::getSingleton('core/resource')->getConnection('core_read');
             $row = $read->fetchRow("select * from epay_order_status where orderid = '" . $order->getIncrementId() . "'");
 
-            if (!$row || $row['status'] == '0')
-            {
+            if (!$row || $row['status'] == '0') {
                 $block->addButton('button_sendpaymentrequest', array('label' => Mage::helper('epay')->__("Create payment request"), 'onclick' => 'setLocation(\'' . Mage::helper("adminhtml")->getUrl('adminhtml/paymentrequest/create/', array('id' => $order->getRealOrderId())) . '\')', 'class' => 'scalable go'), 0, 100, 'header', 'header');
+            }
+
+            if ($order != null && $order->getRelationParentRealId() != null && (int)$epayStandard->getConfigData('cancelonedit', $order->getStoreId()) === 0) {
+                $payment = $order->getPayment();
+                if (isset($payment) && ($payment->getAdditionalInformation('movedfromparent') === null || $payment->getAdditionalInformation('movedfromparent') === false)) {
+                    $block->addButton('button_movepayment', array('label' => Mage::helper('epay')->__("Move Payment from parent"), 'onclick' => 'setLocation(\'' . Mage::helper("adminhtml")->getUrl('adminhtml/payment/move/', array('orderid' => $order->getRealOrderId(), 'parentorderid' => $order->getRelationParentRealId())) . '\')', 'class' => 'scalable go'), 0, 100, 'header', 'header');
+                }
             }
         }
     }
@@ -30,8 +45,7 @@ class Mage_Epay_Model_Observer
     public function addMassOrderAction($event)
     {
         $block = $event->getBlock();
-        if ($block instanceof Mage_Adminhtml_Block_Widget_Grid_Massaction && $block->getRequest()->getControllerName() == 'sales_order')
-        {
+        if ($block instanceof Mage_Adminhtml_Block_Widget_Grid_Massaction && $block->getRequest()->getControllerName() == 'sales_order') {
             $block->addItem('epay_capture', array(
              'label'=> Mage::helper('epay')->__("ePay - Mass Invoice and Capture"),
              'url'  => $block->getUrl('adminhtml/massaction/epaymasscapture'),
@@ -49,8 +63,7 @@ class Mage_Epay_Model_Observer
     public function addMassInvoiceAction($event)
     {
         $block = $event->getBlock();
-        if ($block instanceof Mage_Adminhtml_Block_Widget_Grid_Massaction && $block->getRequest()->getControllerName() == 'sales_invoice')
-        {
+        if ($block instanceof Mage_Adminhtml_Block_Widget_Grid_Massaction && $block->getRequest()->getControllerName() == 'sales_invoice') {
             $block->addItem('epay_invoice', array(
              'label'=> Mage::helper('epay')->__("ePay - Mass Creditmemo and Refund"),
              'url'  => $block->getUrl('adminhtml/massaction/epaymassrefund'),
@@ -65,18 +78,17 @@ class Mage_Epay_Model_Observer
      */
     public function autocancelPendingOrders()
     {
-        $payment = Mage::getModel('epay/standard');
+        $epayStandard = Mage::getModel('epay/standard');
 
-        $storeId = $payment->getStore()->getId();
+        $storeId = $epayStandard->getStore()->getId();
 
-        if(intval($payment->getConfigData('use_auto_cancel', $storeId)) === 1)
-        {
+        if (intval($epayStandard->getConfigData('use_auto_cancel', $storeId)) === 1) {
             $date = Mage::getSingleton('core/date');
 
             $orderCollection = Mage::getResourceModel('sales/order_collection');
 
             $orderCollection
-                ->addFieldToFilter('status', array('eq' => $payment->getConfigData('order_status', null)))
+                ->addFieldToFilter('status', array('eq' => $epayStandard->getConfigData('order_status', null)))
                 ->addFieldToFilter('created_at', array(
                     'to' => strtotime('-1 hour', strtotime($date->gmtDate())),
                     'from' => strtotime('-1 day', strtotime($date->gmtDate())),
@@ -84,32 +96,30 @@ class Mage_Epay_Model_Observer
                 ->setOrder('created_at', 'ASC')
                 ->getSelect();
 
-            foreach ($orderCollection->getItems() as $order)
-            {
+            foreach ($orderCollection->getItems() as $order) {
                 /** @var Mage_Sales_Model_Order */
                 $orderModel = Mage::getModel('sales/order');
                 $orderModel->load($order["entity_id"]);
 
-                try
-                {
-                    if(!$orderModel->canCancel())
-                    {
+                try {
+                    if (!$this->validatePaymentMethod($orderModel)) {
+                        continue;
+                    }
+
+                    if (!$orderModel->canCancel()) {
                         continue;
                     }
 
                     $read = Mage::getSingleton('core/resource')->getConnection('core_read');
                     $row = $read->fetchRow("select * from epay_order_status where orderid = '" . $orderModel->getIncrementId() . "'");
 
-                    if($row["status"] == '0')
-                    {
+                    if ($row["status"] == '0') {
                         $orderModel->cancel();
                         $message = Mage::helper('epay')->__("Order was auto canceled because no payment has been made.");
                         $orderModel->addStatusToHistory($orderModel->getStatus(), $message);
                         $orderModel->save();
                     }
-                }
-                catch(Exception $e)
-                {
+                } catch (Exception $e) {
                     echo "Could not be canceled: " . $e->getMessage();
                     Mage::logException($e);
                 }
@@ -121,11 +131,12 @@ class Mage_Epay_Model_Observer
     {
         /** @var Mage_Sales_Model_Order */
         $order = $observer->getOrder();
-        $order->addStatusHistoryComment(Mage::helper('epay')->__("The Order is placed using ePay Online payment system and is now awaiting payment."))
-            ->setIsCustomerNotified(false);
-        $order->save();
+        if ($this->validatePaymentMethod($order)) {
+            $order->addStatusHistoryComment(Mage::helper('epay')->__("The Order is placed using ePay Online payment system and is now awaiting payment."))
+                ->setIsCustomerNotified(false);
+            $order->save();
+        }
     }
-
 
     /**
      * Get order
@@ -137,9 +148,9 @@ class Mage_Epay_Model_Observer
         return Mage::registry('current_order');
     }
 
-    private function validatePaymentMethod()
+    private function validatePaymentMethod($order)
     {
-        $currentMethod = $this->getOrder()->getPayment()->getMethod();
-        return $currentMethod === 'epay_standard';
+        $currentMethod = $order->getPayment()->getMethod();
+        return $currentMethod === Mage_Epay_Model_Standard::METHOD_CODE;
     }
 }

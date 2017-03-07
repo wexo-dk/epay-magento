@@ -1,11 +1,17 @@
 <?php
 /**
- * Copyright ePay | Dit Online Betalingssystem, (c) 2016.
+ * Copyright (c) 2017. All rights reserved ePay A/S (a Bambora Company).
  *
  * This program is free software. You are allowed to use the software but NOT allowed to modify the software.
  * It is also not legal to do any changes to the software and distribute it in your own name / brand.
+ *
+ * All use of the payment modules happens at your own risk. We offer a free test account that you can use to test the module.
+ *
+ * @author    ePay A/S (a Bambora Company)
+ * @copyright Bambora (http://bambora.com) (http://www.epay.dk)
+ * @license   ePay A/S (a Bambora Company)
+ *
  */
-
 class Mage_Epay_Block_Adminhtml_Paymentrequest_Grid extends Mage_Adminhtml_Block_Widget_Grid
 {
     public function __construct()
@@ -20,7 +26,7 @@ class Mage_Epay_Block_Adminhtml_Paymentrequest_Grid extends Mage_Adminhtml_Block
     protected function _prepareCollection()
     {
         $collection = Mage::getModel('epay/paymentrequest')->getCollection()->setOrder('id', 'desc');
-		$collection->getSelect()->where('status = ?', '1');
+        $collection->getSelect()->where('status = ?', '1');
 
         $this->setCollection($collection);
         return parent::_prepareCollection();
@@ -35,12 +41,12 @@ class Mage_Epay_Block_Adminhtml_Paymentrequest_Grid extends Mage_Adminhtml_Block
             'index'     => 'paymentrequestid',
         ));
 
-		$this->addColumn('created', array(
+        $this->addColumn('created', array(
             'header'    => Mage::helper('epay')->__("Date"),
             'align'     => 'right',
             'width'     => '150px',
             'index'     => 'created',
-			'type' 		=> 'datetime',
+            'type'        => 'datetime',
         ));
 
         $this->addColumn('orderid', array(
@@ -53,7 +59,7 @@ class Mage_Epay_Block_Adminhtml_Paymentrequest_Grid extends Mage_Adminhtml_Block
             'header'    => Mage::helper('epay')->__("Amount"),
             'align'     => 'left',
             'index'     => 'amount',
-			'renderer'	=> new Mage_Epay_Block_Adminhtml_Paymentrequest_Renderer_Amount//divide by 100
+            'renderer'    => new Mage_Epay_Block_Adminhtml_Paymentrequest_Renderer_Amount//divide by 100
         ));
 
         $this->addColumn('receiver', array(
@@ -62,14 +68,14 @@ class Mage_Epay_Block_Adminhtml_Paymentrequest_Grid extends Mage_Adminhtml_Block
             'index'     => 'receiver',
         ));
 
-		$yesNoOptions = array('0' => Mage::helper('epay')->__("No"), '1' => Mage::helper('epay')->__("Yes"));
+        $yesNoOptions = array('0' => Mage::helper('epay')->__("No"), '1' => Mage::helper('epay')->__("Yes"));
 
-		$this->addColumn('ispaid', array(
+        $this->addColumn('ispaid', array(
             'header'    => Mage::helper('epay')->__("Is Paid"),
             'align'     => 'left',
             'index'     => 'ispaid',
-			'type'      => 'options',
-			'options'   => $yesNoOptions,
+            'type'      => 'options',
+            'options'   => $yesNoOptions,
         ));
 
         return parent::_prepareColumns();

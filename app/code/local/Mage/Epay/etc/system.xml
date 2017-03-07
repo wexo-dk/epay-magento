@@ -1,10 +1,17 @@
 <?xml version="1.0"?>
 <!--
 /**
- * Copyright ePay | Payment Solutions, (c) 2016.
+ * Copyright (c) 2017. All rights reserved ePay A/S (a Bambora Company).
  *
- * This program is free software. You are allowed to use the software but NOT allowed to modify the software. 
- * It is also not legal to do any changes to the software and distribute it in your own name / brand. 
+ * This program is free software. You are allowed to use the software but NOT allowed to modify the software.
+ * It is also not legal to do any changes to the software and distribute it in your own name / brand.
+ *
+ * All use of the payment modules happens at your own risk. We offer a free test account that you can use to test the module.
+ *
+ * @author    ePay A/S (a Bambora Company)
+ * @copyright Bambora (http://bambora.com) (http://www.epay.dk)
+ * @license   ePay A/S (a Bambora Company)
+ *
  */
 -->
 <config>
@@ -12,7 +19,7 @@
     <payment>
       <groups>
         <epay_standard translate="label" module="epay">
-          <label>ePay | Payment Solutions 2.8.0</label>
+          <label>ePay | Payment Solutions 2.8.1</label>
           <comment><![CDATA[Detailed description of these settings are to be found on <a href="http://www.magentoguiden.dk" target="_blank">www.magentoguiden.dk</a>.<br><br>]]></comment>
           <frontend_type>text</frontend_type>
           <sort_order>1</sort_order>
@@ -183,7 +190,7 @@
               <comment><![CDATA[If the customer pays for the payment surcharge the amount will not be displayed on the order confirmation. The surcharge is displayed on the order, invoice and creditmemo totals]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>22</sort_order>
+              <sort_order>21</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -193,7 +200,7 @@
               <comment><![CDATA[Enabling this setting will result in an order confirmation is e-mailed to the customer as the payment is made.]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>23</sort_order>
+              <sort_order>22</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -202,19 +209,19 @@
               <label><![CDATA[<b>Process payments from within the order administration of Magento:</b>]]></label>
               <comment>
                 <![CDATA[
-                            	Enable this option in order to capture, credit and delete payments directly from the Magento administration on the order page. You then don't need to enter the administration area of the payment system in order to process payments.
-                            	<br><br>
-                            	<b>Important information when processing the payments from Magento:</b>
-                            	<br>
-								- When an order is canceled or voided the payment is deleted within the payment system.<br>
-                            	- When an invoice is created the payment can be captured from the bottom of the invoice.<br>
-                            	- When a credit memo is created the payment can be credited back to the customer from the bottom of the credit memo.<br>
-                            	</ul>
+                              Enable this option in order to capture, credit and delete payments directly from the Magento administration on the order page. You then don't need to enter the administration area of the payment system in order to process payments.
+                              <br><br>
+                              <b>Important information when processing the payments from Magento:</b>
+                              <br>
+                - When an order is canceled or voided the payment is deleted within the payment system.<br>
+                              - When an invoice is created the payment can be captured from the bottom of the invoice.<br>
+                              - When a credit memo is created the payment can be credited back to the customer from the bottom of the credit memo.<br>
+                              </ul>
                             ]]>
               </comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>26</sort_order>
+              <sort_order>23</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -224,7 +231,7 @@
               <comment><![CDATA[If payments is processed from within the order administration and a password is added in the ePay administration is should also be added here.]]></comment>
               <frontend_type>obscure</frontend_type>
               <backend_model>adminhtml/system_config_backend_encrypted</backend_model>
-              <sort_order>27</sort_order>
+              <sort_order>24</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -234,7 +241,7 @@
               <comment><![CDATA[When bulk capture then send invoice mail to customer.]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>28</sort_order>
+              <sort_order>25</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -244,7 +251,7 @@
               <comment><![CDATA[Collect invoice data and send to the payment window]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>29</sort_order>
+              <sort_order>26</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -254,15 +261,25 @@
               <comment><![CDATA[When using a mobile device use the mobile payment window]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>30</sort_order>
+              <sort_order>27</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </enablemobilepaymentwindow>
+            <cancelonedit>
+              <label><![CDATA[<b>Cancel the payment when order is edited</b>]]></label>
+              <comment><![CDATA[If enabled this will cancel the payment (default Magento behavior) when an order is edited. <b>Notice!</b> If you turn off this feature, you will have to manualy handle the payment in the epay administration!]]></comment>
+              <frontend_type>select</frontend_type>
+              <source_model>adminhtml/system_config_source_yesno</source_model>
+              <sort_order>28</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </cancelonedit>
             <min_order_total translate="label">
               <label><![CDATA[<b>Minimum Order Total</b>]]></label>
               <frontend_type>text</frontend_type>
-              <sort_order>31</sort_order>
+              <sort_order>29</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>0</show_in_store>
@@ -270,7 +287,7 @@
             <max_order_total translate="label">
               <label><![CDATA[<b>Maximum Order Total</b>]]></label>
               <frontend_type>text</frontend_type>
-              <sort_order>32</sort_order>
+              <sort_order>30</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>0</show_in_store>
