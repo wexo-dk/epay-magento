@@ -1,0 +1,22 @@
+dist: trusty
+language: php
+php:
+  - 7.0
+
+cache:
+  apt: true
+  directories:
+    - $HOME/.composer/cache
+
+env:
+  global:
+    - COMPOSER_BIN_DIR=~/bin
+  matrix:
+    - CODING_STANDARD=Ecg   SEVERITY=6
+    - CODING_STANDARD=MEQP1 SEVERITY=9
+
+before_install: test -n "$GITHUB_TOKEN" && composer config github-oauth.github.com "$GITHUB_TOKEN" || true
+install: composer install --no-interaction --prefer-dist
+
+before_script: phpcs --config-set installed_paths vendor/magento-ecg/coding-standard,vendor/magento/marketplace-eqp
+script: phpcs ./ --ignore=./vendor --standard="$CODING_STANDARD" --severity="$SEVERITY" --extensions=phtml,php,js,css
