@@ -46,17 +46,21 @@ class Mage_Epay_Model_Observer
     {
         $block = $event->getBlock();
         if ($block instanceof Mage_Adminhtml_Block_Widget_Grid_Massaction && $block->getRequest()->getControllerName() == 'sales_order') {
-            $block->addItem('epay_capture', array(
-             'label'=> Mage::helper('epay')->__("ePay - Mass Invoice and Capture"),
-             'url'  => $block->getUrl('adminhtml/massaction/epaymasscapture'),
-             'confirm' => Mage::helper('epay')->__("Are you sure you want to invoice and capture selected items?")
-             ));
+            $block->addItem(
+                'epay_capture', array(
+                'label'=> Mage::helper('epay')->__("ePay - Mass Invoice and Capture"),
+                'url'  => $block->getUrl('adminhtml/massaction/epaymasscapture'),
+                'confirm' => Mage::helper('epay')->__("Are you sure you want to invoice and capture selected items?")
+                )
+            );
 
-            $block->addItem('epay_delete', array(
-             'label'=> Mage::helper('epay')->__("ePay - Mass Delete"),
-             'url'  => $block->getUrl('adminhtml/massaction/epaymassdelete'),
-             'confirm' => Mage::helper('epay')->__("Are you sure you want to delete selected items? This can not be undone! If there have been authorized a payment on the order it will not get voided by this action.")
-             ));
+            $block->addItem(
+                'epay_delete', array(
+                'label'=> Mage::helper('epay')->__("ePay - Mass Delete"),
+                'url'  => $block->getUrl('adminhtml/massaction/epaymassdelete'),
+                'confirm' => Mage::helper('epay')->__("Are you sure you want to delete selected items? This can not be undone! If there have been authorized a payment on the order it will not get voided by this action.")
+                )
+            );
         }
     }
 
@@ -64,11 +68,13 @@ class Mage_Epay_Model_Observer
     {
         $block = $event->getBlock();
         if ($block instanceof Mage_Adminhtml_Block_Widget_Grid_Massaction && $block->getRequest()->getControllerName() == 'sales_invoice') {
-            $block->addItem('epay_invoice', array(
-             'label'=> Mage::helper('epay')->__("ePay - Mass Creditmemo and Refund"),
-             'url'  => $block->getUrl('adminhtml/massaction/epaymassrefund'),
-             'confirm' => Mage::helper('epay')->__("Are you sure you want to refund selected items?")
-             ));
+            $block->addItem(
+                'epay_invoice', array(
+                'label'=> Mage::helper('epay')->__("ePay - Mass Creditmemo and Refund"),
+                'url'  => $block->getUrl('adminhtml/massaction/epaymassrefund'),
+                'confirm' => Mage::helper('epay')->__("Are you sure you want to refund selected items?")
+                )
+            );
         }
     }
 
@@ -89,10 +95,12 @@ class Mage_Epay_Model_Observer
 
             $orderCollection
                 ->addFieldToFilter('status', array('eq' => $epayStandard->getConfigData('order_status', null)))
-                ->addFieldToFilter('created_at', array(
+                ->addFieldToFilter(
+                    'created_at', array(
                     'to' => strtotime('-1 hour', strtotime($date->gmtDate())),
                     'from' => strtotime('-1 day', strtotime($date->gmtDate())),
-                    'datetime' => true))
+                    'datetime' => true)
+                )
                 ->setOrder('created_at', 'ASC')
                 ->getSelect();
 
@@ -124,6 +132,7 @@ class Mage_Epay_Model_Observer
                         $message = "Could not be canceled: {$e->getMessage()}\n";
                         $schedule->setMessages($schedule->getMessages() . $message);
                     }
+
                     Mage::logException($e);
                 }
             }

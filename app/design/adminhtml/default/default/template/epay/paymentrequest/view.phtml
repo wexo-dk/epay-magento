@@ -1,6 +1,6 @@
 <?php
-	$paymentRequest = $this->getPaymentrequest();
-	$paymentRequestId = $this->getPaymentrequestId();
+    $paymentRequest = $this->getPaymentrequest();
+    $paymentRequestId = $this->getPaymentrequestId();
 ?>
 <div class="content-header">
     <table cellspacing="0">
@@ -16,53 +16,53 @@
 <div class="box-left">
     <div class="entry-edit">
         <div class="entry-edit-head">
-	        <h4><?php echo Mage::helper('epay')->__("Payment request") ?></h4>
+            <h4><?php echo Mage::helper('epay')->__("Payment request") ?></h4>
         </div>
-		<div class="fieldset">
+        <div class="fieldset">
             <table cellspacing="0" class="form-list">
-	            <tr>
-	                <td class="label"><label><?php echo Mage::helper('epay')->__("Payment request ID") ?></label></td>
-	                <td class="value"><strong><?php echo $paymentRequestId ?></strong></td>
-	            </tr>
-	            <tr>
-	                <td class="label"><label><?php echo Mage::helper('epay')->__("Reference") ?></label></td>
-	                <td class="value"><strong><?php echo $paymentRequest->paymentrequest->reference ?></strong></td>
-	            </tr>
-	            <tr>
-	                <td class="label"><label><?php echo Mage::helper('epay')->__("Status") ?></label></td>
-	                <td class="value"><strong><?php echo $paymentRequest->paymentrequest->status ?></strong></td>
-	            </tr>
-	            <tr>
-	                <td class="label"><label><?php echo Mage::helper('epay')->__("Link") ?></label></td>
-	                <td class="value"><strong><a href="<?php echo $paymentRequest->paymentrequest->link ?>" target="_blank"><?php echo $paymentRequest->paymentrequest->link ?></a></strong></td>
-	            </tr>
-			</table>
-		</div>		
-	</div>
+                <tr>
+                    <td class="label"><label><?php echo Mage::helper('epay')->__("Payment request ID") ?></label></td>
+                    <td class="value"><strong><?php echo $paymentRequestId ?></strong></td>
+                </tr>
+                <tr>
+                    <td class="label"><label><?php echo Mage::helper('epay')->__("Reference") ?></label></td>
+                    <td class="value"><strong><?php echo $paymentRequest->paymentrequest->reference ?></strong></td>
+                </tr>
+                <tr>
+                    <td class="label"><label><?php echo Mage::helper('epay')->__("Status") ?></label></td>
+                    <td class="value"><strong><?php echo $paymentRequest->paymentrequest->status ?></strong></td>
+                </tr>
+                <tr>
+                    <td class="label"><label><?php echo Mage::helper('epay')->__("Link") ?></label></td>
+                    <td class="value"><strong><a href="<?php echo $paymentRequest->paymentrequest->link ?>" target="_blank"><?php echo $paymentRequest->paymentrequest->link ?></a></strong></td>
+                </tr>
+            </table>
+        </div>
+    </div>
 </div>
 
 <div class="box-right">
     <div class="entry-edit">
         <div class="entry-edit-head">
-	        <h4><?php echo Mage::helper('epay')->__("Parameters") ?></h4>
+            <h4><?php echo Mage::helper('epay')->__("Parameters") ?></h4>
         </div>
-		<div class="fieldset">
+        <div class="fieldset">
             <table cellspacing="0" class="form-list">
-				<?php
-				foreach ($paymentRequest->paymentrequest->parameters as $key => $value)
-				{
-					if($value != null)
-					{
-				?>
-		            <tr>
-		                <td class="label"><label><?php echo $key ?></label></td>
-		                <td class="value"><strong><?php echo $value ?></strong></td>
-		            </tr>
-				<?php
-					}
-				}
-				?>
-			</table>
-		</div>		
-	</div>
+                <?php
+                foreach ($paymentRequest->paymentrequest->parameters as $key => $value)
+                {
+                    if($value != null)
+                    {
+                ?>
+                    <tr>
+                        <td class="label"><label><?php echo $key ?></label></td>
+                        <td class="value"><strong><?php echo $value ?></strong></td>
+                    </tr>
+                <?php
+                    }
+                }
+                ?>
+            </table>
+        </div>
+    </div>
 </div>

@@ -83,6 +83,7 @@ class Mage_Epay_Adminhtml_PaymentController extends Mage_Adminhtml_Controller_Ac
         } else {
             $this->_getSession()->addInfo(__("Nothing changed"));
         }
+
         $this->_redirectReferer();
     }
 

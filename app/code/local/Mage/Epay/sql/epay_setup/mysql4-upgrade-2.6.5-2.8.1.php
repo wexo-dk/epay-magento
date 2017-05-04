@@ -16,8 +16,10 @@ $installer = $this;
 
 $installer->startSetup();
 
-$installer->run("
+$installer->run(
+    "
         DELETE FROM core_config_data WHERE path = 'payment/epay_standard/group';
-    ");
+    "
+);
 
 $installer->endSetup();

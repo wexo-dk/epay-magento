@@ -54,6 +54,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
                     $write = Mage::getSingleton('core/resource')->getConnection('core_write');
                     $write->insert('epay_order_status', array('orderid'=> $order->getIncrementId()));
                 }
+
                 $paymentMethod = $this->getMethod();
                 $isOverlay = intval($paymentMethod->getConfigData('windowstate', $order->getStoreId())) === 1 ? true : false;
                 $paymentData = array("paymentRequest"=> $paymentMethod->getPaymentRequestAsString($order),
@@ -93,6 +94,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
             } catch (Mage_Core_Exception $e) {
                 Mage::logException($e);
             }
+
             $items = $order->getItemsCollection();
             foreach ($items as $item) {
                 try {
@@ -103,8 +105,10 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
                     continue;
                 }
             }
+
             $cart->save();
         }
+
         $this->_redirect('checkout/cart');
     }
 
@@ -172,11 +176,13 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
             $message = "No GET(currency) supplied to the system!";
             return false;
         }
+
         $order = Mage::getModel('sales/order')->loadByIncrementId($request->getQuery('orderid'));
         if (!isset($order) || !$order->getId()) {
             $message = "The order object could not be loaded";
             return false;
         }
+
         if ($order->getIncrementId() != $request->getQuery('orderid')) {
             $message = "The loaded order id does not match the callback GET(orderId)";
             return false;
@@ -248,6 +254,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
                     $message = "Callback Success - Order already created";
                 }
             }
+
             $responseCode = '200';
         } catch (Exception $e) {
             Mage::logException($e);
@@ -279,6 +286,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
                 $read = Mage::getSingleton('core/resource')->getConnection('core_read');
                 $row = $read->fetchRow("select * from epay_order_status where orderid = '" . $request->getQuery('orderid') . "'");
             }
+
             if ($request->getQuery('paymentrequest') && strlen($request->getQuery('paymentrequest')) > 0) {
                 //Mark as paid
                 $paymentRequestUpdate = Mage::getModel('epay/paymentrequest')->load($request->getQuery('paymentrequest'))->setData('ispaid', "1");

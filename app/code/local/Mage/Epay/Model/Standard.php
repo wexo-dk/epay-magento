@@ -55,6 +55,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
                 Mage::throwException(sprintf(Mage::helper('epay')->__("Selected currency code (%s) is not compatabile with ePay"), $currencyCode));
             }
         }
+
         return $this;
     }
 
@@ -262,6 +263,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
             if (!$this->canOnlineAction($payment)) {
                 throw new Exception(Mage::helper('epay')->__("The refund action could not, be processed online. Please enable remote payment processing from the module configuration"));
             }
+
             $errorMessageBase = Mage::helper('epay')->__("The payment could not be refunded by ePay:").' ';
             $read = Mage::getSingleton('core/resource')->getConnection('core_read');
             $row = $read->fetchRow("select * from epay_order_status where orderid = '" . $payment->getOrder()->getIncrementId() . "'");
@@ -332,9 +334,11 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
         if (!isset($voidOrder)) {
             $voidOrder = $this->_data["info_instance"]->getOrder();
         }
+
         if ($this->_canVoid && $this->canAction($voidOrder)) {
             return true;
         }
+
         return false;
     }
 
