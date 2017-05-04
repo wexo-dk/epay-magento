@@ -173,4 +173,9 @@ class Mage_Epay_Adminhtml_PaymentrequestController extends Mage_Adminhtml_Contro
 
         $this->createAction();
     }
+
+    public function _isAllowed()
+    {
+        return parent::_isAllowed();
+    }
 }

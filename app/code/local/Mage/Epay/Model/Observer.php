@@ -76,7 +76,7 @@ class Mage_Epay_Model_Observer
     /**
      * Auto Cancel orders that are from 1 day until 1 hour ago and with custom pending status
      */
-    public function autocancelPendingOrders()
+    public function autocancelPendingOrders(Mage_Cron_Model_Schedule $schedule = null)
     {
         $epayStandard = Mage::getModel('epay/standard');
 
@@ -120,7 +120,10 @@ class Mage_Epay_Model_Observer
                         $orderModel->save();
                     }
                 } catch (Exception $e) {
-                    echo "Could not be canceled: " . $e->getMessage();
+                    if ($schedule) {
+                        $message = "Could not be canceled: {$e->getMessage()}\n";
+                        $schedule->setMessages($schedule->getMessages() . $message);
+                    }
                     Mage::logException($e);
                 }
             }

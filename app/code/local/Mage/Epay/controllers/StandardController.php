@@ -152,31 +152,32 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
      */
     private function validateCallback(&$message, &$order)
     {
-        if (!isset($_GET["txnid"])) {
+        $request = $this->getRequest();
+        if (!$request->getQuery('txnid')) {
             $message = "No GET(txnid) was supplied to the system!";
             return false;
         }
 
-        if (!isset($_GET["orderid"])) {
+        if (!$request->getQuery('orderid')) {
             $message = "No GET(orderid) was supplied to the system!";
             return false;
         }
 
-        if (!isset($_GET["amount"])) {
+        if (!$request->getQuery('amount')) {
             $message = "No GET(amount) supplied to the system!";
             return false;
         }
 
-        if (!isset($_GET["currency"])) {
+        if (!$request->getQuery('currency')) {
             $message = "No GET(currency) supplied to the system!";
             return false;
         }
-        $order = Mage::getModel('sales/order')->loadByIncrementId($_GET["orderid"]);
+        $order = Mage::getModel('sales/order')->loadByIncrementId($request->getQuery('orderid'));
         if (!isset($order) || !$order->getId()) {
             $message = "The order object could not be loaded";
             return false;
         }
-        if ($order->getIncrementId() != $_GET["orderid"]) {
+        if ($order->getIncrementId() != $request->getQuery('orderid')) {
             $message = "The loaded order id does not match the callback GET(orderId)";
             return false;
         }
@@ -185,7 +186,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
         $storeId = $order->getStoreId();
         $storeMd5 = $method->getConfigData('md5key', $storeId);
         if (!empty($storeMd5)) {
-            $accept_params = $_GET;
+            $accept_params = $request->getQuery();
             $var = "";
             foreach ($accept_params as $key => $value) {
                 if ($key != "hash") {
@@ -194,7 +195,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
             }
 
             $storeHash = md5($var . $storeMd5);
-            if ($storeHash != $_GET["hash"]) {
+            if ($storeHash != $request->getQuery('hash')) {
                 $message = "Hash validation failed - Please check your MD5 key";
                 return false;
             }
@@ -211,8 +212,9 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
     private function processCallback(&$responseCode)
     {
         $message = '';
+        $request = $this->getRequest();
         /** @var Mage_Sales_Model_Order */
-        $order = Mage::getModel('sales/order')->loadByIncrementId($_GET["orderid"]);
+        $order = Mage::getModel('sales/order')->loadByIncrementId($request->getQuery('orderid'));
         $payment = $order->getPayment();
         try {
             $pspReference = $payment->getAdditionalInformation(Mage_Epay_Model_Standard::PSP_REFERENCE);
@@ -224,7 +226,9 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
 
                 $this->updatePaymentData($order, $method->getConfigData('order_status_after_payment', $storeId));
 
-                if (intval($method->getConfigData('addfeetoshipping', $storeId)) == 1 && isset($_GET['txnfee']) && floatval($_GET['txnfee']) > 0) {
+                if (intval($method->getConfigData('addfeetoshipping', $storeId)) == 1
+                    && $request->getQuery('txnfee')
+                    && floatval($request->getQuery('txnfee')) > 0) {
                     $this->addSurchargeItemToOrder($order);
                 }
 
@@ -264,34 +268,36 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
     private function persistDataInEpayDBTable()
     {
         try {
+            $request = $this->getRequest();
             $read = Mage::getSingleton('core/resource')->getConnection('core_read');
-            $row = $read->fetchRow("select * from epay_order_status where orderid = '" . $_GET['orderid'] . "'");
+            $row = $read->fetchRow("select * from epay_order_status where orderid = '" . $request->getQuery('orderid') . "'");
 
-            if (!$row && isset($_GET['paymentrequest']) && strlen($_GET['paymentrequest']) > 0) {
+            if (!$row && $request->getQuery('paymentrequest') && strlen($request->getQuery('paymentrequest')) > 0) {
                 $write = Mage::getSingleton('core/resource')->getConnection('core_write');
-                $write->insert('epay_order_status', array('orderid'=>$_GET['orderid']));
+                $write->insert('epay_order_status', array('orderid'=>$request->getQuery('orderid')));
 
                 $read = Mage::getSingleton('core/resource')->getConnection('core_read');
-                $row = $read->fetchRow("select * from epay_order_status where orderid = '" . $_GET['orderid'] . "'");
+                $row = $read->fetchRow("select * from epay_order_status where orderid = '" . $request->getQuery('orderid') . "'");
             }
-            if (isset($_GET['paymentrequest']) && strlen($_GET['paymentrequest']) > 0) {
+            if ($request->getQuery('paymentrequest') && strlen($request->getQuery('paymentrequest')) > 0) {
                 //Mark as paid
-                $paymentRequestUpdate = Mage::getModel('epay/paymentrequest')->load($_GET["paymentrequest"])->setData('ispaid', "1");
-                $paymentRequestUpdate->setId($_GET["paymentrequest"])->save($paymentRequestUpdate);
+                $paymentRequestUpdate = Mage::getModel('epay/paymentrequest')->load($request->getQuery('paymentrequest'))->setData('ispaid', "1");
+                $paymentRequestUpdate->setId($request->getQuery('paymentrequest'))->save($paymentRequestUpdate);
             }
 
             if ($row['status'] == '0') {
-                $txnId = array_key_exists('txnid', $_GET) ? $_GET['txnid'] : '0';
-                $amount = array_key_exists('amount', $_GET) ? $_GET['amount'] : '0';
-                $cur = array_key_exists('currency', $_GET) ? $_GET['currency'] : '0';
-                $date = array_key_exists('date', $_GET) ? $_GET['date'] : '0';
-                $eKey = array_key_exists('hash', $_GET) ? $_GET['hash'] : '0';
-                $fraud = array_key_exists('fraud', $_GET) ? $_GET['fraud'] : '0';
-                $subscriptionId = array_key_exists('subscriptionid', $_GET) ? $_GET['subscriptionid'] : '0';
-                $cardId = array_key_exists('paymenttype', $_GET) ? $_GET['paymenttype'] : '0';
-                $cardNoPostfix = array_key_exists('cardno', $_GET) ? $_GET['cardno'] : '';
-                $transFee = array_key_exists('txnfee', $_GET) ? $_GET['txnfee'] : '0';
-                $orderId = $_GET['orderid'];
+                $getQuery = $request->getQuery();
+                $txnId = array_key_exists('txnid', $getQuery) ? $getQuery['txnid'] : '0';
+                $amount = array_key_exists('amount', $getQuery) ? $getQuery['amount'] : '0';
+                $cur = array_key_exists('currency', $getQuery) ? $getQuery['currency'] : '0';
+                $date = array_key_exists('date', $getQuery) ? $getQuery['date'] : '0';
+                $eKey = array_key_exists('hash', $getQuery) ? $getQuery['hash'] : '0';
+                $fraud = array_key_exists('fraud', $getQuery) ? $getQuery['fraud'] : '0';
+                $subscriptionId = array_key_exists('subscriptionid', $getQuery) ? $getQuery['subscriptionid'] : '0';
+                $cardId = array_key_exists('paymenttype', $getQuery) ? $getQuery['paymenttype'] : '0';
+                $cardNoPostfix = array_key_exists('cardno', $getQuery) ? $getQuery['cardno'] : '';
+                $transFee = array_key_exists('txnfee', $getQuery) ? $getQuery['txnfee'] : '0';
+                $orderId = $getQuery['orderid'];
 
                 $write = Mage::getSingleton('core/resource')->getConnection('core_write');
                 $query = "UPDATE epay_order_status SET
@@ -324,7 +330,8 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
     private function updatePaymentData($order, $orderStatusAfterPayment)
     {
         $methodInstance = $this->getMethod();
-        $txnId = $_GET["txnid"];
+        $request = $this->getRequest();
+        $txnId = $request->getQuery('txnid');
         /** @var Mage_Sales_Model_Order_Payment */
         $payment = $order->getPayment();
         $payment->setTransactionId($txnId);
@@ -332,15 +339,16 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
         $payment->setAdditionalInformation(Mage_Epay_Model_Standard::PSP_REFERENCE, $txnId);
         $payment->addTransaction(Mage_Sales_Model_Order_Payment_Transaction::TYPE_AUTH);
 
-        if (array_key_exists('cardno', $_GET)) {
-            $payment->setCcNumberEnc($_GET['cardno']);
+        $getQuery = $request->getQuery();
+        if (array_key_exists('cardno', $getQuery)) {
+            $payment->setCcNumberEnc($getQuery['cardno']);
         }
 
-        if (array_key_exists('paymenttype', $_GET)) {
-            $payment->setCcType($methodInstance->calcCardtype($_GET['paymenttype']));
+        if (array_key_exists('paymenttype', $getQuery)) {
+            $payment->setCcType($methodInstance->calcCardtype($getQuery['paymenttype']));
         }
 
-        if (array_key_exists('fraud', $_GET) && $_GET['fraud'] == 1) {
+        if (array_key_exists('fraud', $getQuery) && $getQuery['fraud'] == 1) {
             $payment->setIsFraudDetected(true);
             $message = Mage::helper('epay')->__("Fraud was detected on the payment");
             $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, Mage_Sales_Model_Order::STATUS_FRAUD, $message, false);
@@ -364,7 +372,8 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
      */
     private function addSurchargeItemToOrder($order)
     {
-        $baseFeeAmount = ((int)$_GET['txnfee']) / 100;
+        $request = $this->getRequest();
+        $baseFeeAmount = ((int)$request->getQuery('txnfee')) / 100;
         $feeAmount = Mage::helper('directory')->currencyConvert($baseFeeAmount, $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode());
 
         foreach ($order->getAllItems() as $item) {
@@ -373,7 +382,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
             }
         }
 
-        $text = $this->getMethod()->calcCardtype($_GET['paymenttype']) . ' - ' . Mage::helper('epay')->__('Surcharge fee');
+        $text = $this->getMethod()->calcCardtype($request->getQuery('paymenttype')) . ' - ' . Mage::helper('epay')->__('Surcharge fee');
         /** @var Mage_Sales_Model_Order_Item */
         $feeItem = Mage::helper('epay')->createFeeItem($baseFeeAmount, $feeAmount, $order->getStoreId(), $order->getId(), $text);
 

@@ -85,4 +85,9 @@ class Mage_Epay_Adminhtml_PaymentController extends Mage_Adminhtml_Controller_Ac
         }
         $this->_redirectReferer();
     }
+
+    public function _isAllowed()
+    {
+        return parent::_isAllowed();
+    }
 }
