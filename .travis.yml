@@ -12,8 +12,14 @@ env:
   global:
     - COMPOSER_BIN_DIR=~/bin
   matrix:
-    - CODING_STANDARD=Ecg   SEVERITY=6
+    - CODING_STANDARD=Ecg SEVERITY=5
+    - CODING_STANDARD=MEQP1 SEVERITY=5
     - CODING_STANDARD=MEQP1 SEVERITY=9
+
+matrix:
+  allow_failures:
+    - env: CODING_STANDARD=Ecg SEVERITY=5
+    - env: CODING_STANDARD=MEQP1 SEVERITY=5
 
 before_install: test -n "$GITHUB_TOKEN" && composer config github-oauth.github.com "$GITHUB_TOKEN" || true
 install: composer install --no-interaction --prefer-dist
