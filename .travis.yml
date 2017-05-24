@@ -11,19 +11,17 @@ cache:
 env:
   global:
     - COMPOSER_BIN_DIR=~/bin
-    - NODE_JS_VERSION=6
   matrix:
     - TEST_SUITE=marketplace_review
-    - TEST_SUITE=editorconfig
-
+    - TEST_SUITE=editorconfig NODE_JS_VERSION=6
 
 
 before_install:
   - test -n "$GITHUB_TOKEN" && echo "Found GitHub token" && composer config github-oauth.github.com "$GITHUB_TOKEN" || echo "No GitHub token found"
-  - if [ "$TEST_SUITE" = "editorconfig" ]; then . $HOME/.nvm/nvm.sh && nvm install "$NODE_JS_VERSION" && nvm use "$NODE_JS_VERSION" ; fi
+  - test -n "$NODE_JS_VERSION" && . $HOME/.nvm/nvm.sh && nvm install "$NODE_JS_VERSION" && nvm use "$NODE_JS_VERSION"
 install:
   - composer install --no-interaction --prefer-dist
-  - if [ "$TEST_SUITE" = "editorconfig" ]; then npm install; fi
+  - test -n "$NODE_JS_VERSION" &&  npm install
 
 before_script:
   -  phpcs --config-set installed_paths vendor/magento/marketplace-eqp
