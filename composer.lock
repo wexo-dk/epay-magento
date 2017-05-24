@@ -4,43 +4,10 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "9a74de5b3d4cfccd4566e5a167011f34",
-    "content-hash": "2f59e66e8b101dd2d375bba55901cace",
+    "hash": "1d0ad94b35368eb0b5422ee355ffc3d7",
+    "content-hash": "7ec298801b2071b1f821885db0f1746f",
     "packages": [],
     "packages-dev": [
-        {
-            "name": "magento-ecg/coding-standard",
-            "version": "2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/magento-ecg/coding-standard.git",
-                "reference": "eea9b1d1a21d844f28eb65b0d66a1a4c320e0d6b"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/magento-ecg/coding-standard/zipball/eea9b1d1a21d844f28eb65b0d66a1a4c320e0d6b",
-                "reference": "eea9b1d1a21d844f28eb65b0d66a1a4c320e0d6b",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.4.0"
-            },
-            "type": "library",
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Magento Expert Consulting Group",
-                    "homepage": "http://magentocommerce.com/consulting",
-                    "role": "Maintainer"
-                }
-            ],
-            "description": "A set of PHP_CodeSniffer rules and sniffs.",
-            "homepage": "https://github.com/magento-ecg/coding-standard",
-            "time": "2015-12-18 16:52:59"
-        },
         {
             "name": "magento/marketplace-eqp",
             "version": "1.0.5",
