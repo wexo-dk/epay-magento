@@ -1,7 +1,4 @@
 dist: trusty
-language: php
-php:
-  - 7.0
 
 cache:
   apt: true
@@ -11,15 +8,15 @@ cache:
 env:
   global:
     - COMPOSER_BIN_DIR=~/bin
-    - NODE_JS_VERSION=6
-  matrix:
-    - TEST_SUITE=marketplace_review
 
 matric:
   include:
     - language: node_js
       node_js: 6
       env: TEST_SUITE=editorconfig
+    - language: php
+      php: 7.0
+      env: TEST_SUITE=marketplace_review
 
 
 
