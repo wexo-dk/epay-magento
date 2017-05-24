@@ -1,5 +1,7 @@
 dist: trusty
 language: php
+php:
+  - 7.0
 
 cache:
   apt: true
@@ -9,22 +11,21 @@ cache:
 env:
   global:
     - COMPOSER_BIN_DIR=~/bin
+    - NODE_JS_VERSION=6
+  matrix:
+    - TEST_SUITE=marketplace_review
+    - TEST_SUITE=editorconfig
 
-matrix:
-  allow_failures:
-    - env: CODING_STANDARD=Ecg SEVERITY=5
-    - env: CODING_STANDARD=MEQP1 SEVERITY=5
-  include:
-    - php: 7.0
-      env: CODING_STANDARD=Ecg SEVERITY=5
-    - php: 7.0
-      env: CODING_STANDARD=MEQP1 SEVERITY=5
-    - php: 7.0
-      env: CODING_STANDARD=MEQP1 SEVERITY=9
 
-before_install: test -n "$GITHUB_TOKEN" && echo "Found GitHub token" && composer config github-oauth.github.com "$GITHUB_TOKEN" || echo "No GitHub token found"
-install: composer install --no-interaction --prefer-dist
+
+before_install:
+  - test -n "$GITHUB_TOKEN" && echo "Found GitHub token" && composer config github-oauth.github.com "$GITHUB_TOKEN" || echo "No GitHub token found"
+  - if [[ "TEST_SUITE" == "editorconfig" ]]; nvm install $NODE_JS_VERSION && nvm use $NODE_JS_VERSION && node --version ; fi
+install:
+  - composer install --no-interaction --prefer-dist
+  - if [[ "TEST_SUITE" == "editorconfig" ]]; npm install ; fi
 
 before_script: phpcs --config-set installed_paths vendor/magento-ecg/coding-standard,vendor/magento/marketplace-eqp
 script:
-  - phpcs ./ --ignore=./vendor --standard="$CODING_STANDARD" --severity="$SEVERITY" --extensions=phtml,php,js,css
+  - if [[ "TEST_SUITE" == "editorconfig" ]]; git ls-files | xargs `npm bin`/editorconfig-tools check ; fi
+  - if [[ "TEST_SUITE" == "marketplace_review" ]]; phpcs ./ --ignore=./vendor --standard="MEQP1" --severity="10" --extensions=phtml,php,js,css ; fi
