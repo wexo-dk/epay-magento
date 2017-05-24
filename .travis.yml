@@ -18,8 +18,8 @@ env:
 matric:
   include:
     - language: node_js
-    - node_js: 6
-    - env: TEST_SUITE=editorconfig
+      node_js: 6
+      env: TEST_SUITE=editorconfig
 
 
 
