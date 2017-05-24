@@ -20,13 +20,13 @@ env:
 
 before_install:
   - test -n "$GITHUB_TOKEN" && echo "Found GitHub token" && composer config github-oauth.github.com "$GITHUB_TOKEN" || echo "No GitHub token found"
-  - if [ "$TEST_SUITE" = "editorconfig" ]; . $HOME/.nvm/nvm.sh && nvm install "$NODE_JS_VERSION" && nvm use "$NODE_JS_VERSION" ; fi
+  - if [ "$TEST_SUITE" = "editorconfig" ]; then . $HOME/.nvm/nvm.sh && nvm install "$NODE_JS_VERSION" && nvm use "$NODE_JS_VERSION" ; fi
 install:
   - composer install --no-interaction --prefer-dist
-  - if [ "$TEST_SUITE" = "editorconfig" ]; . $HOME/.nvm/nvm.sh && nvm install stable && nvm use stable && npm install; fi
+  - if [ "$TEST_SUITE" = "editorconfig" ]; then . $HOME/.nvm/nvm.sh && nvm install stable && nvm use stable && npm install; fi
 
 before_script:
   -  phpcs --config-set installed_paths vendor/magento-ecg/coding-standard,vendor/magento/marketplace-eqp
 script:
-  - if [ "$TEST_SUITE" = "editorconfig" ]; git ls-files | xargs `npm bin`/editorconfig-tools check ; fi
-  - if [ "$TEST_SUITE" = "marketplace_review" ]; phpcs ./ --ignore=./vendor --standard="MEQP1" --severity="10" --extensions=phtml,php,js,css ; fi
+  - if [ "$TEST_SUITE" = "editorconfig" ]; then git ls-files | xargs `npm bin`/editorconfig-tools check ; fi
+  - if [ "$TEST_SUITE" = "marketplace_review" ]; then phpcs ./ --ignore=./vendor --standard="MEQP1" --severity="10" --extensions=phtml,php,js,css ; fi
