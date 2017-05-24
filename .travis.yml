@@ -11,18 +11,19 @@ cache:
 env:
   global:
     - COMPOSER_BIN_DIR=~/bin
-  matrix:
-    - CODING_STANDARD=Ecg SEVERITY=5
-    - CODING_STANDARD=MEQP1 SEVERITY=5
-    - CODING_STANDARD=MEQP1 SEVERITY=9
 
 matrix:
   allow_failures:
     - env: CODING_STANDARD=Ecg SEVERITY=5
     - env: CODING_STANDARD=MEQP1 SEVERITY=5
+  include:
+    - env: CODING_STANDARD=Ecg SEVERITY=5
+    - env: CODING_STANDARD=MEQP1 SEVERITY=5
+    - env: CODING_STANDARD=MEQP1 SEVERITY=9
 
 before_install: test -n "$GITHUB_TOKEN" && echo "Found GitHub token" && composer config github-oauth.github.com "$GITHUB_TOKEN" || echo "No GitHub token found"
 install: composer install --no-interaction --prefer-dist
 
 before_script: phpcs --config-set installed_paths vendor/magento-ecg/coding-standard,vendor/magento/marketplace-eqp
-script: phpcs ./ --ignore=./vendor --standard="$CODING_STANDARD" --severity="$SEVERITY" --extensions=phtml,php,js,css
+script:
+  - phpcs ./ --ignore=./vendor --standard="$CODING_STANDARD" --severity="$SEVERITY" --extensions=phtml,php,js,css
