@@ -1,5 +1,5 @@
 <_>
-   <form_key>Nb5RMeLK7iy2niB4</form_key>
+   <form_key>GXpKiAv59iJ7K4a8</form_key>
    <name>ePay</name>
    <channel>community</channel>
    <version_ids>
@@ -8,7 +8,7 @@
    <summary>An online payment gateway for ePay payment solutions</summary>
    <description>This is the payment module for the Scandinavian payment gateway ePay - http://www.epay.dk
 
-ePay is the leading payment system in Scandinavia, which offers payment solutions to both small and large companies. We have focus on flexible, effective and user friendly payment solutions for extreme competitive prices.
+ePay is the leading payment system in Scandinavia, which offers payment solutions to both small and large companies. We have focus on flexible, effective and user friendly payment solutions for extreme competitive prices. 
 
 Card types accepted by the ePay payment gateway:
 - Dankort
@@ -33,19 +33,18 @@ Get a test account for free by contacting ePay at support@bambora.com or signup 
 For other enquiries please contact ePay at sales@epay.dk or by phone +45 98 13 90 40
 
 License:
-This program is free software for merchants. You are allowed to use the software but NOT allowed to modify the software. It is also not legal to do any changes to the software and distribute it in your own name / brand.
+This program is free software for merchants. You are allowed to use the software but NOT allowed to modify the software. It is also not legal to do any changes to the software and distribute it in your own name / brand. 
 
 Copyright ePay | Payment solutions - www.epay.dk (c) 2017.</description>
    <license>ePay limited license</license>
    <license_uri/>
-   <version>2.8.1</version>
+   <version>2.8.2</version>
    <stability>stable</stability>
-   <notes>* Adds check for payment method in observers
-* Adds configuration setting for disabling canceling of the payment when an order is edited.
-* Adds &quot;Move payment from parent&quot; button and logic to an edited order.
-* Adds better error handling and notification on callback errors
-* Changed redirect logic
-* Update callback db logic changed
+   <notes>* Fix for discount calculation when using invoice lines
+* Removal of extra invoice line elements
+* Fix for discount calculation when using invoice lines
+* Code refactoring to comply with Magento coding standard
+
 
 **Notice:**
 * Before upgrading to this version you must be on version 2.6.4 or newer.
@@ -79,7 +78,7 @@ Copyright ePay | Payment solutions - www.epay.dk (c) 2017.</description>
             <max/>
          </max>
          <files>
-            <files>                                                                                                                                                              </files>
+            <files>                                                                                                                                                                 </files>
          </files>
       </package>
       <extension>
