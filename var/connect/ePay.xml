@@ -8,7 +8,7 @@
    <summary>An online payment gateway for ePay payment solutions</summary>
    <description>This is the payment module for the Scandinavian payment gateway ePay - http://www.epay.dk
 
-ePay is the leading payment system in Scandinavia, which offers payment solutions to both small and large companies. We have focus on flexible, effective and user friendly payment solutions for extreme competitive prices. 
+ePay is the leading payment system in Scandinavia, which offers payment solutions to both small and large companies. We have focus on flexible, effective and user friendly payment solutions for extreme competitive prices.
 
 Card types accepted by the ePay payment gateway:
 - Dankort
@@ -33,7 +33,7 @@ Get a test account for free by contacting ePay at support@bambora.com or signup 
 For other enquiries please contact ePay at sales@epay.dk or by phone +45 98 13 90 40
 
 License:
-This program is free software for merchants. You are allowed to use the software but NOT allowed to modify the software. It is also not legal to do any changes to the software and distribute it in your own name / brand. 
+This program is free software for merchants. You are allowed to use the software but NOT allowed to modify the software. It is also not legal to do any changes to the software and distribute it in your own name / brand.
 
 Copyright ePay | Payment solutions - www.epay.dk (c) 2017.</description>
    <license>ePay limited license</license>

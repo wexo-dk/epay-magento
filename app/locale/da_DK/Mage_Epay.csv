@@ -104,5 +104,5 @@
 "Payment","Betaling"
 "Could not use instant invoice.","Kunne ikke udf&#248;re instant invoice";
 "Payment moved from parent","Betalingen er flytter fra den oprindelige order"
-"The transaction could not be moved because the amount of the edited order exceeds the transaction amount - Go to the ePay administration to handle the payment manually.","Betalingen kunne ikke flyttes fordi bel&#248;bet er h&#248;jere end det oprindelige bel&#248;b - G&#229; til ePay administrationen for at håndtere betalingen manuelt."
+"The transaction could not be moved because the amount of the edited order exceeds the transaction amount - Go to the ePay administration to handle the payment manually.","Betalingen kunne ikke flyttes fordi bel&#248;bet er h&#248;jere end det oprindelige bel&#248;b - G&#229; til ePay administrationen for at hÃ¥ndtere betalingen manuelt."
 "Nothing changed","Nothing changed"

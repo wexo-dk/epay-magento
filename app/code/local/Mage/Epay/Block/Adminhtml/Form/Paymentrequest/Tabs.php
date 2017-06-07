@@ -24,17 +24,21 @@ class Mage_Epay_Block_Adminhtml_Form_Paymentrequest_Tabs extends Mage_Adminhtml_
 
     protected function _beforeToHtml()
     {
-        $this->addTab('general', array(
+        $this->addTab(
+            'general', array(
             'label' => Mage::helper('epay')->__("General"),
             'title' => Mage::helper('epay')->__("General"),
             'content' => $this->getLayout()->createBlock('epay/adminhtml_form_paymentrequest_tab_general')->toHtml(),
-        ));
+            )
+        );
 
-        $this->addTab('recipient', array(
+        $this->addTab(
+            'recipient', array(
             'label' => Mage::helper('epay')->__("E-mail"),
             'title' => Mage::helper('epay')->__("E-mail"),
             'content' => $this->getLayout()->createBlock('epay/adminhtml_form_paymentrequest_tab_recipient')->toHtml(),
-        ));
+            )
+        );
 
         return parent::_beforeToHtml();
     }

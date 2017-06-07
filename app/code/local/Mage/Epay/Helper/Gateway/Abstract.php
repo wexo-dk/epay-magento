@@ -28,6 +28,7 @@ abstract class Mage_Epay_Helper_Gateway_Abstract extends Mage_Core_Helper_Abstra
         if ($items === null) {
             $items = $this->order->getAllVisibleItems();
         }
+
         $lines = array();
 
         foreach ($items as $item) {
@@ -36,6 +37,7 @@ abstract class Mage_Epay_Helper_Gateway_Abstract extends Mage_Core_Helper_Abstra
             if (!isset($qty)) {
                 $qty = $item->getQty(); //Advanced
             }
+
             $id = $item->getProductId();
             $product = Mage::getModel('catalog/product')->load($id);
 

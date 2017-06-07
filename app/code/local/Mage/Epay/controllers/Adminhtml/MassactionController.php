@@ -184,4 +184,9 @@ class Mage_Epay_Adminhtml_MassactionController extends Mage_Adminhtml_Controller
 
         $this->_redirect('adminhtml/sales_order/index');
     }
+
+    public function _isAllowed()
+    {
+        return parent::_isAllowed();
+    }
 }

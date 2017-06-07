@@ -19,6 +19,7 @@ class Mage_Epay_Block_Standard_Info extends Mage_Payment_Block_Info
         if ($this->_paymentSpecificInformation !== null) {
             return $this->_paymentSpecificInformation;
         }
+
         $transport = new Varien_Object();
         $transport = parent::_prepareSpecificInformation($transport);
 

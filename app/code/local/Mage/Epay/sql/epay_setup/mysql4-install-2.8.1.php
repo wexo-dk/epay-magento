@@ -17,7 +17,8 @@ $installer = $this;
 
 $installer->startSetup();
 
-$installer->run("
+$installer->run(
+    "
     CREATE TABLE if not exists epay_order_status (
       `orderid` VARCHAR(45) NOT NULL,
       `tid` VARCHAR(45) NOT NULL,
@@ -32,9 +33,11 @@ $installer->run("
       `transfee` VARCHAR(45) NOT NULL,
       `cardnopostfix` VARCHAR(45) NOT NULL
     );
-");
+"
+);
 
-$installer->run("
+$installer->run(
+    "
     CREATE TABLE if not exists `paymentrequest` (
       `id` int(11) NOT NULL AUTO_INCREMENT,
       `orderid` varchar(20) DEFAULT NULL,
@@ -47,10 +50,13 @@ $installer->run("
       `created` timestamp NULL DEFAULT NULL,
       PRIMARY KEY (`id`)
     );
-");
+"
+);
 
-$installer->run("
+$installer->run(
+    "
         DELETE FROM core_config_data WHERE path = 'payment/epay_standard/group';
-    ");
+    "
+);
 
 $installer->endSetup();

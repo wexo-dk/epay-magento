@@ -217,6 +217,7 @@ class Mage_Epay_Helper_Gateway_Extras extends Mage_Core_Helper_Abstract
                 $newAmount = $product->getBaseDiscountAmount() * (($rate / 100) + 1);
                 $amount -= $newAmount;
             }
+
             //If the discount also extends to shipping
             $shippingDiscount = $this->order->getBaseShippingDiscountAmount();
             if ($shippingDiscount) {

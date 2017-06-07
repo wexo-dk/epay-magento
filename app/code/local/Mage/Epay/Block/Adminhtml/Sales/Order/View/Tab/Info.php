@@ -49,38 +49,47 @@ class Mage_Epay_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Adminhtml
                 $res .= "<tr><td width='150'>" . Mage::helper('epay')->__("Transaction ID") . ":</td>";
                 $res .= "<td>" . $row['tid'] . "</td></tr>";
             }
+
             if ($row['amount'] != '0') {
                 $res .= "<tr><td>" . Mage::helper('epay')->__("Amount") . ":</td>";
                 $res .= "<td>" . $order->getBaseCurrencyCode() . "&nbsp;" . number_format(((int)$row['amount']) / 100, 2, ',', ' ') . "</td></tr>";
             }
+
             if ($row['cur'] != '0') {
                 $res .= "<tr><td>" . Mage::helper('epay')->__("Currency code") . ":</td>";
                 $res .= "<td>" . $row['cur'] . "</td></tr>";
             }
+
             if ($row['date'] != '0') {
                 $res .= "<tr><td>" . Mage::helper('epay')->__("Transaction date") . ":</td>";
                 $res .= "<td>" . $row['date'] . "</td></tr>";
             }
+
             if ($row['eKey'] != '0') {
                 $res .= "<tr><td>" . Mage::helper('epay')->__("MD5 key") . ":</td>";
                 $res .= "<td>" . $row['eKey'] . "</td></tr>";
             }
+
             if ($row['fraud'] != '0') {
                 $res .= "<tr><td>" . Mage::helper('epay')->__("Fraud control") . ":</td>";
                 $res .= "<td>" . sprintf(Mage::helper('epay')->__("This creditcard has been used %s time(s) the past 24 hours"), $row['fraud']) . "</td></tr>";
             }
+
             if ($row['subscriptionid'] != '0') {
                 $res .= "<tr><td>" . Mage::helper('epay')->__("Subscription ID") . ":</td>";
                 $res .= "<td>" . $row['subscriptionid'] . "</td></tr>";
             }
+
             if ($row['cardid'] != '0') {
                 $res .= "<tr><td>" . Mage::helper('epay')->__("Card type") . ":</td>";
                 $res .= "<td>". $method->calcCardtype($row['cardid']) . $this->getPaymentLogoUrl($row['cardid']) . "</td></tr>";
             }
+
             if (strlen($row['cardnopostfix']) != 0) {
                 $res .= "<tr><td>" . Mage::helper('epay')->__("Card number") . ":</td>";
                 $res .= "<td>" . $row['cardnopostfix'] . "</td></tr>";
             }
+
             if ($row['transfee'] != '0') {
                 $res .= "<tr><td>" . Mage::helper('epay')->__("Surcharge fee") . ":</td>";
                 $res .= "<td>" . $order->getBaseCurrencyCode() . "&nbsp;" . number_format(((int)$row['transfee']) / 100, 2, ',', ' ') . "</td></tr>";
@@ -203,6 +212,7 @@ class Mage_Epay_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Adminhtml
                         $historyArray = array($result->transactionInformation->history->TransactionHistoryInfo);
                         // convert to array
                     }
+
                     $res .= "<tr><td colspan='2'><br><br><b>" . Mage::helper('epay')->__("History") . "</b></td></tr>";
                     for ($i = 0; $i < count($historyArray); $i++) {
                         $res .= "<tr><td>" . str_replace("T", " ", $historyArray[$i]->created) . "</td>";
@@ -210,6 +220,7 @@ class Mage_Epay_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Adminhtml
                         if (strlen($historyArray[$i]->username) > 0) {
                             $res .= ($historyArray[$i]->username . ": ");
                         }
+
                         $res .= $historyArray[$i]->eventMsg . "</td></tr>";
                     }
                 }
@@ -260,6 +271,7 @@ class Mage_Epay_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Adminhtml
         if ($payment->getMethod() === 'epay_standard' && $this->isRemoteInterfaceEnabled()) {
             return true;
         }
+
         return false;
     }
     public function isHidden()
