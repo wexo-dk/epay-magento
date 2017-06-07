@@ -132,20 +132,60 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 
             $invoice["lines"] = array();
 
-            $invoiceData = Mage::helper('epay/gateway_advanced');
-            $invoiceData->init($order);
-
-            $items = $invoiceData->getGoodsList();
-
+            $items = $order->getAllVisibleItems();
             foreach ($items as $item) {
-                $item["description"] = $this->removeSpecialCharacters($item["description"]);
-                $invoice["lines"][] = $item;
+                $description = empty($item->getDescription()) ? $item->getName() : $item->getDescription();
+                $invoice["lines"][] = array(
+                        "id" =>$item->getSku(),
+                        "description" => $this->removeSpecialCharacters($description),
+                        "quantity" => intval($item->getQtyOrdered()),
+                        "price" => $item->getBasePrice() * 100,
+                        "vat" => floatval($item->getTaxPercent())
+                    );
+            }
+            // add shipment as line
+            $shippingText = __("Shipping");
+            $shippingDescription = $order->getShippingDescription();
+            $shippingTaxClass = Mage::getStoreConfig('tax/classes/shipping_tax_class');
+            $shippingTaxPercent = $this->getTaxRate($order, $shippingTaxClass);
+            $invoice["lines"][] = array(
+                       "id" => $shippingText,
+                       "description" => isset($shippingDescription) ? $shippingDescription : $shippingText,
+                       "quantity" => 1,
+                       "price" => $order->getBaseShippingAmount() * 100,
+                       "vat" => $shippingTaxPercent
+                   );
+
+            // Fix for bug in Magento shipment discont calculation
+            $baseShipmentDiscountAmount = $order->getBaseShippingDiscountAmount();
+            if($baseShipmentDiscountAmount > 0 && $shippingTaxPercent > 0) {
+                $invoice["lines"][] = array(
+                     "id" => "shipping_discount",
+                     "description" => __("Shipping discount"),
+                     "quantity" => 1,
+                     "price" =>round($baseShipmentDiscountAmount, 2) * -100,
+                      );
             }
 
             return json_encode($invoice, JSON_UNESCAPED_UNICODE);
         } else {
             return "";
         }
+    }
+
+    public function getTaxRate($order, $taxClass)
+    {
+        // Load the customer so we can retrevice the correct tax class id
+        $customer = Mage::getModel('customer/customer')
+            ->load($order->getCustomerId());
+        $calculation = Mage::getSingleton('tax/calculation');
+        $request = $calculation->getRateRequest(
+            $order->getShippingAddress(),
+            $order->getBillingAddress(),
+            $customer->getTaxClassId(),
+            $order->getStore()
+        );
+        return $calculation->getRate($request->setProductClassId($taxClass));
     }
 
     private function canAction($actionOrder)

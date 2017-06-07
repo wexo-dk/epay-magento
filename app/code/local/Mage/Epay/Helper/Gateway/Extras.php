@@ -199,11 +199,11 @@ class Mage_Epay_Helper_Gateway_Extras extends Mage_Core_Helper_Abstract
 
     private function _addDiscount()
     {
-        if ($this->order->getDiscountAmount() >= 0) {
+        if ($this->order->getBaseDiscountAmount() >= 0) {
             return;
         }
 
-        $amount = $this->order->getDiscountAmount();
+        $amount = $this->order->getBaseDiscountAmount();
         $applyAfter = Mage::helper('tax')->applyTaxAfterDiscount(
             $this->order->getStoreId()
         );

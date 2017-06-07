@@ -49,8 +49,7 @@ abstract class Mage_Epay_Helper_Gateway_Abstract extends Mage_Core_Helper_Abstra
                 "id" => $item->getSku(),
                 "description" => $item->getName(),
                 "price" => $item->getBasePrice() * 100,
-                "vat" => isset($taxRate) ? $taxRate : 0,
-                "discount" => 0
+                "vat" => isset($taxRate) ? $taxRate : 0
             );
         }
 
