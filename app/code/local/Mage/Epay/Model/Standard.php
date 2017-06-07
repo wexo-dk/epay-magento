@@ -29,7 +29,6 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
     protected $_canOrder                = true;
     protected $_canVoid                 = true;
 
-
     //
     // Allowed currency types
     //
