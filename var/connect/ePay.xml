@@ -1,5 +1,5 @@
 <_>
-   <form_key>ujCTkQqOGoyJbKbg</form_key>
+   <form_key>AF4UDuA0hJkDTuVJ</form_key>
    <name>ePay</name>
    <channel>community</channel>
    <version_ids>
@@ -42,9 +42,12 @@ Copyright ePay | Payment solutions - www.epay.dk (c) 2017.</description>
    <stability>stable</stability>
    <notes>* Fix for discount calculation when using invoice lines - now discount is in a separate line on the invoice
 
+**This and previous releases is tested on Magento v 1.9.x . We can not guarantee that it will work on other versions of Magento**
+
 **Notice:**
-* Before upgrading to this version you must be on version 2.6.4 or newer.
-* If you are on version 2.7.4 or older then you must re-enter your remote password and md5 key in the module configuration after updating to this version
+- Before upgrading to this version you must be on version 2.6.4 or newer.
+- If you are on version 2.7.8 or older then you must re-enter your remote password and md5 key in the module configuration after updating to this version
+- If running Magento on PHP 7.x there might be some errors in the price calculation. 
 </notes>
    <authors>
       <name>
@@ -74,7 +77,7 @@ Copyright ePay | Payment solutions - www.epay.dk (c) 2017.</description>
             <max/>
          </max>
          <files>
-            <files>                                                                                                                                                                   </files>
+            <files>                                                                                                                                                                    </files>
          </files>
       </package>
       <extension>

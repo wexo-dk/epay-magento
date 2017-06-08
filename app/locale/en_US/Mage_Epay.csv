@@ -106,3 +106,4 @@
 "Payment moved from parent","Payment moved from parent"
 "The transaction could not be moved because the amount of the edited order exceeds the transaction amount - Go to the ePay administration to handle the payment manually.","The transaction could not be moved because the amount of the edited order exceeds the transaction amount - Go to the ePay administration to handle the payment manually."
 "Nothing changed","Nothing changed"
+"Discount", "Discount"
