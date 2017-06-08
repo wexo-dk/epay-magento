@@ -29,6 +29,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
     protected $_canOrder                = true;
     protected $_canVoid                 = true;
 
+
     //
     // Allowed currency types
     //
@@ -155,15 +156,14 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
                        "price" => $order->getBaseShippingAmount() * 100,
                        "vat" => $shippingTaxPercent
                    );
-
-            // Fix for bug in Magento shipment discont calculation
-            $baseShipmentDiscountAmount = $order->getBaseShippingDiscountAmount();
-            if($baseShipmentDiscountAmount > 0 && $shippingTaxPercent > 0) {
+            
+            $baseDiscountAmount = $order->getBaseDiscountAmount();
+            if($baseDiscountAmount != 0) {
                 $invoice["lines"][] = array(
-                     "id" => "shipping_discount",
-                     "description" => __("Shipping discount"),
+                    "id" => "discount",
+                    "description" => __("Discount"),
                      "quantity" => 1,
-                     "price" =>round($baseShipmentDiscountAmount, 2) * -100,
+                     "price" =>round($baseDiscountAmount, 2) * 100,
                       );
             }
 
@@ -542,7 +542,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
     {
         $bamboraVersion = (string) Mage::getConfig()->getNode()->modules->Mage_Epay->version;
         $magentoVersion = Mage::getVersion();
-        $result = 'Magento/' . $magentoVersion . ' Module/' . $bamboraVersion;
+        $result = 'Magento/' . $magentoVersion . ' Module/' . $bamboraVersion . ' PHP/' . phpversion();
 
         return $result;
     }
