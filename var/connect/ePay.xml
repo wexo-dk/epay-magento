@@ -1,5 +1,5 @@
 <_>
-   <form_key>AF4UDuA0hJkDTuVJ</form_key>
+   <form_key>G842ENfiVTBZNZ5E</form_key>
    <name>ePay</name>
    <channel>community</channel>
    <version_ids>
@@ -38,16 +38,23 @@ This program is free software for merchants. You are allowed to use the software
 Copyright ePay | Payment solutions - www.epay.dk (c) 2017.</description>
    <license>ePay limited license</license>
    <license_uri/>
-   <version>2.8.3</version>
+   <version>2.8.4</version>
    <stability>stable</stability>
-   <notes>* Fix for discount calculation when using invoice lines - now discount is in a separate line on the invoice
-
-**This and previous releases is tested on Magento v 1.9.x . We can not guarantee that it will work on other versions of Magento**
+   <notes>* Fix for payment request button not visible if move payment from payment
+* Fix for Danish translation being wrong on payment request
+* Adds rounding mode in module configuration
+* Adds option for surcharge as order line or added to shipment
+* Rearrange module configuration
+* Refactoring of payment information on admin order page
+* Module name change from ePay to Bambora Online ePay
+* Changed Fraud control message
+* Fix for payment request not saving currency in the database
+**This and previous releases is tested on Magento v 1.9.x . We can not guarantee that it will work on other versions of Magento. Also if you are running Magento on PHP 7.x there might be errors in the Magento calculation of tax and discount**
 
 **Notice:**
 - Before upgrading to this version you must be on version 2.6.4 or newer.
 - If you are on version 2.7.8 or older then you must re-enter your remote password and md5 key in the module configuration after updating to this version
-- If running Magento on PHP 7.x there might be some errors in the price calculation. 
+- If you are using Surcharge fee you must re-enable this and select which mode it should be running.
 </notes>
    <authors>
       <name>
@@ -77,7 +84,7 @@ Copyright ePay | Payment solutions - www.epay.dk (c) 2017.</description>
             <max/>
          </max>
          <files>
-            <files>                                                                                                                                                                    </files>
+            <files>                                                                                                                                                                        </files>
          </files>
       </package>
       <extension>
