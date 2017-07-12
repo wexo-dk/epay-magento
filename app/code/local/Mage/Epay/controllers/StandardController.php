@@ -12,8 +12,22 @@
  * @license   ePay A/S (a Bambora Company)
  *
  */
+
+use Mage_Epay_Helper_EpayConstant as EpayConstant;
+
 class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
 {
+    /**
+     * @var Mage_Epay_Helper_Data
+     */
+    private $epayHelper;
+
+    protected function _construct()
+    {
+        $this->epayHelper = Mage::helper('epay');
+    }
+
+
     /**
      * Get singleton with epay strandard order transaction information
      *
@@ -59,8 +73,8 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
                 $isOverlay = intval($paymentMethod->getConfigData('windowstate', $order->getStoreId())) === 1 ? true : false;
                 $paymentData = array("paymentRequest"=> $paymentMethod->getPaymentRequestAsString($order),
                                      "cancelUrl"=> $paymentMethod->getCancelUrl(),
-                                     "headerText"=> Mage::helper('epay')->__("Thank you for using ePay | Payment solutions"),
-                                     "headerText2"=> Mage::helper('epay')->__("Please wait..."),
+                                     "headerText"=> $this->epayHelper->__("Thank you for using Bambora Online ePay"),
+                                     "headerText2"=> $this->epayHelper->__("Please wait..."),
                                      "isOverlay"=> $isOverlay);
 
                 $this->loadLayout();
@@ -217,56 +231,60 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
      */
     private function processCallback(&$responseCode)
     {
-        $message = '';
-        $request = $this->getRequest();
-        /** @var Mage_Sales_Model_Order */
-        $order = Mage::getModel('sales/order')->loadByIncrementId($request->getQuery('orderid'));
-        $payment = $order->getPayment();
-        try {
-            $pspReference = $payment->getAdditionalInformation(Mage_Epay_Model_Standard::PSP_REFERENCE);
-            if (empty($pspReference) && !$order->isCanceled()) {
-                $method = $this->getMethod();
-                $storeId = $order->getStoreId();
+        try{
+            $message = '';
+            $request = $this->getRequest();
+            /** @var Mage_Sales_Model_Order */
+            $order = Mage::getModel('sales/order')->loadByIncrementId($request->getQuery('orderid'));
+            $payment = $order->getPayment();
+            try {
+                $pspReference = $payment->getAdditionalInformation(Mage_Epay_Model_Standard::PSP_REFERENCE);
+                if (empty($pspReference) && !$order->isCanceled()) {
+                    $method = $this->getMethod();
+                    $storeId = $order->getStoreId();
 
-                $this->persistDataInEpayDBTable();
+                    $this->persistDataInEpayDBTable();
 
-                $this->updatePaymentData($order, $method->getConfigData('order_status_after_payment', $storeId));
+                    $this->updatePaymentData($order, $method->getConfigData('order_status_after_payment', $storeId));
 
-                if (intval($method->getConfigData('addfeetoshipping', $storeId)) == 1
-                    && $request->getQuery('txnfee')
-                    && floatval($request->getQuery('txnfee')) > 0) {
-                    $this->addSurchargeItemToOrder($order);
-                }
+                    if (intval($method->getConfigData('enablesurcharge', $storeId)) == 1 && $request->getQuery('txnfee') && floatval($request->getQuery('txnfee')) > 0) {
+                        $this->addSurchargeToOrder($order, $method);
+                    }
 
-                if (intval($method->getConfigData('sendmailorderconfirmation', $storeId) == 1)) {
-                    $this->sendOrderEmail($order);
-                }
+                    if (intval($method->getConfigData('sendmailorderconfirmation', $storeId) == 1)) {
+                        $this->sendOrderEmail($order);
+                    }
 
-                if (intval($method->getConfigData('instantinvoice', $storeId)) == 1) {
-                    $this->createInvoice($order);
-                }
+                    if (intval($method->getConfigData('instantinvoice', $storeId)) == 1) {
+                        $this->createInvoice($order);
+                    }
 
-                $message = "Callback Success - Order created";
-            } else {
-                if ($order->isCanceled()) {
-                    $message = "Callback Success - Order was canceled by Magento";
+                    $message = "Callback Success - Order created";
                 } else {
-                    $message = "Callback Success - Order already created";
+                    if ($order->isCanceled()) {
+                        $message = "Callback Success - Order was canceled by Magento";
+                    } else {
+                        $message = "Callback Success - Order already created";
+                    }
                 }
+
+                $responseCode = '200';
+            }
+            catch (Exception $e) {
+                Mage::logException($e);
+                $message = "Callback Failed: " .$e->getMessage();
+                $order->addStatusHistoryComment($message);
+                $payment->setAdditionalInformation(Mage_Epay_Model_Standard::PSP_REFERENCE, "");
+                $payment->save();
+                $order->save();
+                $responseCode = '500';
             }
 
-            $responseCode = '200';
-        } catch (Exception $e) {
-            Mage::logException($e);
-            $message = "Callback Failed: " .$e->getMessage();
-            $order->addStatusHistoryComment($message);
-            $payment->setAdditionalInformation(Mage_Epay_Model_Standard::PSP_REFERENCE, "");
-            $payment->save();
-            $order->save();
-            $responseCode = '500';
+            return $message;
         }
-
-        return $message;
+        catch(Exception $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -337,73 +355,103 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
      */
     private function updatePaymentData($order, $orderStatusAfterPayment)
     {
-        $methodInstance = $this->getMethod();
-        $request = $this->getRequest();
-        $txnId = $request->getQuery('txnid');
-        /** @var Mage_Sales_Model_Order_Payment */
-        $payment = $order->getPayment();
-        $payment->setTransactionId($txnId);
-        $payment->setIsTransactionClosed(false);
-        $payment->setAdditionalInformation(Mage_Epay_Model_Standard::PSP_REFERENCE, $txnId);
-        $payment->addTransaction(Mage_Sales_Model_Order_Payment_Transaction::TYPE_AUTH);
+        try{
+            $methodInstance = $this->getMethod();
+            $request = $this->getRequest();
+            $txnId = $request->getQuery('txnid');
+            /** @var Mage_Sales_Model_Order_Payment */
+            $payment = $order->getPayment();
+            $payment->setTransactionId($txnId);
+            $payment->setIsTransactionClosed(false);
+            $payment->setAdditionalInformation(Mage_Epay_Model_Standard::PSP_REFERENCE, $txnId);
+            $payment->addTransaction(Mage_Sales_Model_Order_Payment_Transaction::TYPE_AUTH);
 
-        $getQuery = $request->getQuery();
-        if (array_key_exists('cardno', $getQuery)) {
-            $payment->setCcNumberEnc($getQuery['cardno']);
+            $getQuery = $request->getQuery();
+            if (array_key_exists('cardno', $getQuery)) {
+                $payment->setCcNumberEnc($getQuery['cardno']);
+            }
+
+            if (array_key_exists('paymenttype', $getQuery)) {
+                $payment->setCcType($methodInstance->calcCardtype($getQuery['paymenttype']));
+            }
+
+            if (array_key_exists('fraud', $getQuery) && $getQuery['fraud'] == 1) {
+                $payment->setIsFraudDetected(true);
+                $message = $this->epayHelper->__("Fraud was detected on the payment");
+                $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, Mage_Sales_Model_Order::STATUS_FRAUD, $message, false);
+            } else {
+                $message = $this->epayHelper->__("Payment authorization was a success.") . ' ' . $this->epayHelper->__("Transaction ID").': '.$txnId;
+                $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, $orderStatusAfterPayment, $message, false);
+            }
+
+            $isInstantCapture = intval($methodInstance->getConfigData('instantcapture', $order->getStoreId())) === 1 ? true : false;
+            $payment->setAdditionalInformation('instantcapture', $isInstantCapture);
+
+            $payment->save();
+            $order->save();
+        } catch(Exception $e) {
+            throw $e;
         }
-
-        if (array_key_exists('paymenttype', $getQuery)) {
-            $payment->setCcType($methodInstance->calcCardtype($getQuery['paymenttype']));
-        }
-
-        if (array_key_exists('fraud', $getQuery) && $getQuery['fraud'] == 1) {
-            $payment->setIsFraudDetected(true);
-            $message = Mage::helper('epay')->__("Fraud was detected on the payment");
-            $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, Mage_Sales_Model_Order::STATUS_FRAUD, $message, false);
-        } else {
-            $message = Mage::helper('epay')->__("Payment authorization was a success.") . ' ' . Mage::helper('epay')->__("Transaction ID").': '.$txnId;
-            $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, $orderStatusAfterPayment, $message, false);
-        }
-
-        $isInstantCapture = intval($methodInstance->getConfigData('instantcapture', $order->getStoreId())) === 1 ? true : false;
-        $payment->setAdditionalInformation('instantcapture', $isInstantCapture);
-
-        $payment->save();
-        $order->save();
     }
 
     /**
      * Add Surcharge item to the order as a order line
      *
      * @param Mage_Sales_Model_Order $order
+     * @param Mage_Epay_Model_Standard $method
      * @return void
      */
-    private function addSurchargeItemToOrder($order)
+    private function addSurchargeToOrder($order, $method)
     {
-        $request = $this->getRequest();
-        $baseFeeAmount = ((int)$request->getQuery('txnfee')) / 100;
-        $feeAmount = Mage::helper('directory')->currencyConvert($baseFeeAmount, $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode());
+        try{
+            $methodInstance = $this->getMethod();
+            $request = $this->getRequest();
+            $currency = $order->getBaseCurrencyCode();
+            $minorunits = $this->epayHelper->getCurrencyMinorunits($currency);
 
-        foreach ($order->getAllItems() as $item) {
-            if ($item->getSku() === 'surcharge_fee') {
-                return;
+            $baseFeeAmountInMinorunits = (int)$request->getQuery('txnfee');
+            $baseFeeAmount = $this->epayHelper->convertPriceFromMinorunits($baseFeeAmountInMinorunits, $minorunits);
+
+            $feeAmount = Mage::helper('directory')->currencyConvert($baseFeeAmount, $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode());
+
+            foreach ($order->getAllItems() as $item) {
+                if ($item->getSku() === 'surcharge_fee') {
+                    return;
+                }
             }
+            $getQuery = $request->getQuery();
+            $text = $this->epayHelper->__('Surcharge fee');
+            if(array_key_exists('paymenttype', $getQuery)) {
+                $text = $methodInstance->calcCardtype($getQuery['paymenttype']) . ' - ' . $this->epayHelper->__('Surcharge fee');
+            }
+
+            $feeMessage = "";
+            $storeId = $order->getStoreId();
+
+            if($method->getConfigData('surchargemode', $storeId) === EpayConstant::SURCHARGE_ORDER_LINE) {
+                /** @var Mage_Sales_Model_Order_Item */
+                $feeItem = $this->epayHelper->createFeeItem($baseFeeAmount, $feeAmount, $storeId, $order->getId(), $text);
+                $order->addItem($feeItem);
+                $order->setBaseSubtotal($order->getBaseSubtotal() + $baseFeeAmount);
+                $order->setSubtotal($order->getSubtotal() + $feeAmount);
+            } else {
+                //Add fee to shipment
+                $order->setBaseShippingAmount($order->getBaseShippingAmount() + $baseFeeAmount);
+                $order->setBaseShippingInclTax($order->getBaseShippingInclTax() + $baseFeeAmount);
+                $order->setShippingAmount($order->getShippingAmount() + $feeAmount);
+                $order->setShippingInclTax($order->getShippingInclTax() + $feeAmount);
+            }
+
+            $order->setBaseGrandTotal($order->getBaseGrandTotal() + $baseFeeAmount);
+            $order->setGrandTotal($order->getGrandTotal() + $feeAmount);
+
+            $feeMessage = $text . ' ' .__("added to order");
+            $order->addStatusHistoryComment($feeMessage);
+            $order->save();
         }
-
-        $text = $this->getMethod()->calcCardtype($request->getQuery('paymenttype')) . ' - ' . Mage::helper('epay')->__('Surcharge fee');
-        /** @var Mage_Sales_Model_Order_Item */
-        $feeItem = Mage::helper('epay')->createFeeItem($baseFeeAmount, $feeAmount, $order->getStoreId(), $order->getId(), $text);
-
-        $order->addItem($feeItem);
-
-        $order->setBaseGrandTotal($order->getBaseGrandTotal() + $baseFeeAmount);
-        $order->setBaseSubtotal($order->getBaseSubtotal() + $baseFeeAmount);
-        $order->setGrandTotal($order->getGrandTotal() + $feeAmount);
-        $order->setSubtotal($order->getSubtotal() + $feeAmount);
-
-        $feeMessage = $feeItem->getName() . ' ' .__("added to order");
-        $order->addStatusHistoryComment($feeMessage);
-        $order->save();
+        catch(Exception $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -413,10 +461,15 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
      */
     private function sendOrderEmail($order)
     {
-        $order->sendNewOrderEmail();
-        $order->addStatusHistoryComment(sprintf(Mage::helper('epay')->__("Notified customer about order #%s"), $order->getIncrementId()))
-            ->setIsCustomerNotified(true);
-        $order->save();
+        try{
+            $order->sendNewOrderEmail();
+            $order->addStatusHistoryComment(sprintf($this->epayHelper->__("Notified customer about order #%s"), $order->getIncrementId()))
+                ->setIsCustomerNotified(true);
+            $order->save();
+        }
+        catch(Exception $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -426,31 +479,36 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
      */
     private function createInvoice($order)
     {
-        if ($order->canInvoice()) {
-            $method = $this->getMethod();
-            $storeId = $order->getStoreId();
-            $invoice = $order->prepareInvoice();
+        try{
+            if ($order->canInvoice()) {
+                $method = $this->getMethod();
+                $storeId = $order->getStoreId();
+                $invoice = $order->prepareInvoice();
 
-            if ((int)$method->getConfigData('instantcapture', $storeId) === 0 && (int)$method->getConfigData('remoteinterface', $storeId) === 1) {
-                $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_ONLINE);
-            } else {
-                $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_OFFLINE);
+                if ((int)$method->getConfigData('instantcapture', $storeId) === 0 && (int)$method->getConfigData('remoteinterface', $storeId) === 1) {
+                    $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_ONLINE);
+                } else {
+                    $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_OFFLINE);
+                }
+
+                $invoice->register();
+                $invoice->save();
+
+                $transactionSave = Mage::getModel('core/resource_transaction')
+                  ->addObject($invoice)
+                  ->addObject($invoice->getOrder());
+                $transactionSave->save();
+
+                if (intval($this->getMethod()->getConfigData('instantinvoicemail', $storeId)) == 1) {
+                    $invoice->sendEmail();
+                    $order->addStatusHistoryComment(sprintf($this->epayHelper->__("Notified customer about invoice #%s"), $invoice->getId()))
+                        ->setIsCustomerNotified(true);
+                    $order->save();
+                }
             }
-
-            $invoice->register();
-            $invoice->save();
-
-            $transactionSave = Mage::getModel('core/resource_transaction')
-              ->addObject($invoice)
-              ->addObject($invoice->getOrder());
-            $transactionSave->save();
-
-            if (intval($this->getMethod()->getConfigData('instantinvoicemail', $storeId)) == 1) {
-                $invoice->sendEmail();
-                $order->addStatusHistoryComment(sprintf(Mage::helper('epay')->__("Notified customer about invoice #%s"), $invoice->getId()))
-                    ->setIsCustomerNotified(true);
-                $order->save();
-            }
+        }
+        catch(Exception $e) {
+            throw $e;
         }
     }
 }

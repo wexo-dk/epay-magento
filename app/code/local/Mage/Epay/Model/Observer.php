@@ -30,13 +30,13 @@ class Mage_Epay_Model_Observer
             $row = $read->fetchRow("select * from epay_order_status where orderid = '" . $order->getIncrementId() . "'");
 
             if (!$row || $row['status'] == '0') {
-                $block->addButton('button_sendpaymentrequest', array('label' => Mage::helper('epay')->__("Create payment request"), 'onclick' => 'setLocation(\'' . Mage::helper("adminhtml")->getUrl('adminhtml/paymentrequest/create/', array('id' => $order->getRealOrderId())) . '\')', 'class' => 'scalable go'), 0, 100, 'header', 'header');
+                $block->addButton('button_sendpaymentrequest', array('label' => Mage::helper('epay')->__("Create payment request"), 'onclick' => 'setLocation(\'' . Mage::helper("adminhtml")->getUrl('adminhtml/paymentrequest/create/', array('id' => $order->getRealOrderId())) . '\')', 'class' => 'scalable go'), 0, 0, 'header');
             }
 
             if ($order != null && $order->getRelationParentRealId() != null && (int)$epayStandard->getConfigData('cancelonedit', $order->getStoreId()) === 0) {
                 $payment = $order->getPayment();
                 if (isset($payment) && ($payment->getAdditionalInformation('movedfromparent') === null || $payment->getAdditionalInformation('movedfromparent') === false)) {
-                    $block->addButton('button_movepayment', array('label' => Mage::helper('epay')->__("Move Payment from parent"), 'onclick' => 'setLocation(\'' . Mage::helper("adminhtml")->getUrl('adminhtml/payment/move/', array('orderid' => $order->getRealOrderId(), 'parentorderid' => $order->getRelationParentRealId())) . '\')', 'class' => 'scalable go'), 0, 100, 'header', 'header');
+                    $block->addButton('button_movepayment', array('label' => Mage::helper('epay')->__("Move Payment from parent"), 'onclick' => 'setLocation(\'' . Mage::helper("adminhtml")->getUrl('adminhtml/payment/move/', array('orderid' => $order->getRealOrderId(), 'parentorderid' => $order->getRelationParentRealId())) . '\')', 'class' => 'scalable go'), 0, 0, 'header');
                 }
             }
         }

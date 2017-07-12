@@ -87,12 +87,15 @@ class Mage_Epay_Adminhtml_PaymentrequestController extends Mage_Adminhtml_Contro
 
                 $order = Mage::getModel('sales/order')->loadByIncrementId($order_id);
                 if ($order->hasData()) {
-                    $amountMinorunits = $order->getBaseTotalDue() * 100;
+
+                    $currency = $order->getBaseCurrencyCode();
+                    $minorunits = Mage::helper('epay')->getCurrencyMinorunits($currency);
                     $storeId = $order->getStoreId();
+                    $amountMinorunits = Mage::helper('epay')->convertPriceToMinorunits($order->getBaseTotalDue(), $minorunits, $standard->getConfigData('roundingmode', $storeId));
 
                     $paymentRequest = Mage::getModel('epay/paymentrequest');
                     $paymentRequest->setData('orderid', $data['orderid']);
-                    $paymentRequest->setData('currency', $data['currency']);
+                    $paymentRequest->setData('currency_code', $currency);
                     $paymentRequest->setData('amount', $amountMinorunits);
                     $paymentRequest->setData('receiver', $data['recipient_email']);
                     $paymentRequest->setData('created', date('Y-m-d H:i:s', strtotime(Mage::getSingleton('core/date')->gmtDate())));
@@ -114,7 +117,7 @@ class Mage_Epay_Adminhtml_PaymentrequestController extends Mage_Adminhtml_Contro
                     $params["paymentrequest"]["parameters"] = array();
                     $params["paymentrequest"]["parameters"]["amount"] = $amountMinorunits;
                     $params["paymentrequest"]["parameters"]["callbackurl"] = Mage::getUrl('epay/standard/callback', array('_nosid' => true, '_query' => array('paymentrequest' => $paymentRequest->id), '_store' => $storeId));
-                    $params["paymentrequest"]["parameters"]["currency"] = $data['currency'];
+                    $params["paymentrequest"]["parameters"]["currency"] = $currency;
                     $params["paymentrequest"]["parameters"]["group"] = $standard->getConfigData('group', $storeId);
                     $params["paymentrequest"]["parameters"]["instantcapture"] = ($standard->getConfigData('instantcapture', $order ? $order->getStoreId() : null) == "1" ? "automatic" : "manual");
                     $params["paymentrequest"]["parameters"]["orderid"] = $data['orderid'];
@@ -122,7 +125,7 @@ class Mage_Epay_Adminhtml_PaymentrequestController extends Mage_Adminhtml_Contro
                     $params["paymentrequest"]["parameters"]["language"] = $standard->calcLanguage($localCode);
 
                     if ($standard->getConfigData('enableinvoicedata', $storeId)) {
-                        $params["paymentrequest"]["parameters"]["invoice"] = $standard->getOrderInJson($order);
+                        $params["paymentrequest"]["parameters"]["invoice"] = $standard->createInvoice($order);
                     }
 
                     $soapClient = new SoapClient("https://paymentrequest.api.epay.eu/v1/PaymentRequestSOAP.svc?wsdl");

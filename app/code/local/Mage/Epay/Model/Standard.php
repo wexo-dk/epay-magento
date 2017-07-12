@@ -45,6 +45,18 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
         'YUM','ZAR','ZMK','ZWD'
     );
 
+    /**
+     * @var Mage_Epay_Helper_Data
+     */
+    private $epayHelper;
+
+    // Default constructor
+    //
+    public function __construct()
+    {
+        $this->epayHelper = Mage::helper('epay');
+    }
+
     public function validate()
     {
         parent::validate();
@@ -52,7 +64,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
         $currencyCode = $this->getQuote()->getBaseCurrencyCode();
         if (isset($currencyCode)) {
             if (!in_array($currencyCode, $this->_allowCurrencyCode)) {
-                Mage::throwException(sprintf(Mage::helper('epay')->__("Selected currency code (%s) is not compatabile with ePay"), $currencyCode));
+                Mage::throwException(sprintf($this->epayHelper->__("Selected currency code (%s) is not compatabile with ePay"), $currencyCode));
             }
         }
 
@@ -74,6 +86,9 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
     public function getPaymentRequestAsString($order)
     {
         $storeId = $order->getStoreId();
+        $currencyCode = $order->getBaseCurrencyCode();
+        $minorunits = $this->epayHelper->getCurrencyMinorunits($currencyCode);
+        $amount = $order->getBaseTotalDue();
         $paymentRequest = array(
                            'encoding' => "UTF-8",
                            'cms' => $this->getCmsInfo(),
@@ -81,8 +96,8 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
                            'mobile' => $this->getConfigData('enablemobilepaymentwindow', $storeId),
                            'merchantnumber' => $this->getConfigData('merchantnumber', $storeId),
                            'windowid' => $this->getConfigData('windowid', $storeId),
-                           'amount' => $order->getBaseTotalDue() * 100,
-                           'currency' => $order->getBaseCurrencyCode(),
+                           'amount' => $this->epayHelper->convertPriceToMinorunits($amount, $minorunits, $this->getConfigData('roundingmode', $storeId)),
+                           'currency' => $currencyCode,
                            'orderid' => $order->getIncrementId(),
                            'accepturl' => $this->getAcceptUrl(),
                            'cancelurl' => $this->getCancelUrl(),
@@ -95,7 +110,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
                            );
 
         if (intval($this->getConfigData('enableinvoicedata', $storeId)) == 1) {
-            $paymentRequest['invoice'] = $this->getOrderInJson($order);
+            $paymentRequest['invoice'] = $this->createInvoice($order);
         }
 
 
@@ -113,9 +128,14 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
         return $paymentRequestString;
     }
 
-    public function getOrderInJson($order)
+    /**
+     * Summary of createInvoice
+     * 
+     * @param Mage_Sales_Model_Order $order 
+     * @return string
+     */
+    public function createInvoice($order)
     {
-        if ($this->getConfigData('enableinvoicedata', $order ? $order->getStoreId() : null)) {
             $invoice["customer"]["emailaddress"] = $order->getCustomerEmail();
             $invoice["customer"]["firstname"] = $this->removeSpecialCharacters($order->getBillingAddress()->getFirstname());
             $invoice["customer"]["lastname"] = $this->removeSpecialCharacters($order->getBillingAddress()->getLastname());
@@ -131,8 +151,12 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
             $invoice["shippingaddress"]["city"] = $this->removeSpecialCharacters($order->getShippingAddress()->getCity());
             $invoice["shippingaddress"]["country"] = $this->removeSpecialCharacters($order->getShippingAddress()->getCountryId());
 
-            $invoice["lines"] = array();
 
+            $currencyCode = $order->getBaseCurrencyCode();
+            $minorunits = $this->epayHelper->getCurrencyMinorunits($currencyCode);
+            $storeId = $order->getStoreId();
+            $roundingMode = $this->getConfigData('roundingmode', $storeId);
+            $invoice["lines"] = array();
             $items = $order->getAllVisibleItems();
             foreach ($items as $item) {
                 $description = empty($item->getDescription()) ? $item->getName() : $item->getDescription();
@@ -140,7 +164,7 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
                         "id" =>$item->getSku(),
                         "description" => $this->removeSpecialCharacters($description),
                         "quantity" => intval($item->getQtyOrdered()),
-                        "price" => $item->getBasePrice() * 100,
+                        "price" => $this->epayHelper->convertPriceToMinorunits($item->getBasePrice(), $minorunits, $roundingMode),
                         "vat" => floatval($item->getTaxPercent())
                     );
             }
@@ -153,24 +177,22 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
                        "id" => $shippingText,
                        "description" => isset($shippingDescription) ? $shippingDescription : $shippingText,
                        "quantity" => 1,
-                       "price" => $order->getBaseShippingAmount() * 100,
+                       "price" => $this->epayHelper->convertPriceToMinorunits($order->getBaseShippingAmount(), $minorunits, $roundingMode),
                        "vat" => $shippingTaxPercent
                    );
-            
+
             $baseDiscountAmount = $order->getBaseDiscountAmount();
             if($baseDiscountAmount != 0) {
+                $discountDescription = $order->getDiscountDescription();
                 $invoice["lines"][] = array(
                     "id" => "discount",
-                    "description" => __("Discount"),
+                    "description" => isset($discountDescription) ? __("Discount") . " ". $discountDescription : __("Discount"),
                      "quantity" => 1,
-                     "price" =>round($baseDiscountAmount, 2) * 100,
+                     "price" => $this->epayHelper->convertPriceToMinorunits($baseDiscountAmount, $minorunits, $roundingMode),
                       );
             }
 
             return json_encode($invoice, JSON_UNESCAPED_UNICODE);
-        } else {
-            return "";
-        }
     }
 
     public function getTaxRate($order, $taxClass)
@@ -222,12 +244,13 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
     public function capture(Varien_Object $payment, $amount)
     {
         try {
-            $errorMessageBase = Mage::helper('epay')->__("The payment could not be captured by ePay:").' ';
+            $errorMessageBase = $this->epayHelper->__("The payment could not be captured by ePay:").' ';
 
             $read = Mage::getSingleton('core/resource')->getConnection('core_read');
             $row = $read->fetchRow("select * from epay_order_status where orderid = '" . $payment->getOrder()->getIncrementId() . "'");
             if ($row["status"] == '1') {
-                $storeId = $payment->getOrder()->getStoreId();
+
+
                 $tid = $row["tid"];
 
                 $isInstantCapure = $payment->getAdditionalInformation('instantcapture');
@@ -239,14 +262,20 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
                 }
 
                 if (!$this->canOnlineAction($payment)) {
-                    throw new Exception(Mage::helper('epay')->__("The capture action could not, be processed online. Please enable remote payment processing from the module configuration"));
+                    throw new Exception($this->epayHelper->__("The capture action could not, be processed online. Please enable remote payment processing from the module configuration"));
                 }
 
-                $epayamount = ((string)($amount * 100));
+                /** @var Mage_Sales_Model_Order */
+                $order = $payment->getOrder();
+                $currency = $order->getBaseCurrencyCode();
+                $minorunits = $this->epayHelper->getCurrencyMinorunits($currency);
+                $storeId = $order->getStoreId();
+
+                $amountInMinorunits = $this->epayHelper->convertPriceToMinorunits($amount, $minorunits, $this->getConfigData('roundingmode', $storeId));
                 $param = array(
                     'merchantnumber' => $this->getConfigData('merchantnumber', $storeId),
                     'transactionid' => $tid,
-                    'amount' => $epayamount,
+                    'amount' => (string)$amountInMinorunits,
                     'group' => '',
                     'pbsResponse' => 0,
                     'epayresponse' => 0,
@@ -263,18 +292,18 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
                 } else {
                     if ($result->epayresponse != -1) {
                         if ($result->epayresponse == -1019) {
-                            throw new Exception($errorMessageBase . Mage::helper('epay')->__("Invalid password used for webservice access!"));
+                            throw new Exception($errorMessageBase . $this->epayHelper->__("Invalid password used for webservice access!"));
                         }
 
                         throw new Exception($errorMessageBase . '('.$result->epayresponse . ')' . $this->getEpayErrorText($result->epayresponse, $storeId));
                     } elseif ($result->pbsResponse != -1) {
                         throw new Exception($errorMessageBase . '('.$result->pbsResponse . ')' . $this->getPbsErrorText($result->pbsResponse, $storeId));
                     } else {
-                        throw new Exception($errorMessageBase . Mage::helper('epay')->__("Unknown error!"));
+                        throw new Exception($errorMessageBase . $this->epayHelper->__("Unknown error!"));
                     }
                 }
             } else {
-                throw new Exception($errorMessageBase . Mage::helper('epay')->__("Order not found - please check the"). "epay_order_status table!");
+                throw new Exception($errorMessageBase . $this->epayHelper->__("Order not found - please check the"). "epay_order_status table!");
             }
 
             return $this;
@@ -300,20 +329,27 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
     {
         try {
             if (!$this->canOnlineAction($payment)) {
-                throw new Exception(Mage::helper('epay')->__("The refund action could not, be processed online. Please enable remote payment processing from the module configuration"));
+                throw new Exception($this->epayHelper->__("The refund action could not, be processed online. Please enable remote payment processing from the module configuration"));
             }
 
-            $errorMessageBase = Mage::helper('epay')->__("The payment could not be refunded by ePay:").' ';
+            $errorMessageBase = $this->epayHelper->__("The payment could not be refunded by ePay:").' ';
             $read = Mage::getSingleton('core/resource')->getConnection('core_read');
             $row = $read->fetchRow("select * from epay_order_status where orderid = '" . $payment->getOrder()->getIncrementId() . "'");
             if ($row["status"] == '1') {
-                $storeId = $payment->getOrder()->getStoreId();
-                $epayamount = ((string)($amount * 100));
+
+                /** @var Mage_Sales_Model_Order */
+                $order = $payment->getOrder();
+                $currency = $order->getBaseCurrencyCode();
+                $minorunits = $this->epayHelper->getCurrencyMinorunits($currency);
+                $storeId = $order->getStoreId();
+
+                $amountInMinorunits = $this->epayHelper->convertPriceToMinorunits($amount, $minorunits, $this->getConfigData('roundingmode', $storeId));
+
                 $tid = $row["tid"];
                 $param = array(
                     'merchantnumber' => $this->getConfigData('merchantnumber', $storeId),
                     'transactionid' => $tid,
-                    'amount' => $epayamount,
+                    'amount' => (string)$amountInMinorunits,
                     'group' => '',
                     'pbsresponse' => 0,
                     'epayresponse' => 0,
@@ -329,18 +365,18 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
                 } else {
                     if ($result->epayresponse != -1) {
                         if ($result->epayresponse == -1019) {
-                            throw new Exception($errorMessageBase . Mage::helper('epay')->__("Invalid password used for webservice access!"));
+                            throw new Exception($errorMessageBase . $this->epayHelper->__("Invalid password used for webservice access!"));
                         }
 
                         throw new Exception($errorMessageBase . '('.$result->epayresponse . ')' . $this->getEpayErrorText($result->epayresponse, $storeId));
                     } elseif ($result->pbsResponse != -1) {
                         throw new Exception($errorMessageBase . '('.$result->pbsResponse . ')' . $this->getPbsErrorText($result->pbsResponse, $storeId));
                     } else {
-                        throw new Exception($errorMessageBase . Mage::helper('epay')->__("Unknown error!"));
+                        throw new Exception($errorMessageBase . $this->epayHelper->__("Unknown error!"));
                     }
                 }
             } else {
-                throw new Exception($errorMessageBase . Mage::helper('epay')->__("Order not found - please check the"). "epay_order_status table!");
+                throw new Exception($errorMessageBase . $this->epayHelper->__("Order not found - please check the"). "epay_order_status table!");
             }
 
             return $this;
@@ -354,12 +390,12 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
     {
         try {
             if (Mage::app()->getRequest()->getActionName() == 'save' && (int)$this->getConfigData('cancelonedit', $payment->getOrder()->getStoreId()) === 0) {
-                $this->adminMessageHandler()->addSuccess(Mage::helper('epay')->__("The payment have not been voided for").' ('.$payment->getOrder()->getIncrementId() .')');
+                $this->adminMessageHandler()->addSuccess($this->epayHelper->__("The payment have not been voided for").' ('.$payment->getOrder()->getIncrementId() .')');
                 return $this;
             }
 
             $this->void($payment);
-            $this->adminMessageHandler()->addSuccess(Mage::helper('epay')->__("The payment have been voided for").' ('.$payment->getOrder()->getIncrementId() .')');
+            $this->adminMessageHandler()->addSuccess($this->epayHelper->__("The payment have been voided for").' ('.$payment->getOrder()->getIncrementId() .')');
         } catch (Exception $e) {
             $this->adminMessageHandler()->addError($e->getMessage());
         }
@@ -385,10 +421,10 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
     {
         try {
             if (!$this->canOnlineAction($payment)) {
-                throw new Exception(Mage::helper('epay')->__("The void action could not, be processed online. Please enable remote payment processing from the module configuration"));
+                throw new Exception($this->epayHelper->__("The void action could not, be processed online. Please enable remote payment processing from the module configuration"));
             }
 
-            $errorMessageBase = Mage::helper('epay')->__("The payment could not be deleted by ePay:").' ';
+            $errorMessageBase = $this->epayHelper->__("The payment could not be deleted by ePay:").' ';
             $read = Mage::getSingleton('core/resource')->getConnection('core_read');
             $row = $read->fetchRow("select * from epay_order_status where orderid = '" . $payment->getOrder()->getIncrementId() . "'");
 
@@ -413,16 +449,16 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
                 } else {
                     if ($result->epayresponse != -1) {
                         if ($result->epayresponse == -1019) {
-                            throw new Exception($errorMessageBase . Mage::helper('epay')->__("Invalid password used for webservice access!"));
+                            throw new Exception($errorMessageBase . $this->epayHelper->__("Invalid password used for webservice access!"));
                         }
 
                         throw new Exception($errorMessageBase . '('.$result->epayresponse . ')' . $this->getEpayErrorText($result->epayresponse, $storeId));
                     } else {
-                        throw new Exception($errorMessageBase . Mage::helper('epay')->__("Unknown error!"));
+                        throw new Exception($errorMessageBase . $this->epayHelper->__("Unknown error!"));
                     }
                 }
             } else {
-                throw new Exception($errorMessageBase . Mage::helper('epay')->__("Order not found - please check the"). "epay_order_status table!");
+                throw new Exception($errorMessageBase . $this->epayHelper->__("Order not found - please check the"). "epay_order_status table!");
             }
 
             return $this;

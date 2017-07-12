@@ -13,14 +13,16 @@
  *
  */
 
-$installer = $this;
+use Mage_Epay_Helper_EpayConstant as EpayConstant;
 
-$installer->startSetup();
-
-$installer->run(
-    "
-        DELETE FROM core_config_data WHERE path = 'payment/epay_standard/group';
-    "
-);
-
-$installer->endSetup();
+class Mage_Epay_Model_System_Config_Source_Roundingmode
+{
+    public function toOptionArray()
+    {
+        return array(
+            array('value'=>EpayConstant::ROUND_DEFAULT, 'label'=>"Default"),
+            array('value'=>EpayConstant::ROUND_UP, 'label'=>"Always Up"),
+            array('value'=>EpayConstant::ROUND_DOWN, 'label'=>"Always Down")
+        );
+    }
+}

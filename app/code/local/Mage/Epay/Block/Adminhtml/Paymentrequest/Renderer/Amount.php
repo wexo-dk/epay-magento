@@ -17,9 +17,16 @@ class Mage_Epay_Block_Adminhtml_Paymentrequest_Renderer_Amount extends Mage_Admi
     public function render(Varien_Object $row)
     {
         $data = $row->getData();
-        $formattedPrice = Mage::app()->getLocale()->currency($data["currency_code"])->toCurrency(($row->getData($this->getColumn()->getIndex()) / 100));
-        $value = $formattedPrice;
 
-        return $value;
+        $currencyCode = $data["currency_code"];
+        if(!isset($currencyCode)) {
+            $order = Mage::getModel('sales/order')->loadByIncrementId($data["orderid"]);
+            $currencyCode = $order->getBaseCurrencyCode();
+        }
+        $minorunits = Mage::helper('epay')->getCurrencyMinorunits($currencyCode);
+        $amountInMinorunits = Mage::helper('epay')->convertPriceFromMinorunits($data["amount"], $minorunits);
+        $formattedPrice = Mage::app()->getLocale()->currency($currencyCode)->toCurrency($amountInMinorunits);
+
+        return $formattedPrice;
     }
 }

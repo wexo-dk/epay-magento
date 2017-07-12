@@ -66,7 +66,7 @@ class Mage_Epay_Block_Adminhtml_Paymentrequest_Grid extends Mage_Adminhtml_Block
             'header'    => Mage::helper('epay')->__("Amount"),
             'align'     => 'left',
             'index'     => 'amount',
-            'renderer'    => new Mage_Epay_Block_Adminhtml_Paymentrequest_Renderer_Amount//divide by 100
+            'renderer'    => new Mage_Epay_Block_Adminhtml_Paymentrequest_Renderer_Amount
             )
         );
 

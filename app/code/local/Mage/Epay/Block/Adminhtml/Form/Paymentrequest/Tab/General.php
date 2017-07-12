@@ -41,14 +41,14 @@ class Mage_Epay_Block_Adminhtml_Form_Paymentrequest_Tab_General extends Mage_Adm
             'class'     => 'required-entry',
             'required'  => true,
             'name'      => 'orderid',
-            'value'        =>    $this->getRequest()->getParam('id'),
-            'readonly'    => true
+            'value'     => $this->getRequest()->getParam('id'),
+            'readonly'  => true
             )
         );
 
         $fieldset->addField(
             'amount', 'text', array(
-            'label'     => Mage::helper('epay')->__("Amount"),
+            'label'     => Mage::helper('epay')->__("Payment Amount"),
             'class'     => 'required-entry',
             'required'  => true,
             'name'      => 'amount',
@@ -63,8 +63,8 @@ class Mage_Epay_Block_Adminhtml_Form_Paymentrequest_Tab_General extends Mage_Adm
             'class'     => 'required-entry',
             'required'  => true,
             'name'      => 'currency',
-            'value'        => $formData->getCurrency() != null ? $formData->getCurrency() : $order->getStore()->getBaseCurrencyCode(),
-            'readonly'    => true
+            'value'     => $formData->getCurrency() != null ? $formData->getCurrency() : $order->getStore()->getBaseCurrencyCode(),
+            'readonly'  => true
             )
         );
 

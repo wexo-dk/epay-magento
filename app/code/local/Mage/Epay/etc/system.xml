@@ -19,7 +19,7 @@
     <payment>
       <groups>
         <epay_standard translate="label" module="epay">
-          <label>ePay | Payment Solutions 2.8.3</label>
+          <label>ePay | Payment Solutions 2.8.4</label>
           <comment><![CDATA[Detailed description of these settings are to be found on <a href="http://www.magentoguiden.dk" target="_blank">www.magentoguiden.dk</a>.<br><br>]]></comment>
           <frontend_type>text</frontend_type>
           <sort_order>1</sort_order>
@@ -46,166 +46,25 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </title>
-            <order_status translate="label">
-              <label><![CDATA[<b>Order status (Before the payment is made):</b>]]></label>
-              <comment><![CDATA[Set the status of the order <b>before</b> the payment is made. This is used to distinguish between paid and not paid orders!]]></comment>
-              <frontend_type>select</frontend_type>
-              <source_model>adminhtml/system_config_source_order_status</source_model>
-              <sort_order>3</sort_order>
-              <show_in_default>1</show_in_default>
-            </order_status>
-            <order_status_after_payment translate="label">
-              <label><![CDATA[<b>New order status (When the payment is made):</b>]]></label>
-              <comment><![CDATA[Set the status of the order <b>after</b> the payment is made. This is used to distinguish between paid and not paid orders!]]></comment>
-              <frontend_type>select</frontend_type>
-              <source_model>adminhtml/system_config_source_order_status</source_model>
-              <sort_order>4</sort_order>
-              <show_in_default>1</show_in_default>
-            </order_status_after_payment>
-            <use_auto_cancel translate="label">
-              <label><![CDATA[<b>Use Auto-Cancel:</b>]]></label>
-              <comment><![CDATA[If enabled this will auto-cancel orders where no payment has been made in the time interval: from 1 day ago until 1 hour ago. <b>Notice!</b> For this to work you must setup cronjobs for your Magento installation. Contact your hosting provider for assistance on how to do so.]]></comment>
-              <frontend_type>select</frontend_type>
-              <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>5</sort_order>
-              <show_in_default>1</show_in_default>
-            </use_auto_cancel>
-            <sort_order translate="label">
-              <label><![CDATA[<b>Sort order:</b>]]></label>
-              <comment><![CDATA[In which order this payment method is displayed to the customer.]]></comment>
-              <frontend_type>text</frontend_type>
-              <sort_order>6</sort_order>
-              <show_in_default>1</show_in_default>
-              <show_in_website>1</show_in_website>
-              <show_in_store>1</show_in_store>
-            </sort_order>
-            <allowspecific translate="label">
-              <label><![CDATA[<b>Payment from applicable countries:</b>]]></label>
-              <comment><![CDATA[If you need to define from which countries this payment method is available.]]></comment>
-              <frontend_type>allowspecific</frontend_type>
-              <sort_order>7</sort_order>
-              <source_model>adminhtml/system_config_source_payment_allspecificcountries</source_model>
-              <show_in_default>1</show_in_default>
-              <show_in_website>1</show_in_website>
-              <show_in_store>1</show_in_store>
-            </allowspecific>
-            <specificcountry translate="label">
-              <label><![CDATA[<b>Payment from Specific countries:</b>]]></label>
-              <comment><![CDATA[Define from which countries this payment method is available if the setting above is set to "Specific Countries".]]></comment>
-              <frontend_type>multiselect</frontend_type>
-              <sort_order>8</sort_order>
-              <source_model>adminhtml/system_config_source_country</source_model>
-              <show_in_default>1</show_in_default>
-              <show_in_website>1</show_in_website>
-              <show_in_store>1</show_in_store>
-            </specificcountry>
             <merchantnumber translate="label">
               <label><![CDATA[<b>Merchantnumber:</b>]]></label>
               <comment><![CDATA[The unique merchantnumber received from the payment system. If you don't know your merchantnumber please log into your account <a href="https://ssl.ditonlinebetalingssystem.dk/admin/" target="_blank">here</a>. You can then find your merchantnumber from the menu <b>Settings</b> -> <b>Payment System</b>.]]></comment>
               <frontend_type>text</frontend_type>
-              <sort_order>9</sort_order>
+              <sort_order>3</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </merchantnumber>
-            <windowid translate="label">
-              <label><![CDATA[<b>Window ID:</b>]]></label>
-              <comment><![CDATA[Defines the window to use. You can find the available windows on your account <a href="https://ssl.ditonlinebetalingssystem.dk/admin/" target="_blank">here</a>. Go to the menu <b>Settings</b> -> <b>Payment window</b>.]]></comment>
-              <frontend_type>text</frontend_type>
-              <sort_order>10</sort_order>
-              <show_in_default>1</show_in_default>
-              <show_in_website>1</show_in_website>
-              <show_in_store>1</show_in_store>
-            </windowid>
-            <instantcapture translate="label">
-              <label><![CDATA[<b>Instant capture:</b>]]></label>
-              <comment><![CDATA[This is used if you wish to capture the payments at the same time as it is authorized. This option may only be used if the cardholder receives the goods at once.]]></comment>
-              <frontend_type>select</frontend_type>
-              <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>11</sort_order>
-              <show_in_default>1</show_in_default>
-              <show_in_website>1</show_in_website>
-              <show_in_store>1</show_in_store>
-            </instantcapture>
-            <instantinvoice translate="label">
-              <label><![CDATA[<b>Instant invoice:</b>]]></label>
-              <comment><![CDATA[This is used if you wish to create an invoice once the payment has been authorized. Notice that this will also try to capture the payment]]></comment>
-              <frontend_type>select</frontend_type>
-              <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>12</sort_order>
-              <show_in_default>1</show_in_default>
-              <show_in_website>1</show_in_website>
-              <show_in_store>1</show_in_store>
-            </instantinvoice>
-            <instantinvoicemail translate="label">
-              <label><![CDATA[<b>Instant invoice mail:</b>]]></label>
-              <comment><![CDATA[If instant invoice then send invoice to customer.]]></comment>
-              <frontend_type>select</frontend_type>
-              <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>13</sort_order>
-              <show_in_default>1</show_in_default>
-              <show_in_website>1</show_in_website>
-              <show_in_store>1</show_in_store>
-            </instantinvoicemail>
             <md5key translate="label">
               <label><![CDATA[<b>MD5 Key:</b>]]></label>
               <comment><![CDATA[This is the secret password you must enter both here and within the payment system if you enable MD5 above. Notice that the secret password must be 100% the same. Otherwise the customer will be declined as payments are made. You can log into your account on the payment system <a href="https://ssl.ditonlinebetalingssystem.dk/admin/" target="_blank">here</a>. The MD5 settings are to be found from the menu <b>Settings</b> -> <b>Payment System</b>.]]></comment>
               <frontend_type>text</frontend_type>
-              <sort_order>15</sort_order>
+              <sort_order>4</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </md5key>
-            <authmail translate="label">
-              <label><![CDATA[<b>Auth Mail:</b>]]></label>
-              <comment><![CDATA[The auth mail setting is used if you need to receive an e-mail with payment information from the payment system as the payment is made. If you have multiple receivers you can separate the list by semicolon (;).]]></comment>
-              <frontend_type>text</frontend_type>
-              <sort_order>17</sort_order>
-              <show_in_default>1</show_in_default>
-              <show_in_website>1</show_in_website>
-              <show_in_store>1</show_in_store>
-            </authmail>
-            <windowstate translate="label">
-              <label><![CDATA[<b>Windows state:</b>]]></label>
-              <comment><![CDATA[If the value is <b>Overlay</b> the Payment Window will open as a overlay window on top of the store. If the value is <b>Full Screen</b> the payment window will be displayed in the same window but in full-screen.]]></comment>
-              <frontend_type>select</frontend_type>
-              <source_model>epay/system_config_source_windowstate</source_model>
-              <sort_order>19</sort_order>
-              <show_in_default>1</show_in_default>
-              <show_in_website>1</show_in_website>
-              <show_in_store>1</show_in_store>
-            </windowstate>
-            <ownreceipt translate="label">
-              <label><![CDATA[<b>Use own receipt:</b>]]></label>
-              <comment><![CDATA[If this option is enabled the customer will be redirected instantly to the Magento accept-page on approved authorization.]]></comment>
-              <frontend_type>select</frontend_type>
-              <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>20</sort_order>
-              <show_in_default>1</show_in_default>
-              <show_in_website>1</show_in_website>
-              <show_in_store>1</show_in_store>
-            </ownreceipt>
-            <addfeetoshipping translate="label">
-              <label><![CDATA[<b>Add payment fee to order</b>]]></label>
-              <comment><![CDATA[If the customer pays for the payment surcharge the amount will not be displayed on the order confirmation. The surcharge is displayed on the order, invoice and creditmemo totals]]></comment>
-              <frontend_type>select</frontend_type>
-              <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>21</sort_order>
-              <show_in_default>1</show_in_default>
-              <show_in_website>1</show_in_website>
-              <show_in_store>1</show_in_store>
-            </addfeetoshipping>
-            <sendmailorderconfirmation translate="label">
-              <label><![CDATA[<b>Send Email Order Confirmation:</b>]]></label>
-              <comment><![CDATA[Enabling this setting will result in an order confirmation is e-mailed to the customer as the payment is made.]]></comment>
-              <frontend_type>select</frontend_type>
-              <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>22</sort_order>
-              <show_in_default>1</show_in_default>
-              <show_in_website>1</show_in_website>
-              <show_in_store>1</show_in_store>
-            </sendmailorderconfirmation>
-            <remoteinterface translate="label">
+            <remoteinterface>
               <label><![CDATA[<b>Process payments from within the order administration of Magento:</b>]]></label>
               <comment>
                 <![CDATA[
@@ -221,76 +80,243 @@
               </comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>23</sort_order>
+              <sort_order>5</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </remoteinterface>
-            <remoteinterfacepassword translate="label">
+            <remoteinterfacepassword>
               <label><![CDATA[<b>Remote password:</b>]]></label>
               <comment><![CDATA[If payments is processed from within the order administration and a password is added in the ePay administration is should also be added here.]]></comment>
               <frontend_type>obscure</frontend_type>
               <backend_model>adminhtml/system_config_backend_encrypted</backend_model>
-              <sort_order>24</sort_order>
+              <sort_order>6</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </remoteinterfacepassword>
-            <captureinvoicemail translate="label">
-              <label><![CDATA[<b>Capture invoice mail:</b>]]></label>
-              <comment><![CDATA[When bulk capture then send invoice mail to customer.]]></comment>
-              <frontend_type>select</frontend_type>
-              <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>25</sort_order>
+            <windowid translate="label">
+              <label><![CDATA[<b>Window ID:</b>]]></label>
+              <comment><![CDATA[Defines the window to use. You can find the available windows on your account <a href="https://ssl.ditonlinebetalingssystem.dk/admin/" target="_blank">here</a>. Go to the menu <b>Settings</b> -> <b>Payment window</b>.]]></comment>
+              <frontend_type>text</frontend_type>
+              <sort_order>7</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
-            </captureinvoicemail>
-            <enableinvoicedata translate="label">
+            </windowid>
+            <windowstate>
+              <label><![CDATA[<b>Windows state:</b>]]></label>
+              <comment><![CDATA[If the value is <b>Overlay</b> the Payment Window will open as a overlay window on top of the store. If the value is <b>Full Screen</b> the payment window will be displayed in the same window but in full-screen.]]></comment>
+              <frontend_type>select</frontend_type>
+              <source_model>epay/system_config_source_windowstate</source_model>
+              <sort_order>8</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </windowstate>
+            <enableinvoicedata>
               <label><![CDATA[<b>Enable invoice data:</b>]]></label>
               <comment><![CDATA[Collect invoice data and send to the payment window]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>26</sort_order>
+              <sort_order>9</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </enableinvoicedata>
-            <enablemobilepaymentwindow translate="label">
+            <enablemobilepaymentwindow>
               <label><![CDATA[<b>Enable Mobile Payment Window:</b>]]></label>
               <comment><![CDATA[When using a mobile device use the mobile payment window]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>27</sort_order>
+              <sort_order>10</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </enablemobilepaymentwindow>
+            <enablesurcharge>
+              <label><![CDATA[<b>Enable surcharge</b>]]></label>
+              <comment><![CDATA[Enable to add surcharge to the order]]></comment>
+              <frontend_type>select</frontend_type>
+              <source_model>adminhtml/system_config_source_yesno</source_model>
+              <sort_order>11</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </enablesurcharge>
+            <surchargemode>
+              <label><![CDATA[<b>Surcharge mode</b>]]></label>
+              <comment><![CDATA[Select if the surcharge should be added as an order line or if it should be added to the shipping & handling fee]]></comment>
+              <frontend_type>select</frontend_type>
+              <source_model>epay/system_config_source_surchargemode</source_model>
+              <sort_order>11</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </surchargemode>
+            <instantcapture translate="label">
+              <label><![CDATA[<b>Instant capture:</b>]]></label>
+              <comment><![CDATA[This is used if you wish to capture the payments at the same time as it is authorized. This option may only be used if the cardholder receives the goods at once.]]></comment>
+              <frontend_type>select</frontend_type>
+              <source_model>adminhtml/system_config_source_yesno</source_model>
+              <sort_order>12</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </instantcapture>
+            <instantinvoice translate="label">
+              <label><![CDATA[<b>Instant invoice:</b>]]></label>
+              <comment><![CDATA[This is used if you wish to create an invoice once the payment has been authorized. Notice that this will also try to capture the payment]]></comment>
+              <frontend_type>select</frontend_type>
+              <source_model>adminhtml/system_config_source_yesno</source_model>
+              <sort_order>13</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </instantinvoice>
+            <instantinvoicemail translate="label">
+              <label><![CDATA[<b>Instant invoice mail:</b>]]></label>
+              <comment><![CDATA[If instant invoice then send invoice to customer.]]></comment>
+              <frontend_type>select</frontend_type>
+              <source_model>adminhtml/system_config_source_yesno</source_model>
+              <sort_order>14</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </instantinvoicemail>
+            <authmail>
+              <label><![CDATA[<b>Auth Mail:</b>]]></label>
+              <comment><![CDATA[The auth mail setting is used if you need to receive an e-mail with payment information from the payment system as the payment is made. If you have multiple receivers you can separate the list by semicolon (;).]]></comment>
+              <frontend_type>text</frontend_type>
+              <sort_order>15</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </authmail>
+            <ownreceipt>
+              <label><![CDATA[<b>Use own receipt:</b>]]></label>
+              <comment><![CDATA[If this option is enabled the customer will be redirected instantly to the Magento accept-page on approved authorization.]]></comment>
+              <frontend_type>select</frontend_type>
+              <source_model>adminhtml/system_config_source_yesno</source_model>
+              <sort_order>16</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </ownreceipt>
+            <sendmailorderconfirmation>
+              <label><![CDATA[<b>Send Email Order Confirmation:</b>]]></label>
+              <comment><![CDATA[Enabling this setting will result in an order confirmation is e-mailed to the customer as the payment is made.]]></comment>
+              <frontend_type>select</frontend_type>
+              <source_model>adminhtml/system_config_source_yesno</source_model>
+              <sort_order>17</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </sendmailorderconfirmation>
+            <captureinvoicemail>
+              <label><![CDATA[<b>Capture invoice mail:</b>]]></label>
+              <comment><![CDATA[When bulk capture then send invoice mail to customer.]]></comment>
+              <frontend_type>select</frontend_type>
+              <source_model>adminhtml/system_config_source_yesno</source_model>
+              <sort_order>18</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </captureinvoicemail>
             <cancelonedit>
               <label><![CDATA[<b>Cancel the payment when order is edited</b>]]></label>
               <comment><![CDATA[If enabled this will cancel the payment (default Magento behavior) when an order is edited. <b>Notice!</b> If you turn off this feature, you will have to manualy handle the payment in the epay administration!]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>28</sort_order>
+              <sort_order>19</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </cancelonedit>
+            <roundingmode>
+              <label><![CDATA[<b>Rounding mode</b>]]></label>
+              <comment><![CDATA[Please select how you want the rounding of the amount sendt to the payment system]]></comment>
+              <frontend_type>select</frontend_type>
+              <source_model>epay/system_config_source_roundingmode</source_model>
+              <sort_order>20</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </roundingmode>
+            <order_status translate="label">
+              <label><![CDATA[<b>Order status (Before the payment is made):</b>]]></label>
+              <comment><![CDATA[Set the status of the order <b>before</b> the payment is made. This is used to distinguish between paid and not paid orders!]]></comment>
+              <frontend_type>select</frontend_type>
+              <source_model>adminhtml/system_config_source_order_status</source_model>
+              <sort_order>21</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </order_status>
+            <order_status_after_payment translate="label">
+              <label><![CDATA[<b>New order status (When the payment is made):</b>]]></label>
+              <comment><![CDATA[Set the status of the order <b>after</b> the payment is made. This is used to distinguish between paid and not paid orders!]]></comment>
+              <frontend_type>select</frontend_type>
+              <source_model>adminhtml/system_config_source_order_status</source_model>
+              <sort_order>22</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </order_status_after_payment>
+            <use_auto_cancel translate="label">
+              <label><![CDATA[<b>Use Auto-Cancel:</b>]]></label>
+              <comment><![CDATA[If enabled this will auto-cancel orders where no payment has been made in the time interval: from 1 day ago until 1 hour ago. <b>Notice!</b> For this to work you must setup cronjobs for your Magento installation. Contact your hosting provider for assistance on how to do so.]]></comment>
+              <frontend_type>select</frontend_type>
+              <source_model>adminhtml/system_config_source_yesno</source_model>
+              <sort_order>23</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </use_auto_cancel>
+            <sort_order translate="label">
+              <label><![CDATA[<b>Sort order:</b>]]></label>
+              <comment><![CDATA[In which order this payment method is displayed to the customer.]]></comment>
+              <frontend_type>text</frontend_type>
+              <sort_order>24</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </sort_order>
+            <allowspecific translate="label">
+              <label><![CDATA[<b>Payment from applicable countries:</b>]]></label>
+              <comment><![CDATA[If you need to define from which countries this payment method is available.]]></comment>
+              <frontend_type>allowspecific</frontend_type>
+              <sort_order>25</sort_order>
+              <source_model>adminhtml/system_config_source_payment_allspecificcountries</source_model>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </allowspecific>
+            <specificcountry translate="label">
+              <label><![CDATA[<b>Payment from Specific countries:</b>]]></label>
+              <comment><![CDATA[Define from which countries this payment method is available if the setting above is set to "Specific Countries".]]></comment>
+              <frontend_type>multiselect</frontend_type>
+              <sort_order>26</sort_order>
+              <source_model>adminhtml/system_config_source_country</source_model>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </specificcountry>
             <min_order_total translate="label">
               <label><![CDATA[<b>Minimum Order Total</b>]]></label>
               <frontend_type>text</frontend_type>
-              <sort_order>29</sort_order>
+              <sort_order>27</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
-              <show_in_store>0</show_in_store>
+              <show_in_store>1</show_in_store>
             </min_order_total>
             <max_order_total translate="label">
               <label><![CDATA[<b>Maximum Order Total</b>]]></label>
               <frontend_type>text</frontend_type>
-              <sort_order>30</sort_order>
+              <sort_order>28</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
-              <show_in_store>0</show_in_store>
+              <show_in_store>1</show_in_store>
             </max_order_total>
           </fields>
         </epay_standard>

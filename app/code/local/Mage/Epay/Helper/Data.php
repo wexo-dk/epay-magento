@@ -12,6 +12,9 @@
  * @license   ePay A/S (a Bambora Company)
  *
  */
+
+use Mage_Epay_Helper_EpayConstant as EpayConstant;
+
 class Mage_Epay_Helper_Data extends Mage_Core_Helper_Abstract
 {
     const EPAY_SURCHARGE = 'surcharge_fee';
@@ -64,5 +67,94 @@ class Mage_Epay_Helper_Data extends Mage_Core_Helper_Abstract
         $feeItem->setOrderId($orderId);
 
         return $feeItem;
+    }
+
+    /**
+     * Write exception to log
+     *
+     * @param string $message
+     * @param int $level
+     * @return void
+     */
+    public function log($id, $message, $level = null)
+    {
+        $errorMessage = sprintf("(ID: %s) - %s ", $id, $message);
+        Mage::log($errorMessage, $level, 'bambora.log');
+    }
+
+    /**
+     * Write exception to log
+     *
+     * @param Exception $exception
+     * @return void
+     */
+    public function logException($exception)
+    {
+        Mage::log($exception->__toString(), 2, 'bamboraException.log');
+    }
+
+
+    /**
+     * Convert an amount to minorunits
+     *
+     * @param $amount
+     * @param $minorUnits
+     * @param $roundingMode
+     * @return int
+     */
+    public function convertPriceToMinorunits($amount, $minorunits, $roundingMode)
+    {
+        if ($amount == "" || $amount == null) {
+            return 0;
+        }
+
+        switch ($roundingMode) {
+            case EpayConstant::ROUND_UP:
+                $amount = ceil($amount * pow(10, $minorunits));
+                break;
+            case EpayConstant::ROUND_DOWN:
+                $amount = floor($amount * pow(10, $minorunits));
+                break;
+            default:
+                $amount = round($amount * pow(10, $minorunits));
+                break;
+        }
+
+        return $amount;
+    }
+
+    /**
+     * Convert an amount from minorunits
+     *
+     * @param $amount
+     * @param $minorunits
+     * @return float
+     */
+    public function convertPriceFromMinorunits($amount, $minorunits)
+    {
+        if ($amount == "" || $amount == null) {
+            return 0;
+        }
+
+        return ($amount / pow(10, $minorunits));
+    }
+
+    /**
+     * Return minorunits based on Currency Code
+     *
+     * @param $currencyCode
+     * @return int
+     */
+    public function getCurrencyMinorunits($currencyCode)
+    {
+        $currencyArray = array(
+        'TTD' => 0, 'KMF' => 0, 'ADP' => 0, 'TPE' => 0, 'BIF' => 0,
+        'DJF' => 0, 'MGF' => 0, 'XPF' => 0, 'GNF' => 0, 'BYR' => 0,
+        'PYG' => 0, 'JPY' => 0, 'CLP' => 0, 'XAF' => 0, 'TRL' => 0,
+        'VUV' => 0, 'CLF' => 0, 'KRW' => 0, 'XOF' => 0, 'RWF' => 0,
+        'IQD' => 3, 'TND' => 3, 'BHD' => 3, 'JOD' => 3, 'OMR' => 3,
+        'KWD' => 3, 'LYD' => 3);
+
+        return key_exists($currencyCode, $currencyArray) ? $currencyArray[$currencyCode] : 2;
     }
 }
