@@ -433,7 +433,9 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
                 $feeItem = $this->epayHelper->createFeeItem($baseFeeAmount, $feeAmount, $storeId, $order->getId(), $text);
                 $order->addItem($feeItem);
                 $order->setBaseSubtotal($order->getBaseSubtotal() + $baseFeeAmount);
+                $order->setBaseSubtotalInclTax($order->getBaseSubtotalInclTax() + $baseFeeAmount);
                 $order->setSubtotal($order->getSubtotal() + $feeAmount);
+                $order->setSubtotalInclTax($order->getSubtotalInclTax() + $feeAmount);
             } else {
                 //Add fee to shipment
                 $order->setBaseShippingAmount($order->getBaseShippingAmount() + $baseFeeAmount);
@@ -485,11 +487,9 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
                 $storeId = $order->getStoreId();
                 $invoice = $order->prepareInvoice();
 
-                if ((int)$method->getConfigData('instantcapture', $storeId) === 0 && (int)$method->getConfigData('remoteinterface', $storeId) === 1) {
+                if ((int)$method->getConfigData('instantcapture', $storeId) === 1) {
                     $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_ONLINE);
-                } else {
-                    $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_OFFLINE);
-                }
+                } 
 
                 $invoice->register();
                 $invoice->save();

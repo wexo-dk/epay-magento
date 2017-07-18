@@ -97,9 +97,9 @@ class Mage_Epay_Helper_Data extends Mage_Core_Helper_Abstract
     /**
      * Convert an amount to minorunits
      *
-     * @param $amount
-     * @param $minorUnits
-     * @param $roundingMode
+     * @param mixed $amount
+     * @param mixed $minorUnits
+     * @param mixed $roundingMode
      * @return int
      */
     public function convertPriceToMinorunits($amount, $minorunits, $roundingMode)
