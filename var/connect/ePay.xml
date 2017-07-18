@@ -1,5 +1,5 @@
 <_>
-   <form_key>G842ENfiVTBZNZ5E</form_key>
+   <form_key>cK1DPq7QdELhZVBI</form_key>
    <name>ePay</name>
    <channel>community</channel>
    <version_ids>
@@ -38,17 +38,11 @@ This program is free software for merchants. You are allowed to use the software
 Copyright ePay | Payment solutions - www.epay.dk (c) 2017.</description>
    <license>ePay limited license</license>
    <license_uri/>
-   <version>2.8.4</version>
+   <version>2.8.5</version>
    <stability>stable</stability>
-   <notes>* Fix for payment request button not visible if move payment from payment
-* Fix for Danish translation being wrong on payment request
-* Adds rounding mode in module configuration
-* Adds option for surcharge as order line or added to shipment
-* Rearrange module configuration
-* Refactoring of payment information on admin order page
-* Module name change from ePay to Bambora Online ePay
-* Changed Fraud control message
-* Fix for payment request not saving currency in the database
+   <notes>* Fix for missing subtotal when using surcharge as an order line
+* Changed instant invoice to, only capture if instant capture is on.
+
 **This and previous releases is tested on Magento v 1.9.x . We can not guarantee that it will work on other versions of Magento. Also if you are running Magento on PHP 7.x there might be errors in the Magento calculation of tax and discount**
 
 **Notice:**
@@ -84,7 +78,7 @@ Copyright ePay | Payment solutions - www.epay.dk (c) 2017.</description>
             <max/>
          </max>
          <files>
-            <files>                                                                                                                                                                        </files>
+            <files>                                                                                                                                                                          </files>
          </files>
       </package>
       <extension>
