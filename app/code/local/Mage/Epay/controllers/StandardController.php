@@ -53,7 +53,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
 
             $payment = $order->getPayment();
             $pspReference = null;
-            if (isset($payment)) {
+            if ($payment instanceof Mage_Sales_Model_Order_Payment) {
                 $pspReference = $payment->getAdditionalInformation(Mage_Epay_Model_Standard::PSP_REFERENCE);
             }
 
@@ -489,7 +489,7 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
 
                 if ((int)$method->getConfigData('instantcapture', $storeId) === 1) {
                     $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_ONLINE);
-                } 
+                }
 
                 $invoice->register();
                 $invoice->save();
