@@ -35,7 +35,7 @@ class Mage_Epay_Model_Observer
 
             if ($order != null && $order->getRelationParentRealId() != null && (int)$epayStandard->getConfigData('cancelonedit', $order->getStoreId()) === 0) {
                 $payment = $order->getPayment();
-                if (isset($payment) && ($payment->getAdditionalInformation('movedfromparent') === null || $payment->getAdditionalInformation('movedfromparent') === false)) {
+                if (isset($payment) && ($payment->getAdditionalInformation('currentpaymentincrementid') === null || $payment->getAdditionalInformation('currentpaymentincrementid') != $order->getRealOrderId())) {
                     $block->addButton('button_movepayment', array('label' => Mage::helper('epay')->__("Move Payment from parent"), 'onclick' => 'setLocation(\'' . Mage::helper("adminhtml")->getUrl('adminhtml/payment/move/', array('orderid' => $order->getRealOrderId(), 'parentorderid' => $order->getRelationParentRealId())) . '\')', 'class' => 'scalable go'), 0, 0, 'header');
                 }
             }

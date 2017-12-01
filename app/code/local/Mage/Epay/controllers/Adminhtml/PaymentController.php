@@ -26,26 +26,7 @@ class Mage_Epay_Adminhtml_PaymentController extends Mage_Adminhtml_Controller_Ac
             /** @var Mage_Sales_Model_Order */
             $parentOrder = Mage::getModel('sales/order')->loadByIncrementId($parentOrderId);
 
-            foreach ($parentOrder->getAllItems() as $item) {
-                if ($item->getSku() === 'surcharge_fee') {
-
-                    /** @var Mage_Sales_Model_Order_Item */
-                    $feeItem = Mage::helper('epay')->createFeeItem($item->getBaseRowTotal(), $item->getRowTotal(), $childOrder->getStoreId(), $childOrder->getId(), $item->getName());
-
-                    $childOrder->addItem($feeItem);
-
-                    $childOrder->setBaseGrandTotal($childOrder->getBaseGrandTotal() + $item->getBaseRowTotal());
-                    $childOrder->setBaseSubtotal($childOrder->getBaseSubtotal() + $item->getBaseRowTotal());
-                    $childOrder->setGrandTotal($childOrder->getGrandTotal() + $item->getRowTotal());
-                    $childOrder->setSubtotal($childOrder->getSubtotal() + $item->getRowTotal());
-
-                    $feeMessage = $item->getName() . ' ' .__("added to order");
-                    $childOrder->addStatusHistoryComment($feeMessage);
-
-                    $childOrder->save();
-                    break;
-                }
-            }
+            $childOrder = $this->transfereSurcharge($parentOrder, $childOrder);
 
             if ($childOrder->getBaseGrandTotal() <= $parentOrder->getBaseGrandTotal()) {
                 $write = Mage::getSingleton('core/resource')->getConnection('core_write');
@@ -54,14 +35,12 @@ class Mage_Epay_Adminhtml_PaymentController extends Mage_Adminhtml_Controller_Ac
                 $childPayment = $childOrder->getPayment();
                 $parentPayment = $parentOrder->getPayment();
 
-
                 $transactionId = $parentPayment->getAdditionalInformation(Mage_Epay_Model_Standard::PSP_REFERENCE);
                 $isInstantCapture = $parentPayment->getAdditionalInformation('instantcapture');
 
                 $childPayment->setAdditionalInformation(Mage_Epay_Model_Standard::PSP_REFERENCE, $transactionId);
                 $childPayment->setAdditionalInformation('instantcapture', $isInstantCapture);
-                $childPayment->setAdditionalInformation('movedfromparent', true);
-
+                $childPayment->setAdditionalInformation('currentpaymentincrementid', $childOrder->getRealOrderId());
                 $childPayment->setTransactionId($transactionId)->setIsTransactionClosed(0);
                 $transaction = $childPayment->addTransaction(Mage_Sales_Model_Order_Payment_Transaction::TYPE_AUTH);
                 $transaction->setAdditionalInformation("Transaction ID", $transactionId);
@@ -85,6 +64,33 @@ class Mage_Epay_Adminhtml_PaymentController extends Mage_Adminhtml_Controller_Ac
         }
 
         $this->_redirectReferer();
+    }
+
+    protected function transfereSurcharge($parentOrder, $childOrder)
+    {
+           foreach ($parentOrder->getAllItems() as $item) {
+                if ($item->getSku() === 'surcharge_fee') {
+                    foreach($childOrder->getAllItems() as $childItem) {
+                        if($childItem->getSku() === 'surcharge_fee') {
+                            return $childOrder;
+                        }
+                    }
+                    /** @var Mage_Sales_Model_Order_Item */
+                    $feeItem = Mage::helper('epay')->createFeeItem($item->getBaseRowTotal(), $item->getRowTotal(), $childOrder->getStoreId(), $childOrder->getId(), $item->getName());
+
+                    $childOrder->addItem($feeItem);
+
+                    $childOrder->setBaseGrandTotal($childOrder->getBaseGrandTotal() + $item->getBaseRowTotal());
+                    $childOrder->setBaseSubtotal($childOrder->getBaseSubtotal() + $item->getBaseRowTotal());
+                    $childOrder->setGrandTotal($childOrder->getGrandTotal() + $item->getRowTotal());
+                    $childOrder->setSubtotal($childOrder->getSubtotal() + $item->getRowTotal());
+
+                    $feeMessage = $item->getName() . ' ' .__("added to order");
+                    $childOrder->addStatusHistoryComment($feeMessage);
+                    break;
+                }
+            }
+           return $childOrder;
     }
 
     public function _isAllowed()
