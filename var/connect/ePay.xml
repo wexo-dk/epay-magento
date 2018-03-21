@@ -1,5 +1,5 @@
 <_>
-   <form_key>WfUaViyObXhWHcvk</form_key>
+   <form_key>StBK156YvVVpmEJy</form_key>
    <name>ePay</name>
    <channel>community</channel>
    <version_ids>
@@ -38,7 +38,7 @@ This program is free software for merchants. You are allowed to use the software
 Copyright ePay | Payment solutions - www.epay.dk (c) 2017.</description>
    <license>ePay limited license</license>
    <license_uri/>
-   <version>2.8.7</version>
+   <version>2.8.8</version>
    <stability>stable</stability>
    <notes>* Adds support for moving payments from an edited order to another
 
@@ -60,7 +60,7 @@ Copyright ePay | Payment solutions - www.epay.dk (c) 2017.</description>
          <email>support@bambora.com</email>
       </email>
    </authors>
-   <depends_php_min>5.4.0</depends_php_min>
+   <depends_php_min>5.5.0</depends_php_min>
    <depends_php_max>100.0.0</depends_php_max>
    <depends>
       <package>
@@ -77,7 +77,7 @@ Copyright ePay | Payment solutions - www.epay.dk (c) 2017.</description>
             <max/>
          </max>
          <files>
-            <files>                                                                                                                                                                              </files>
+            <files>                                                                                                                                                                               </files>
          </files>
       </package>
       <extension>
