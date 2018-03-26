@@ -54,7 +54,7 @@ $installer->run(
 
 $installer->run(
     "
-        DELETE FROM core_config_data WHERE path = 'payment/epay_standard/group';
+        DELETE FROM ".$installer->getTable('core/config_data')." WHERE path = 'payment/epay_standard/group';
     "
 );
 
