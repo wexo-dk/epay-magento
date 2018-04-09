@@ -27,7 +27,6 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
         $this->epayHelper = Mage::helper('epay');
     }
 
-
     /**
      * Get singleton with epay strandard order transaction information
      *
@@ -82,7 +81,8 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
                 $this->getLayout()->getBlock('content')->append($block);
                 $this->renderLayout();
             }
-        } catch (Exception $e) {
+        }
+        catch (Exception $e) {
             $session->addError($this->bamboraHelper->_s("An error occured. Please try again!"));
             Mage::logException($e);
             $this->_redirect("epay/standard/cancel");
@@ -98,29 +98,36 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
         $session = Mage::getSingleton('checkout/session');
         $cart = Mage::getSingleton('checkout/cart');
         $larstOrderId = $session->getLastRealOrderId();
+        /** @var Mage_Sales_Model_Order */
         $order = Mage::getModel('sales/order')->loadByIncrementId($larstOrderId);
         if ($order->getId()) {
-            $session->getQuote()->setIsActive(0)->save();
-            $session->clear();
-            try {
-                $order->setActionFlag(Mage_Sales_Model_Order::ACTION_FLAG_CANCEL, true);
-                $order->cancel()->save();
-            } catch (Mage_Core_Exception $e) {
-                Mage::logException($e);
-            }
-
-            $items = $order->getItemsCollection();
-            foreach ($items as $item) {
+            /** @var Mage_Sales_Model_Order_Payment */
+            $orderPayment = $order->getPayment();
+            $pspReference = $orderPayment->getAdditionalInformation(Mage_Epay_Model_Standard::PSP_REFERENCE);
+            if(empty($pspReference)){
+                $session->getQuote()->setIsActive(0)->save();
+                $session->clear();
                 try {
-                    $cart->addOrderItem($item);
-                } catch (Mage_Core_Exception $e) {
-                    $session->addError($this->__($e->getMessage()));
-                    Mage::logException($e);
-                    continue;
+                    $order->setActionFlag(Mage_Sales_Model_Order::ACTION_FLAG_CANCEL, true);
+                    $order->cancel()->save();
                 }
-            }
+                catch (Mage_Core_Exception $e) {
+                    Mage::logException($e);
+                }
 
-            $cart->save();
+                $items = $order->getItemsCollection();
+                foreach ($items as $item) {
+                    try {
+                        $cart->addOrderItem($item);
+                    }
+                    catch (Mage_Core_Exception $e) {
+                        $session->addError($this->__($e->getMessage()));
+                        Mage::logException($e);
+                        continue;
+                    }
+                }
+                $cart->save();
+            }
         }
 
         $this->_redirect('checkout/cart');
@@ -342,7 +349,8 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
 
                 $write->query($query);
             }
-        } catch (Exception $e) {
+        }
+        catch (Exception $e) {
             throw $e;
         }
     }
@@ -389,7 +397,8 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
 
             $payment->save();
             $order->save();
-        } catch(Exception $e) {
+        }
+        catch(Exception $e) {
             throw $e;
         }
     }
