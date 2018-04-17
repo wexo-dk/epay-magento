@@ -1,5 +1,5 @@
 <_>
-   <form_key>ABtSvNEbF2Zs4r8f</form_key>
+   <form_key>mViE9rr7OcxfXvGl</form_key>
    <name>ePay</name>
    <channel>community</channel>
    <version_ids>
@@ -38,9 +38,9 @@ This program is free software for merchants. You are allowed to use the software
 Copyright ePay | Payment solutions - www.epay.dk (c) 2017.</description>
    <license>ePay limited license</license>
    <license_uri/>
-   <version>2.8.9</version>
+   <version>2.9.0</version>
    <stability>stable</stability>
-   <notes>* Adds check for existing psp reference on payment canceling from payment window
+   <notes>* Adds Split-payment option
 
 **This and previous releases is tested on Magento v 1.9.x . We can not guarantee that it will work on other versions of Magento. Also if you are running Magento on PHP 7.x there might be errors in the Magento calculation of tax and discount**
 
@@ -77,7 +77,7 @@ Copyright ePay | Payment solutions - www.epay.dk (c) 2017.</description>
             <max/>
          </max>
          <files>
-            <files>                                                                                                                                                                                </files>
+            <files>                                                                                                                                                                                 </files>
          </files>
       </package>
       <extension>
@@ -159,4 +159,8 @@ Copyright ePay | Payment solutions - www.epay.dk (c) 2017.</description>
          <ignore/>
       </ignore>
    </contents>
+   <page>1</page>
+   <limit>200</limit>
+   <folder/>
+   <package/>
 </_>
