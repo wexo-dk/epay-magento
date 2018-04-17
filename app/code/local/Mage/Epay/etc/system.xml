@@ -19,7 +19,7 @@
     <payment>
       <groups>
         <epay_standard translate="label" module="epay">
-          <label>ePay | Payment Solutions 2.8.9</label>
+          <label>ePay | Payment Solutions 2.9.0</label>
           <comment><![CDATA[Detailed description of these settings are to be found on <a href="http://www.magentoguiden.dk" target="_blank">www.magentoguiden.dk</a>.<br><br>]]></comment>
           <frontend_type>text</frontend_type>
           <sort_order>1</sort_order>
@@ -273,11 +273,21 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </use_auto_cancel>
+            <splitpayment translate="label">
+              <label><![CDATA[<b>Enable Split Payment</b>]]></label>
+              <comment><![CDATA[When the parameter splitpayment is set to 1, you can split a payment up in two or more transactions and capture smaller parts of the amount one at a time. You can keep capturing until the full amount has been captured. <a href="http://epay.bambora.com/en/split-payment" target="_blank">Please read this page before enabling split-payment</a>]]></comment>
+              <frontend_type>select</frontend_type>
+              <source_model>adminhtml/system_config_source_yesno</source_model>
+              <sort_order>24</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </splitpayment>
             <sort_order translate="label">
               <label><![CDATA[<b>Sort order:</b>]]></label>
               <comment><![CDATA[In which order this payment method is displayed to the customer.]]></comment>
               <frontend_type>text</frontend_type>
-              <sort_order>24</sort_order>
+              <sort_order>25</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -286,7 +296,7 @@
               <label><![CDATA[<b>Payment from applicable countries:</b>]]></label>
               <comment><![CDATA[If you need to define from which countries this payment method is available.]]></comment>
               <frontend_type>allowspecific</frontend_type>
-              <sort_order>25</sort_order>
+              <sort_order>26</sort_order>
               <source_model>adminhtml/system_config_source_payment_allspecificcountries</source_model>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
@@ -296,7 +306,7 @@
               <label><![CDATA[<b>Payment from Specific countries:</b>]]></label>
               <comment><![CDATA[Define from which countries this payment method is available if the setting above is set to "Specific Countries".]]></comment>
               <frontend_type>multiselect</frontend_type>
-              <sort_order>26</sort_order>
+              <sort_order>27</sort_order>
               <source_model>adminhtml/system_config_source_country</source_model>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
@@ -305,7 +315,7 @@
             <min_order_total translate="label">
               <label><![CDATA[<b>Minimum Order Total</b>]]></label>
               <frontend_type>text</frontend_type>
-              <sort_order>27</sort_order>
+              <sort_order>28</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -313,7 +323,7 @@
             <max_order_total translate="label">
               <label><![CDATA[<b>Maximum Order Total</b>]]></label>
               <frontend_type>text</frontend_type>
-              <sort_order>28</sort_order>
+              <sort_order>29</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>

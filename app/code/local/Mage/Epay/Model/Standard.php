@@ -106,7 +106,8 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
                            'instantcapture' => $this->getConfigData('instantcapture', $storeId),
                            'language' => $this->calcLanguage(),
                            'ownreceipt' => $this->getConfigData('ownreceipt', $storeId),
-                           'timeout' => "60"
+                           'timeout' => "60",
+						   'splitpayment' => intval($this->getConfigData('splitpayment', $storeId))
                            );
 
         if (intval($this->getConfigData('enableinvoicedata', $storeId)) == 1) {
@@ -130,8 +131,8 @@ class Mage_Epay_Model_Standard extends Mage_Payment_Model_Method_Abstract
 
     /**
      * Summary of createInvoice
-     * 
-     * @param Mage_Sales_Model_Order $order 
+     *
+     * @param Mage_Sales_Model_Order $order
      * @return string
      */
     public function createInvoice($order)
