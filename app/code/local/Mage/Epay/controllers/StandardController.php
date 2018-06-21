@@ -376,7 +376,9 @@ class Mage_Epay_StandardController extends Mage_Core_Controller_Front_Action
 
             $getQuery = $request->getQuery();
             if (array_key_exists('cardno', $getQuery)) {
-                $payment->setCcNumberEnc($getQuery['cardno']);
+                $cardNo = $getQuery['cardno'];
+                $encodedCardNo = Mage::helper('core')->encrypt($cardNo);
+                $payment->setCcNumberEnc($encodedCardNo);
             }
 
             if (array_key_exists('paymenttype', $getQuery)) {
