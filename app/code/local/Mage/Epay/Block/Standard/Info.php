@@ -33,10 +33,13 @@ class Mage_Epay_Block_Standard_Info extends Mage_Payment_Block_Info
         $transactionId = $payment->getAdditionalInformation(Mage_Epay_Model_Standard::PSP_REFERENCE);
         $paymentType = $payment->getCcType();
         $truncatedCardNumberEnc = $payment->getCcNumberEnc();
-        $truncatedCardNumber = Mage::helper('core')->decrypt($truncatedCardNumberEnc);
-
+        $truncatedCardNumber = "";
+        if(!empty($truncatedCardNumberEnc)) {
+            $truncatedCardNumber = Mage::helper('core')->decrypt($truncatedCardNumberEnc);
+        }
         //For orders before module version 2.9.1
-        if(empty($truncatedCardNumber) || strpos($truncatedCardNumber, "XXXXXX")) {
+        if( empty($truncatedCardNumber) || !strpos($truncatedCardNumber, "XXXXXX")) {
+            $orderIncrementId = $order->getIncrementId();
             $read = Mage::getSingleton('core/resource')->getConnection('core_read');
             $row = $read->fetchRow("select * from epay_order_status where orderid = '" . $orderIncrementId . "'");
             if ($row['status'] == '1') {
